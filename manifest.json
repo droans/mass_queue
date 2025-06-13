@@ -1,0 +1,14 @@
+{
+  "domain": "mass_queue_items",
+  "name": "Music Assistant Queue Items",
+  "codeowners": ["@droans"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://www.github.com/droans/mass-queue-items",
+  "homekit": {},
+  "iot_class": "local_push",
+  "requirements": ["music-assistant-client"],
+  "ssdp": [],
+  "zeroconf": ["_mass._tcp.local."],
+  "version": "0.1.0"
+}
