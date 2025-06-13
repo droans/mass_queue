@@ -73,16 +73,12 @@ def _format_queue_item(queue_item: dict) -> dict:
   return response
 
 async def get_queue_items(call: ServiceCall) -> ServiceResponse:
-  LOGGER.fatal(f'Get Queue Items Called with data {call}')
   entity_id = call.data[ATTR_PLAYER_ENTITY]
-  LOGGER.fatal(f'Got entity ID {entity_id}')
   mass = get_music_assistant_client(call.hass, call.data[ATTR_CONFIG_ENTRY_ID])
   registry = er.async_get(call.hass)
   entity = registry.async_get(entity_id)
   queue_id = entity.unique_id
-  LOGGER.fatal(f'Got queue ID {queue_id}')
   queue_items = await mass.player_queues.get_player_queue_items(queue_id)
-  LOGGER.fatal(f'Got queue items')
   # result = {ATTR_QUEUE_ITEMS: [_format_queue_item(item) for item in queue_items]}
   response: ServiceResponse = QUEUE_DETAILS_SCHEMA(
     {
@@ -105,7 +101,6 @@ def get_music_assistant_client(
 
 @callback
 def register_actions(hass: HomeAssistant) -> None:
-  LOGGER.exception(f'Registering service {SERVICE_GET_QUEUE_ITEMS}')
   hass.services.async_register(
     DOMAIN,
     SERVICE_GET_QUEUE_ITEMS,
@@ -113,6 +108,4 @@ def register_actions(hass: HomeAssistant) -> None:
     schema=QUEUE_ITEMS_SERVICE_SCHEMA,
     supports_response=SupportsResponse.ONLY,
   )
-  LOGGER.exception(f'Service {SERVICE_GET_QUEUE_ITEMS} registered')
-  LOGGER.exception(f'Testing action...')
   
