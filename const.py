@@ -1,7 +1,7 @@
 """Constants for the NEW_NAME integration."""
 import logging
 
-DOMAIN = "mass_queue_items"
+DOMAIN = "mass_queue"
 DEFAULT_NAME = "Music Assistant Queue Items"
 SERVICE_GET_QUEUE_ITEMS = "get_queue_items"
 SERVICE_REMOVE_QUEUE_ITEM = "remove_queue_item"

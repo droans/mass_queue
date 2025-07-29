@@ -1,5 +1,5 @@
 {
-  "domain": "mass_queue_items",
+  "domain": "mass_queue",
   "name": "Music Assistant Queue Items",
   "codeowners": ["@droans"],
   "config_flow": true,
