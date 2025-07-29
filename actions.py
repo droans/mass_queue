@@ -18,6 +18,7 @@ from .const import (
   DOMAIN,
   DEFAULT_NAME,
   SERVICE_GET_QUEUE_ITEMS,
+  SERVICE_PLAY_QUEUE_ITEM,
   SERVICE_REMOVE_QUEUE_ITEM,
   SERVICE_MOVE_QUEUE_ITEM_UP,
   SERVICE_MOVE_QUEUE_ITEM_DOWN,
@@ -38,6 +39,7 @@ from .schemas import (
   QUEUE_DETAILS_SCHEMA, 
   QUEUE_ITEM_SCHEMA,
   QUEUE_ITEMS_SERVICE_SCHEMA,
+  PLAY_QUEUE_ITEM_SERVICE_SCHEMA,
   REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
   MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
   MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
@@ -98,6 +100,13 @@ async def get_queue_items(call: ServiceCall) -> ServiceResponse:
       entity_id: [_format_queue_item(item) for item in queue_items]
     }
   return response
+
+async def play_queue_item(call: ServiceCall) -> ServiceResponse:
+  entity_id = call.data[ATTR_PLAYER_ENTITY]
+  queue_item_id = call.data[ATTR_QUEUE_ITEM_ID]
+  mass = get_music_assistant_client(call.hass, entity_id)
+  queue_id = get_queue_id(call.hass, entity_id)
+  await mass.send_command('player_queues/play_index', queue_id=queue_id, index=queue_item_id)
 
 async def remove_queue_item(call: ServiceCall) -> ServiceResponse:
   entity_id = call.data[ATTR_PLAYER_ENTITY]
@@ -172,6 +181,14 @@ def register_actions(hass: HomeAssistant) -> None:
     schema=QUEUE_ITEMS_SERVICE_SCHEMA,
     supports_response=SupportsResponse.ONLY,
   )
+  hass.services.async_register(
+    DOMAIN,
+    SERVICE_PLAY_QUEUE_ITEM,
+    play_queue_item,
+    schema=PLAY_QUEUE_ITEM_SERVICE_SCHEMA,
+    supports_response=SupportsResponse.NONE,
+  )
+  
   hass.services.async_register(
     DOMAIN,
     SERVICE_REMOVE_QUEUE_ITEM,
