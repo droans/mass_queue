@@ -1,7 +1,7 @@
-<!-- [![HACS Default][hacs_shield]][hacs] -->
-[![GitHub Latest Release][releases_shield]][latest_release]
-[![GitHub All Releases][downloads_total_shield]][releases]
-[![Installations][installations_shield]][releases]
+[![GitHub Release](https://img.shields.io/github/release/droans/mass_queue.svg?style=for-the-badge)](https://github.com/droans/mass_card/releases)
+[![License](https://img.shields.io/github/license/droans/mass_queue.svg?style=for-the-badge)](LICENSE)
+[![Project Maintenance](https://img.shields.io/badge/maintainer-droans-blue.svg?style=for-the-badge)](https://github.com/droans)
+[![GitHub Activity](https://img.shields.io/github/last-commit/droans/mass_queue?style=for-the-badge)](https://github.com/droans/mass_card/commits/main)
 
 # Music Assistant Queue Actions
 
