@@ -27,7 +27,8 @@ from .const import (
   ATTR_MEDIA_ARTIST,
   ATTR_MEDIA_CONTENT_ID,
   ATTR_MEDIA_IMAGE,
-  ATTR_PLAYER_ENTITY
+  ATTR_LIMIT,
+  ATTR_OFFSET
 )
 from .schemas import (
   QUEUE_DETAILS_SCHEMA, 
@@ -75,11 +76,12 @@ def _format_queue_item(queue_item: dict) -> dict:
 async def get_queue_items(call: ServiceCall) -> ServiceResponse:
   entity_id = call.data[ATTR_PLAYER_ENTITY]
   mass = get_music_assistant_client(call.hass, call.data[ATTR_CONFIG_ENTRY_ID])
+  limit = call.data.get(ATTR_LIMIT, 500)
+  offset = call.data.get(ATTR_OFFSET, -1)
   registry = er.async_get(call.hass)
   entity = registry.async_get(entity_id)
   queue_id = entity.unique_id
-  queue_items = await mass.player_queues.get_player_queue_items(queue_id)
-  # result = {ATTR_QUEUE_ITEMS: [_format_queue_item(item) for item in queue_items]}
+  queue_items = await mass.player_queues.get_player_queue_items(queue_id = queue_id, limit = limit, offset = offset)
   response: ServiceResponse = QUEUE_DETAILS_SCHEMA(
     {
       ATTR_QUEUE_ITEMS: [_format_queue_item(item) for item in queue_items]
