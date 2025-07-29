@@ -88,7 +88,11 @@ async def get_queue_items(call: ServiceCall) -> ServiceResponse:
   limit = call.data.get(ATTR_LIMIT, 500)
   offset = call.data.get(ATTR_OFFSET, -1)
   if offset == -1:
-    offset = await get_queue_index(call.hass, entity_id) - 5
+    try:
+      offset = await get_queue_index(call.hass, entity_id) - 5
+    except:
+      offset = 0
+    offset = max(offset, 0)
   queue_items = await mass.player_queues.get_player_queue_items(queue_id = queue_id, limit = limit, offset = offset)
   response: ServiceResponse = {
       entity_id: [_format_queue_item(item) for item in queue_items]
