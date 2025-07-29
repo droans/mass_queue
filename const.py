@@ -4,6 +4,7 @@ import logging
 DOMAIN = "mass_queue_items"
 DEFAULT_NAME = "Music Assistant Queue Items"
 SERVICE_GET_QUEUE_ITEMS = "get_queue_items"
+SERVICE_REMOVE_QUEUE_ITEM = "remove_queue_item"
 
 ATTR_CONFIG_ENTRY_ID = "config_entry_id"
 

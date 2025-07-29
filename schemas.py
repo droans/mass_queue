@@ -43,3 +43,10 @@ QUEUE_ITEMS_SERVICE_SCHEMA = vol.Schema(
 
   }
 )
+REMOVE_QUEUE_ITEM_SERVICE_SCHEMA = vol.Schema(
+  {
+    vol.Required(ATTR_PLAYER_ENTITY): str,
+    vol.Required(ATTR_QUEUE_ITEM_ID): str,
+
+  }
+)

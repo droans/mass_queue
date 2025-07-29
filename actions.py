@@ -18,7 +18,7 @@ from .const import (
   DOMAIN,
   DEFAULT_NAME,
   SERVICE_GET_QUEUE_ITEMS,
-  ATTR_CONFIG_ENTRY_ID,
+  SERVICE_REMOVE_QUEUE_ITEM,
   LOGGER,
   ATTR_QUEUE_ITEMS,
   ATTR_QUEUE_ITEM_ID,
@@ -27,13 +27,15 @@ from .const import (
   ATTR_MEDIA_ARTIST,
   ATTR_MEDIA_CONTENT_ID,
   ATTR_MEDIA_IMAGE,
+  ATTR_PLAYER_ENTITY,
   ATTR_LIMIT,
   ATTR_OFFSET
 )
 from .schemas import (
   QUEUE_DETAILS_SCHEMA, 
   QUEUE_ITEM_SCHEMA,
-  QUEUE_ITEMS_SERVICE_SCHEMA
+  QUEUE_ITEMS_SERVICE_SCHEMA,
+  REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
 )
 
 if TYPE_CHECKING:
@@ -90,6 +92,12 @@ async def get_queue_items(call: ServiceCall) -> ServiceResponse:
   LOGGER.fatal(f'Example: {response[ATTR_QUEUE_ITEMS][0]}')
   return response
 
+async def remove_queue_item(call: ServiceCall) -> ServiceResponse:
+  entity_id = call.data[ATTR_PLAYER_ENTITY]
+  queue_item_id = call.data[ATTR_QUEUE_ITEM_ID]
+  mass = get_music_assistant_client(call.hass, entity_id)
+  queue_id = get_queue_id(call.hass, entity_id)
+  await mass.player_queues.queue_command_delete(queue_id, queue_item_id)
 def get_queue_id(hass: HomeAssistant, entity_id: str):
   registry = er.async_get(hass)
   entity = registry.async_get(entity_id)
@@ -122,5 +130,12 @@ def register_actions(hass: HomeAssistant) -> None:
     get_queue_items,
     schema=QUEUE_ITEMS_SERVICE_SCHEMA,
     supports_response=SupportsResponse.ONLY,
+  )
+  hass.services.async_register(
+    DOMAIN,
+    SERVICE_REMOVE_QUEUE_ITEM,
+    remove_queue_item,
+    schema=REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
+    supports_response=SupportsResponse.NONE,
   )
   
