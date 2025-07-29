@@ -94,8 +94,6 @@ async def get_queue_items(call: ServiceCall) -> ServiceResponse:
   response: ServiceResponse = {
       entity_id: [_format_queue_item(item) for item in queue_items]
     }
-  )
-  LOGGER.fatal(f'Example: {response[ATTR_QUEUE_ITEMS][0]}')
   return response
 
 async def remove_queue_item(call: ServiceCall) -> ServiceResponse:
