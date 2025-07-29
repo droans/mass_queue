@@ -87,9 +87,8 @@ async def get_queue_items(call: ServiceCall) -> ServiceResponse:
   queue_id = get_queue_id(call.hass, entity_id)
   limit = call.data.get(ATTR_LIMIT, 500)
   offset = call.data.get(ATTR_OFFSET, -1)
-  registry = er.async_get(call.hass)
-  entity = registry.async_get(entity_id)
-  queue_id = entity.unique_id
+  if offset == -1:
+    offset = await get_queue_index(call.hass, entity_id) - 5
   queue_items = await mass.player_queues.get_player_queue_items(queue_id = queue_id, limit = limit, offset = offset)
   response: ServiceResponse = {
       entity_id: [_format_queue_item(item) for item in queue_items]
@@ -128,6 +127,18 @@ def get_queue_id(hass: HomeAssistant, entity_id: str):
   registry = er.async_get(hass)
   entity = registry.async_get(entity_id)
   return entity.unique_id
+
+async def get_active_queue(hass: HomeAssistant, entity_id: str):
+  queue_id = get_queue_id(hass, entity_id)
+  mass = get_music_assistant_client(hass, entity_id)
+  queue = await mass.player_queues.get_active_queue(queue_id)
+  return queue
+
+async def get_queue_index(hass: HomeAssistant, entity_id: str):
+  active_queue = await get_active_queue(hass, entity_id)
+  idx = active_queue.current_index
+  return idx
+
 @callback
 def get_music_assistant_client(
   hass: HomeAssistant,
