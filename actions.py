@@ -83,9 +83,8 @@ async def get_queue_items(call: ServiceCall) -> ServiceResponse:
   entity = registry.async_get(entity_id)
   queue_id = entity.unique_id
   queue_items = await mass.player_queues.get_player_queue_items(queue_id = queue_id, limit = limit, offset = offset)
-  response: ServiceResponse = QUEUE_DETAILS_SCHEMA(
-    {
-      ATTR_QUEUE_ITEMS: [_format_queue_item(item) for item in queue_items]
+  response: ServiceResponse = {
+      entity_id: [_format_queue_item(item) for item in queue_items]
     }
   )
   LOGGER.fatal(f'Example: {response[ATTR_QUEUE_ITEMS][0]}')

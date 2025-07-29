@@ -37,10 +37,9 @@ QUEUE_DETAILS_SCHEMA = vol.Schema(
 
 QUEUE_ITEMS_SERVICE_SCHEMA = vol.Schema(
   {
-    vol.Required(ATTR_CONFIG_ENTRY_ID): str,
     vol.Required(ATTR_PLAYER_ENTITY): str,
-    vol.Required(ATTR_OFFSET): int,
-    vol.Required(ATTR_LIMIT): int,
+    vol.Optional(ATTR_OFFSET): int,
+    vol.Optional(ATTR_LIMIT): int,
 
   }
 )
