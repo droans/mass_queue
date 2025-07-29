@@ -75,7 +75,8 @@ def _format_queue_item(queue_item: dict) -> dict:
 
 async def get_queue_items(call: ServiceCall) -> ServiceResponse:
   entity_id = call.data[ATTR_PLAYER_ENTITY]
-  mass = get_music_assistant_client(call.hass, call.data[ATTR_CONFIG_ENTRY_ID])
+  mass = get_music_assistant_client(call.hass, entity_id)
+  queue_id = get_queue_id(call.hass, entity_id)
   limit = call.data.get(ATTR_LIMIT, 500)
   offset = call.data.get(ATTR_OFFSET, -1)
   registry = er.async_get(call.hass)
@@ -90,8 +91,21 @@ async def get_queue_items(call: ServiceCall) -> ServiceResponse:
   LOGGER.fatal(f'Example: {response[ATTR_QUEUE_ITEMS][0]}')
   return response
 
+def get_queue_id(hass: HomeAssistant, entity_id: str):
+  registry = er.async_get(hass)
+  entity = registry.async_get(entity_id)
+  return entity.unique_id
 @callback
 def get_music_assistant_client(
+  hass: HomeAssistant,
+  entity_id: str) -> MusicAssistantClient:
+  registry = er.async_get(hass)
+  entity = registry.async_get(entity_id)
+  config_entry_id = entity.config_entry_id
+  return _get_music_assistant_client(hass, config_entry_id)
+
+@callback
+def _get_music_assistant_client(
   hass: HomeAssistant,
   config_entry_id: str) -> MusicAssistantClient:
   entry: MassQueueEntryData | None
