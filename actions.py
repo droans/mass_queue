@@ -19,6 +19,9 @@ from .const import (
   DEFAULT_NAME,
   SERVICE_GET_QUEUE_ITEMS,
   SERVICE_REMOVE_QUEUE_ITEM,
+  SERVICE_MOVE_QUEUE_ITEM_UP,
+  SERVICE_MOVE_QUEUE_ITEM_DOWN,
+  SERVICE_MOVE_QUEUE_ITEM_NEXT,
   LOGGER,
   ATTR_QUEUE_ITEMS,
   ATTR_QUEUE_ITEM_ID,
@@ -36,6 +39,9 @@ from .schemas import (
   QUEUE_ITEM_SCHEMA,
   QUEUE_ITEMS_SERVICE_SCHEMA,
   REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
+  MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
+  MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
+  MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
 )
 
 if TYPE_CHECKING:
@@ -98,6 +104,28 @@ async def remove_queue_item(call: ServiceCall) -> ServiceResponse:
   mass = get_music_assistant_client(call.hass, entity_id)
   queue_id = get_queue_id(call.hass, entity_id)
   await mass.player_queues.queue_command_delete(queue_id, queue_item_id)
+
+async def move_queue_item_up(call: ServiceCall) -> ServiceResponse:
+  entity_id = call.data[ATTR_PLAYER_ENTITY]
+  queue_item_id = call.data[ATTR_QUEUE_ITEM_ID]
+  mass = get_music_assistant_client(call.hass, entity_id)
+  queue_id = get_queue_id(call.hass, entity_id)
+  await mass.player_queues.queue_command_move_up(queue_id, queue_item_id)
+  
+async def move_queue_item_down(call: ServiceCall) -> ServiceResponse:
+  entity_id = call.data[ATTR_PLAYER_ENTITY]
+  queue_item_id = call.data[ATTR_QUEUE_ITEM_ID]
+  mass = get_music_assistant_client(call.hass, entity_id)
+  queue_id = get_queue_id(call.hass, entity_id)
+  await mass.player_queues.queue_command_move_down(queue_id, queue_item_id)
+  
+async def move_queue_item_next(call: ServiceCall) -> ServiceResponse:
+  entity_id = call.data[ATTR_PLAYER_ENTITY]
+  queue_item_id = call.data[ATTR_QUEUE_ITEM_ID]
+  mass = get_music_assistant_client(call.hass, entity_id)
+  queue_id = get_queue_id(call.hass, entity_id)
+  await mass.player_queues.queue_command_move_next(queue_id, queue_item_id)
+
 def get_queue_id(hass: HomeAssistant, entity_id: str):
   registry = er.async_get(hass)
   entity = registry.async_get(entity_id)
@@ -136,6 +164,27 @@ def register_actions(hass: HomeAssistant) -> None:
     SERVICE_REMOVE_QUEUE_ITEM,
     remove_queue_item,
     schema=REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
+    supports_response=SupportsResponse.NONE,
+  )
+  hass.services.async_register(
+    DOMAIN,
+    SERVICE_MOVE_QUEUE_ITEM_UP,
+    move_queue_item_up,
+    schema=MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
+    supports_response=SupportsResponse.NONE,
+  )
+  hass.services.async_register(
+    DOMAIN,
+    SERVICE_MOVE_QUEUE_ITEM_DOWN,
+    move_queue_item_down,
+    schema=MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
+    supports_response=SupportsResponse.NONE,
+  )
+  hass.services.async_register(
+    DOMAIN,
+    SERVICE_MOVE_QUEUE_ITEM_NEXT,
+    move_queue_item_next,
+    schema=MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
     supports_response=SupportsResponse.NONE,
   )
   

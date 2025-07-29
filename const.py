@@ -5,6 +5,9 @@ DOMAIN = "mass_queue_items"
 DEFAULT_NAME = "Music Assistant Queue Items"
 SERVICE_GET_QUEUE_ITEMS = "get_queue_items"
 SERVICE_REMOVE_QUEUE_ITEM = "remove_queue_item"
+SERVICE_MOVE_QUEUE_ITEM_UP = "move_queue_item_up"
+SERVICE_MOVE_QUEUE_ITEM_DOWN = "move_queue_item_down"
+SERVICE_MOVE_QUEUE_ITEM_NEXT = "move_queue_item_next"
 
 ATTR_CONFIG_ENTRY_ID = "config_entry_id"
 

@@ -40,3 +40,45 @@ remove_queue_item:
           integration: music_assistant
           supported_features:
             - media_player.MediaPlayerEntityFeature.PLAY_MEDIA
+move_queue_item_up:
+  fields:
+    queue_item_id:
+      required: true
+      selector:
+        text:
+    entity:
+      required: true
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
+          supported_features:
+            - media_player.MediaPlayerEntityFeature.PLAY_MEDIA
+move_queue_item_down:
+  fields:
+    queue_item_id:
+      required: true
+      selector:
+        text:
+    entity:
+      required: true
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
+          supported_features:
+            - media_player.MediaPlayerEntityFeature.PLAY_MEDIA
+move_queue_item_next:
+  fields:
+    queue_item_id:
+      required: true
+      selector:
+        text:
+    entity:
+      required: true
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
+          supported_features:
+            - media_player.MediaPlayerEntityFeature.PLAY_MEDIA
