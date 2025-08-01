@@ -204,8 +204,6 @@ def get_music_assistant_client_boostrap(hass: HomeAssistant) -> MusicAssistantCl
   mass_domain = 'music_assistant'
   entries = hass.config_entries.async_entries()
   config_entry = [entry for entry in entries if entry.domain == mass_domain][0]
-  LOGGER.error(f'Config Entry: {config_entry} ({dir(config_entry)})')
-  LOGGER.error(f'Runtime Data: {config_entry.runtime_data} ({dir(config_entry.runtime_data)})')
   return config_entry.runtime_data.mass
 
 @callback
