@@ -30,49 +30,8 @@ class MassQueueController():
   def __init__(self, hass: HomeAssistant, mass_client):
     self._client = mass_client
     self._hass = hass
-    self._queues = {}
-    self._players = {}
-
-  @property
-  def players(self):
-    return self._players
-  
-  @players.setter
-  def players(self, players):
-    LOGGER.debug(f'Got request to update players')
-    if players == self._players:
-      LOGGER.debug(f'No change to players')
-      return
-    LOGGER.debug(f'Got updated players: {players}')
-    self.send_player_change_event(self._players, players)
-    self._players = players
-    
-  def send_player_change_event(self, old_players, new_players):
-    data = {}
-    data['event_type'] = 'players_changed'
-    data['data'] = get_changes_between_dicts(old_players, new_players)
-    self.send_ha_event(data)
-
-  @property
-  def queues(self):
-    return self._queues
-
-  @queues.setter
-  def queues(self, queues):
-    LOGGER.debug(f'Got request to update queues')
-    if queues == self._queues:
-      LOGGER.debug(f'No change to queues')
-      return
-    LOGGER.debug(f'Got updated queues: {queues.keys()}')
-    self.send_queue_change_event(self._queues, queues)
-    self._queues = queues
-    
-  def send_queue_change_event(self, old_queue, new_queue):
-    data = {}
-    data['event_type'] = 'queues_changed'
-    data['data'] = {'queues_changed': get_changed_queues(old_queue, new_queue)}
-    LOGGER.debug(f'Got changed queues: {data['data']['queues_changed']}')
-    self.send_ha_event(data)
+    self.players = Players(hass)
+    self.queues = Queues(hass)
 
   # Events 
   def subscribe_events(self):
@@ -147,15 +106,16 @@ class MassQueueController():
     return result
 
   def update_players(self):
-    self.players = self.get_all_players()
+    players = self.get_all_players()
+    self.players.batch_add(players)
 
   # Individual players
   def update_player_queue(self, player_id: str):
     player = self._client.players.get(player_id)
     if player is None:
-      self.remove_player(player_id)
+      self.players.remove(player_id)
     queue_id = get_queue_id_from_player_data(player)
-    self.players[player_id] = queue_id
+    self.players.update(player_id, queue_id)
     return
   
   async def get_player_queue(self, player_id: str):
@@ -164,11 +124,6 @@ class MassQueueController():
     result = await self.get_queue(queue_id)
     return result
 
-  def remove_player(self, player_id: str):
-    if player_id in self.players:
-      self.players.pop(player_id)
-    return
-
   # All queues
   async def get_all_queues(self):
     queue_ids = [q.queue_id for q in self._client.player_queues.player_queues]
@@ -176,7 +131,8 @@ class MassQueueController():
     return result
   
   async def update_queues(self):
-    self.queues = await self.get_all_queues()
+    queues = await self.get_all_queues()
+    self.queues.batch_add(queues)
   
   # Individual queues
   async def player_queue(
@@ -185,8 +141,7 @@ class MassQueueController():
       limit: int = DEFAULT_QUEUE_ITEMS_LIMIT, 
       offset: int = DEFAULT_QUEUE_ITEMS_OFFSET
     ):
-    queues = self.queues
-    queue = queues.get(queue_id)
+    queue = self.queues.get(queue_id)
     if offset == -1:
       try:
         offset = await self.get_queue_index(queue_id) - 5
@@ -198,12 +153,7 @@ class MassQueueController():
     
   async def update_queue_items(self, queue_id: str):
     queue = await self.get_queue(queue_id)
-    self.queues[queue_id] = queue
-    return
-
-  def remove_queue(self, queue_id: str):
-    if queue_id in self.queues:
-      self.queues.pop(queue_id)
+    self.queues.update(queue_id, queue)
     return
 
   async def get_queue(
@@ -229,3 +179,113 @@ class MassQueueController():
     active_queue = await self.get_active_queue(queue_id)
     idx = active_queue.current_index
     return idx
+
+class Players():
+  def __init__(self, hass: HomeAssistant, players: dict = {}):
+    self.players = players
+    self._hass = hass
+  def get(self, player_id):
+    return self.players.get(player_id)
+  def add(self, player_id: str, queue_id: str | None):
+    self.players[player_id] = queue_id
+    event_data = {
+      'type': 'player_added',
+      'data': {
+        'player_id': player_id,
+        'queue_id': queue_id
+      }
+    }
+    self.send_ha_event(event_data)
+  def batch_add(self, players: dict):
+    for k, v in players.items():
+      self.players[k] = v
+    event_data = {
+      'type': 'player_added',
+      'data': {
+        'players': players
+      }
+    }
+    self.send_ha_event(event_data)
+    
+  def remove(self, player_id: str):
+    if player_id in self.players:
+      self.players.pop(player_id)
+    event_data = {
+      'type': 'player_removed',
+      'data': {
+        'player_id': player_id,
+      }
+    }
+    self.send_ha_event(event_data)
+  def update(self, player_id: str, queue_id: str):
+    if player_id not in self.players:
+      return
+    current_queue_id = self.players[player_id]
+    if current_queue_id == queue_id:
+      pass
+    self.players[player_id] = queue_id
+    event_data = {
+      'type': 'player_updated',
+      'data': {
+        'player_id': player_id,
+        'queue_id': queue_id
+      }
+    }
+    self.send_ha_event(event_data)
+  def send_ha_event(self, event_data):
+    LOGGER.debug(f'Sending event type {EVENT_DOMAIN}, data {event_data}')
+    self._hass.bus.async_fire(EVENT_DOMAIN, event_data)
+    return
+
+class Queues():
+  def __init__(self, hass: HomeAssistant, queues: dict = {}):
+    self.queues = queues
+    self._hass = hass
+    return
+  def get(self, queue_id):
+    return self.queues[queue_id]
+  def add(self, queue_id: str, queue_items: int):
+    self.queues[queue_id] = queue_items
+    event_data = {
+      'type': 'queue_added',
+      'data': {
+        'queue_id': queue_id
+      }
+    }
+    self.send_ha_event(event_data)
+  def batch_add(self, queues):
+    for k, v in queues.items():
+      self.queues[k] = v
+    event_data = {
+      'type': 'queues_added',
+      'data': {
+        'queue_id': list(queues.keys())
+      }
+    }
+    self.send_ha_event(event_data)
+    
+  def update(self, queue_id, queue_items):
+    self.queues[queue_id] = queue_items
+    event_data = {
+      'type': 'queue_updated',
+      'data': {
+        'queue_id': queue_id
+      }
+    }
+    self.send_ha_event(event_data)
+  def remove(self, queue_id):
+    if queue_id not in self.queues:
+      return
+    self.queues.pop(queue_id)
+    event_data = {
+      'type': 'queue_removed',
+      'data': {
+        'queue_id': queue_id
+      }
+    }
+    self.send_ha_event(event_data)
+
+  def send_ha_event(self, event_data):
+    LOGGER.debug(f'Sending event type {EVENT_DOMAIN}, data {event_data}')
+    self._hass.bus.async_fire(EVENT_DOMAIN, event_data)
+    return
