@@ -56,7 +56,7 @@ class MassQueueController():
     event_type = event.event
     event_data = event.data
     event_player = event_data['player_id']
-    self.update_player_queue(player_id)
+    self.update_player_queue(event_player)
 
   # All players
   def get_all_players(self):
@@ -76,7 +76,7 @@ class MassQueueController():
     player = self._client.players.get(player_id)
     if player is None:
       self.remove_player(player_id)
-    queue_id = self._get_queue_id_from_player_data(player_data)
+    queue_id = self._get_queue_id_from_player_data(player)
     self.players[player_id] = queue_id
     return
   
