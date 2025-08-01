@@ -21,13 +21,13 @@ from homeassistant.helpers.issue_registry import (
     async_delete_issue,
 )
 
-from .actions import get_music_assistant_client, register_actions
+from .actions import get_music_assistant_client, setup_controller_and_actions
 from .const import DOMAIN, LOGGER
 
 if TYPE_CHECKING:
     from music_assistant_models.event import MassEvent
-
     from homeassistant.helpers.typing import ConfigType
+    from .actions import MassQueueActions
 
 # PLATFORMS = [Platform.MEDIA_PLAYER]
 PLATFORMS = []
@@ -50,7 +50,7 @@ class MusicAssistantEntryData:
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Music Assistant component."""
-    register_actions(hass)
+    setup_controller_and_actions(hass)
     return True
 
 
