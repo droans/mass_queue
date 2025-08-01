@@ -46,6 +46,7 @@ class MassQueueController():
     return
 
   def on_queue_update_event(self, event):
+    LOGGER.debug(f'Got updated queue.')
     event_type = event.event
     event_object_id = event.object_id
     event_data = event.data
@@ -63,6 +64,7 @@ class MassQueueController():
     self.send_ha_event(ha_event_data)
 
   def on_queue_items_update_event(self, event):
+    LOGGER.debug(f'Got updated queue items.')
     event_type = event.event
     event_object_id = event.object_id
     event_data = event.data
@@ -106,11 +108,13 @@ class MassQueueController():
     return result
 
   def update_players(self):
+    LOGGER.debug(f'Updating all players.')
     players = self.get_all_players()
     self.players.batch_add(players)
 
   # Individual players
   def update_player_queue(self, player_id: str):
+    LOGGER.debug(f'Updating player {player_id}.')
     player = self._client.players.get(player_id)
     if player is None:
       self.players.remove(player_id)
@@ -131,6 +135,7 @@ class MassQueueController():
     return result
   
   async def update_queues(self):
+    LOGGER.debug(f'Updating all queues.')
     queues = await self.get_all_queues()
     self.queues.batch_add(queues)
   
@@ -152,6 +157,7 @@ class MassQueueController():
     return result
     
   async def update_queue_items(self, queue_id: str):
+    LOGGER.debug(f'Updating queue {queue_id}.')
     queue = await self.get_queue(queue_id)
     self.queues.update(queue_id, queue)
     return
