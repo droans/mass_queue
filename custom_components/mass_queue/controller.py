@@ -24,8 +24,33 @@ class MassQueueController():
   def __init__(self, hass: HomeAssistant, mass_client):
     self._client = mass_client
     self._hass = hass
-    self.queues = {}
-    self.players = {}
+    self._queues = {}
+    self._players = {}
+
+  @property
+  def players(self):
+    return self._players
+  
+  @players.setter
+  def players(self, players):
+    LOGGER.debug(f'Got request to update players')
+    if players == self._players:
+      LOGGER.debug(f'No change to players')
+      return
+    LOGGER.debug(f'Got updated players: {players}')
+    self._players = players
+  @property
+  def queues(self):
+    return self._queues
+
+  @queues.setter
+  def queues(self, queues):
+    LOGGER.debug(f'Got request to update queues')
+    if queues == self._queues:
+      LOGGER.debug(f'No change to queues')
+      return
+    LOGGER.debug(f'Got updated queues: {queues.keys()}')
+    self._queues = queues
 
   # Events 
   def subscribe_events(self):
