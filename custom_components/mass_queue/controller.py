@@ -183,8 +183,22 @@ class MassQueueController():
     self.queues = self.get_all_queues()
   
   # Individual queues
-  def player_queue(self, queue_id: str):
-    return self.queues.get(queue_id)
+  async def player_queue(
+      self, 
+      queue_id: str, 
+      limit: int = DEFAULT_QUEUE_ITEMS_LIMIT, 
+      offset: int = DEFAULT_QUEUE_ITEMS_OFFSET
+    ):
+    queues = self.queues
+    queue = queues.get(queue_id)
+    if offset == -1:
+      try:
+        offset = await self.get_queue_index(queue_id) - 5
+      except:
+        offset = 0
+    offset = max(offset, 0)
+    result = queue[offset: offset + limit]
+    return result
     
   async def update_queue_items(self, queue_id: str):
     queue = await self.get_queue(queue_id)

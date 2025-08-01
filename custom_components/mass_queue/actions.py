@@ -156,7 +156,7 @@ class MassQueueActions():
       except:
         offset = 0
       offset = max(offset, 0)
-    queue_items = await self._client.player_queues.get_player_queue_items(queue_id = queue_id, limit = limit, offset = offset)
+    queue_items = await self._controller.player_queue(queue_id, limit, offset)
     response: ServiceResponse = {
         entity_id: [self._format_queue_item(item) for item in queue_items]
       }
