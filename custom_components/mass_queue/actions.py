@@ -57,6 +57,7 @@ class MassQueueActions():
 
   def setup_controller(self):
     self._controller.update_players()
+    self._controller.subscribe_events()
     self._hass.loop.create_task(self._controller.update_queues())
 
   @callback

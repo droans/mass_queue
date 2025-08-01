@@ -8,7 +8,8 @@ from music_assistant_models.enums import EventType
 from .const import (
   DEFAULT_QUEUE_ITEMS_LIMIT,
   DEFAULT_QUEUE_ITEMS_OFFSET,
-  LOGGER
+  LOGGER,
+  EVENT_DOMAIN,
 )
 from .const import (
   ATTR_QUEUE_ITEM_ID,
@@ -34,29 +35,86 @@ class MassQueueController():
     self._client.subscribe(self.on_player_event, EventType.PLAYER_UPDATED)
     return 
 
+  def send_ha_event(self, event_data):
+    LOGGER.debug(f'Sending event type {EVENT_DOMAIN}, data {event_data}')
+    self._hass.bus.async_fire(EVENT_DOMAIN, event_data)
+    return
+
+  def _format_event_data_queue_item(self, queue_item):
+    if queue_item is None:
+      return None
+    if queue_item.get('queue_id') is None:
+      return queue_item
+    item_cp = queue_item.copy()
+    if 'streamdetails' in item_cp:
+      item_cp.pop('streamdetails')
+    if 'media_item' in item_cp:
+      item_cp.pop('media_item')
+    return item_cp
+
+  def _format_queue_updated_event_data(self, event):
+    event_data = event.copy()
+    event_current_item = self._format_event_data_queue_item(event_data.get('current_item'))
+    event_next_item = self._format_event_data_queue_item(event_data.get('next_item'))
+    event_data['current_item'] = self._format_event_data_queue_item(event_data.get('current_item'))
+    event_data['next_item'] = self._format_event_data_queue_item(event_data.get('next_item'))
+    return event_data
+    
   def on_queue_update_event(self, event):
     # TODO:
     # * Send HA Event when queue updated
     event_type = event.event
+    event_object_id = event.object_id
     event_data = event.data
-    event_queue_id = event_data['queue_id']
+    event_queue_id = event_data.get('queue_id')
     self.update_queue_items(event_queue_id)
+    if event_data is None:
+      LOGGER.error(f'Event data is empty! Event: {event}')
+      return
+    data = self._format_queue_updated_event_data(event_data)
+    ha_event_data = {
+      'type': event_type,
+      'object_id': event_object_id,
+      'data': data
+    }
+    self.send_ha_event(ha_event_data)
 
   def on_queue_items_update_event(self, event):
     # TODO:
     # * Send HA Event when queue items updated
     event_type = event.event
+    event_object_id = event.object_id
     event_data = event.data
-    event_queue_id = event_data['queue_id']
+    event_queue_id = event_data.get('queue_id')
     self.update_queue_items(event_queue_id)
+    if event_data is None:
+      LOGGER.error(f'Event data is empty! Event: {event}')
+      return
+    data = self._format_queue_updated_event_data(event_data)
+    ha_event_data = {
+      'type': event_type,
+      'object_id': event_object_id,
+      'data': data
+    }
+    self.send_ha_event(ha_event_data)
 
   def on_player_event(self, event):
     # TODO:
     # * Send HA Event when player updated
     event_type = event.event
+    event_object_id = event.object_id
     event_data = event.data
     event_player = event_data['player_id']
     self.update_player_queue(event_player)
+    if event_data is None:
+      LOGGER.error(f'Event data is empty! Event: {event}')
+      return
+    ha_event_data = {
+      'type': event_type,
+      'object_id': event_object_id,
+      'data': event.data
+    }
+    self.send_ha_event(ha_event_data)
 
   # All players
   def get_all_players(self):

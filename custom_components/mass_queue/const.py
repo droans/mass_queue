@@ -26,3 +26,5 @@ LOGGER = logging.getLogger(__package__)
 
 DEFAULT_QUEUE_ITEMS_LIMIT = 500
 DEFAULT_QUEUE_ITEMS_OFFSET = -1
+
+EVENT_DOMAIN = "mass_queue"
