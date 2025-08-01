@@ -6,8 +6,8 @@ from homeassistant.core import (
 from music_assistant_models.enums import EventType
 
 from .const import (
-  QUEUE_ITEMS_LIMIT_DEFAULT,
-  QUEUE_ITEMS_OFFSET_DEFAULT,
+  DEFAULT_QUEUE_ITEMS_LIMIT,
+  DEFAULT_QUEUE_ITEMS_OFFSET,
   LOGGER
 )
 from .const import (
@@ -117,8 +117,8 @@ class MassQueueController():
   async def get_queue(
       self, 
       queue_id: str, 
-      limit: int = QUEUE_ITEMS_LIMIT_DEFAULT, 
-      offset: int = QUEUE_ITEMS_OFFSET_DEFAULT
+      limit: int = DEFAULT_QUEUE_ITEMS_LIMIT, 
+      offset: int = DEFAULT_QUEUE_ITEMS_OFFSET
     ):
     if offset == -1:
       try:
