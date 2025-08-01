@@ -10,21 +10,11 @@ from .const import (
   DEFAULT_QUEUE_ITEMS_OFFSET,
   LOGGER,
   EVENT_DOMAIN,
-  ATTR_QUEUE_ITEM_ID,
-  ATTR_MEDIA_TITLE,
-  ATTR_MEDIA_ALBUM_NAME,
-  ATTR_MEDIA_ARTIST,
-  ATTR_MEDIA_CONTENT_ID,
-  ATTR_MEDIA_IMAGE,
 )
 from .utils import (
-  get_changed_queues,
-  get_changes_between_dicts,
   get_queue_id_from_player_data,
   format_queue_updated_event_data
 )
-
-from .schemas import QUEUE_ITEM_SCHEMA
 
 class MassQueueController():
   def __init__(self, hass: HomeAssistant, mass_client):
