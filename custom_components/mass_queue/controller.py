@@ -17,7 +17,7 @@ from .const import (
   ATTR_MEDIA_CONTENT_ID,
   ATTR_MEDIA_IMAGE,
 )
-from .util import (
+from .utils import (
   get_changed_queues,
   get_changes_between_dicts,
   get_queue_id_from_player_data,
