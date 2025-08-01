@@ -50,7 +50,7 @@ class MassQueueController():
     event_object_id = event.object_id
     event_data = event.data
     event_queue_id = event_data.get('queue_id')
-    self.update_queue_items(event_queue_id)
+    self._hass.loop.create_task(self.update_queue_items(event_queue_id))
     if event_data is None:
       LOGGER.error(f'Event data is empty! Event: {event}')
       return
@@ -67,7 +67,7 @@ class MassQueueController():
     event_object_id = event.object_id
     event_data = event.data
     event_queue_id = event_data.get('queue_id')
-    self.update_queue_items(event_queue_id)
+    self._hass.loop.create_task(self.update_queue_items(event_queue_id))
     if event_data is None:
       LOGGER.error(f'Event data is empty! Event: {event}')
       return
