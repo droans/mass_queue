@@ -182,7 +182,7 @@ class MassQueueController():
     return result
   
   async def update_queues(self):
-    self.queues = self.get_all_queues()
+    self.queues = await self.get_all_queues()
   
   # Individual queues
   async def player_queue(
