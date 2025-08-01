@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from homeassistant.config_entries import ConfigEntryState, ConfigEntries
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import (
     HomeAssistant,
     ServiceCall,
@@ -16,7 +16,6 @@ from homeassistant.helpers import config_validation as cv, entity_registry as er
 from .controller import MassQueueController
 from .const import (
   DOMAIN,
-  DEFAULT_NAME,
   SERVICE_GET_QUEUE_ITEMS,
   SERVICE_PLAY_QUEUE_ITEM,
   SERVICE_REMOVE_QUEUE_ITEM,
@@ -24,7 +23,6 @@ from .const import (
   SERVICE_MOVE_QUEUE_ITEM_DOWN,
   SERVICE_MOVE_QUEUE_ITEM_NEXT,
   LOGGER,
-  ATTR_QUEUE_ITEMS,
   ATTR_QUEUE_ITEM_ID,
   ATTR_MEDIA_TITLE,
   ATTR_MEDIA_ALBUM_NAME,
@@ -36,7 +34,6 @@ from .const import (
   ATTR_OFFSET
 )
 from .schemas import (
-  QUEUE_DETAILS_SCHEMA, 
   QUEUE_ITEM_SCHEMA,
   QUEUE_ITEMS_SERVICE_SCHEMA,
   PLAY_QUEUE_ITEM_SERVICE_SCHEMA,
