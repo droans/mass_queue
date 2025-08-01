@@ -121,14 +121,6 @@ class MassQueueActions():
     queue = await self._client.player_queues.get_active_queue(queue_id)
     return queue
 
-
-  async def get_queue_items(self, call: ServiceCall) -> ServiceResponse:
-    entity_id = call.data[ATTR_PLAYER_ENTITY]
-    queue_id = self.get_queue_id(entity_id)
-    limit = call.data.get(ATTR_LIMIT, 500)
-    offset = call.data.get(ATTR_OFFSET, -1)
-    queue_items = await self._controller
-
   def _format_queue_item(self, queue_item: dict) -> dict:
     queue_item = queue_item.to_dict()
     media = queue_item['media_item']
