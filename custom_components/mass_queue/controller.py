@@ -10,8 +10,6 @@ from .const import (
   DEFAULT_QUEUE_ITEMS_OFFSET,
   LOGGER,
   EVENT_DOMAIN,
-)
-from .const import (
   ATTR_QUEUE_ITEM_ID,
   ATTR_MEDIA_TITLE,
   ATTR_MEDIA_ALBUM_NAME,
@@ -19,6 +17,7 @@ from .const import (
   ATTR_MEDIA_CONTENT_ID,
   ATTR_MEDIA_IMAGE,
 )
+
 from .schemas import QUEUE_ITEM_SCHEMA
 
 class MassQueueController():
