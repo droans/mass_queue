@@ -224,7 +224,7 @@ class MassQueueController():
       except:
         offset = 0
     offset = max(offset, 0)
-    queue_items = await self._client.get_player_queue_items(queue_id = queue_id, limit=limit, offset=offset)
+    queue_items = await self._client.player_queues.get_player_queue_items(queue_id = queue_id, limit=limit, offset=offset)
     return queue_items
 
   async def get_active_queue(self, queue_id: str):
