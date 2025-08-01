@@ -18,6 +18,8 @@ from .const import (
   ATTR_MEDIA_IMAGE,
 )
 from .util import (
+  get_changed_queues,
+  get_changes_between_dicts,
   get_queue_id_from_player_data,
   format_queue_updated_event_data
 )
@@ -42,7 +44,15 @@ class MassQueueController():
       LOGGER.debug(f'No change to players')
       return
     LOGGER.debug(f'Got updated players: {players}')
+    self.send_player_change_event(self._players, players)
     self._players = players
+    
+  def send_player_change_event(self, old_players, new_players):
+    data = {}
+    data['event_type'] = 'players_changed'
+    data['data'] = get_changes_between_dicts(old_players, new_players)
+    self.send_ha_event(data)
+
   @property
   def queues(self):
     return self._queues
@@ -54,7 +64,15 @@ class MassQueueController():
       LOGGER.debug(f'No change to queues')
       return
     LOGGER.debug(f'Got updated queues: {queues.keys()}')
+    self.send_queue_change_event(self._queues, queues)
     self._queues = queues
+    
+  def send_queue_change_event(self, old_queue, new_queue):
+    data = {}
+    data['event_type'] = 'queues_changed'
+    data['data'] = {'queues_changed': get_changed_queues(old_queue, new_queue)}
+    LOGGER.debug(f'Got changed queues: {data['data']['queues_changed']}')
+    self.send_ha_event(data)
 
   # Events 
   def subscribe_events(self):

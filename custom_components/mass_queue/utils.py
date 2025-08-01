@@ -1,4 +1,45 @@
 from .const import LOGGER
+
+def get_changed_queues(old_queue, new_queue):
+  LOGGER.debug(f'Getting changes between queues')
+  removed = []
+  added = []
+  modified = []
+  for k, v in old_queue.items():
+    if k not in new:
+      removed.append(k)
+    if new[k] != v:
+      modified.append(k)
+  for k, v in new_queue.items():
+    if k not in old_queue:
+      added.append(k)
+  result = {
+    'added': added,
+    'removed': removed,
+    'modified': modified
+  }
+  return result
+
+def get_changes_between_dicts(old, new):
+  removed = {}
+  added = {}
+  modified = {}
+  for k, v in old.items():
+    if k not in new:
+      removed[k] = v
+    if new[k] != v:
+      tmp = {'new_value': new[k], 'old_value': v}
+      modified[k] = tmp
+  for k, v in new.items():
+    if k not in old:
+      added[k] = v
+  result = {
+    'added': added,
+    'removed': removed,
+    'modified': modified
+  }
+  return result
+
 def format_event_data_queue_item(queue_item):
   if queue_item is None:
     return None
