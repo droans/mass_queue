@@ -87,8 +87,6 @@ class MassQueueController():
     return
 
   def on_queue_update_event(self, event):
-    # TODO:
-    # * Send HA Event when queue updated
     event_type = event.event
     event_object_id = event.object_id
     event_data = event.data
@@ -106,8 +104,6 @@ class MassQueueController():
     self.send_ha_event(ha_event_data)
 
   def on_queue_items_update_event(self, event):
-    # TODO:
-    # * Send HA Event when queue items updated
     event_type = event.event
     event_object_id = event.object_id
     event_data = event.data
@@ -125,8 +121,6 @@ class MassQueueController():
     self.send_ha_event(ha_event_data)
 
   def on_player_event(self, event):
-    # TODO:
-    # * Send HA Event when player updated
     event_type = event.event
     event_object_id = event.object_id
     event_data = event.data
