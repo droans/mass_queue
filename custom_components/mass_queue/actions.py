@@ -131,7 +131,7 @@ class MassQueueActions():
       media_album_name = media_album.get('name', '')
     media_content_id = media['uri']
     img = queue_item.get('image')
-    if image is None:
+    if img is None:
       media_image = ''
     else:
       media_image = img.get('path', '')
