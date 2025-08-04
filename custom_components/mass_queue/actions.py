@@ -130,7 +130,11 @@ class MassQueueActions():
     else:
       media_album_name = ''
     media_content_id = media['uri']
-    media_image = queue_item['image']['path']
+    if 'image' in queue_item:
+      img = queue_item['image']
+      media_image = img.get('path')
+    else:
+      media_image = ''
 
     artists = media['artists']
     artist_names = [artist['name'] for artist in artists]
