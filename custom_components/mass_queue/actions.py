@@ -126,9 +126,9 @@ class MassQueueActions():
     media_title = media['name']
     media_album = media.get('album')
     if media_album is None:
-      media_album_name = media_album.get('name', '')
-    else:
       media_album_name = ''
+    else:
+      media_album_name = media_album.get('name', '')
     media_content_id = media['uri']
     if 'image' in queue_item:
       img = queue_item['image']
