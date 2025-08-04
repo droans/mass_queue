@@ -55,7 +55,11 @@ def _format_queue_item(queue_item: dict) -> dict:
 
   queue_item_id = queue_item['queue_item_id']
   media_title = media['name']
-  media_album_name = media['album']['name']
+  if 'album' in media:
+    media_album = media['album']
+    media_album_name = media_album.get('name')
+  else:
+    media_album_name = ''
   media_content_id = media['uri']
   media_image = queue_item['image']['path']
 
