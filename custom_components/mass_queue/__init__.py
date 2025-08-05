@@ -21,13 +21,13 @@ from homeassistant.helpers.issue_registry import (
     async_delete_issue,
 )
 
-from .actions import get_music_assistant_client, register_actions
+from .actions import get_music_assistant_client, setup_controller_and_actions
 from .const import DOMAIN, LOGGER
 
 if TYPE_CHECKING:
     from music_assistant_models.event import MassEvent
-
     from homeassistant.helpers.typing import ConfigType
+    from .actions import MassQueueActions
 
 # PLATFORMS = [Platform.MEDIA_PLAYER]
 PLATFORMS = []
@@ -50,7 +50,7 @@ class MusicAssistantEntryData:
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Music Assistant component."""
-    register_actions(hass)
+    setup_controller_and_actions(hass)
     return True
 
 
@@ -121,36 +121,7 @@ async def async_setup_entry(
     # initialize platforms
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    # register listener for removed players
-    # async def handle_player_removed(event: MassEvent) -> None:
-    #     """Handle Mass Player Removed event."""
-    #     if event.object_id is None:
-    #         return
-    #     dev_reg = dr.async_get(hass)
-    #     if hass_device := dev_reg.async_get_device({(DOMAIN, event.object_id)}):
-    #         dev_reg.async_update_device(
-    #             hass_device.id, remove_config_entry_id=entry.entry_id
-    #         )
-
-    # entry.async_on_unload(
-    #     mass.subscribe(handle_player_removed, EventType.PLAYER_REMOVED)
-    # )
-
-    # check if any playerconfigs have been removed while we were disconnected
-    # all_player_configs = await mass.config.get_player_configs()
-    # player_ids = {player.player_id for player in all_player_configs}
-    # dev_reg = dr.async_get(hass)
-    # dev_entries = dr.async_entries_for_config_entry(dev_reg, entry.entry_id)
-    # for device in dev_entries:
-    #     for identifier in device.identifiers:
-    #         if identifier[0] == DOMAIN and identifier[1] not in player_ids:
-    #             dev_reg.async_update_device(
-    #                 device.id, remove_config_entry_id=entry.entry_id
-    #             )
-
     return True
-
-
 async def _client_listen(
     hass: HomeAssistant,
     entry: ConfigEntry,

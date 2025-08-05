@@ -3,7 +3,7 @@
   "name": "Music Assistant Queue Items",
   "codeowners": ["@droans"],
   "config_flow": true,
-  "dependencies": [],
+  "dependencies": ["music_assistant"],
   "documentation": "https://www.github.com/droans/mass_queue",
   "homekit": {},
   "integration_type": "service",
@@ -11,6 +11,6 @@
   "issue_tracker": "https://github.com/droans/mass_queue/issues",
   "requirements": ["music-assistant-client"],
   "ssdp": [],
-  "version": "0.1.0",
+  "version": "0.2.0",
   "zeroconf": ["_mass._tcp.local."]
 }

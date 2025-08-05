@@ -23,3 +23,8 @@ ATTR_MEDIA_CONTENT_ID = "media_content_id"
 ATTR_MEDIA_IMAGE = "media_image"
 ATTR_QUEUE_ITEMS = "queue_items"
 LOGGER = logging.getLogger(__package__)
+
+DEFAULT_QUEUE_ITEMS_LIMIT = 500
+DEFAULT_QUEUE_ITEMS_OFFSET = -1
+
+EVENT_DOMAIN = "mass_queue"
