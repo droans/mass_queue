@@ -9,7 +9,8 @@ from .const import (
   DEFAULT_QUEUE_ITEMS_LIMIT,
   DEFAULT_QUEUE_ITEMS_OFFSET,
   LOGGER,
-  EVENT_DOMAIN,
+  MUSIC_ASSISTANT_EVENT_DOMAIN,
+  MASS_QUEUE_EVENT_DOMAIN
 )
 from .utils import (
   get_queue_id_from_player_data,
@@ -31,8 +32,8 @@ class MassQueueController():
     return 
 
   def send_ha_event(self, event_data):
-    LOGGER.debug(f'Sending event type {EVENT_DOMAIN}, data {event_data}')
-    self._hass.bus.async_fire(EVENT_DOMAIN, event_data)
+    LOGGER.debug(f'Sending event type {MUSIC_ASSISTANT_EVENT_DOMAIN}, data {event_data}')
+    self._hass.bus.async_fire(MUSIC_ASSISTANT_EVENT_DOMAIN, event_data)
     return
 
   def on_queue_update_event(self, event):
@@ -229,8 +230,8 @@ class Players():
     }
     self.send_ha_event(event_data)
   def send_ha_event(self, event_data):
-    LOGGER.debug(f'Sending event type {EVENT_DOMAIN}, data {event_data}')
-    self._hass.bus.async_fire(EVENT_DOMAIN, event_data)
+    LOGGER.debug(f'Sending event type {MASS_QUEUE_EVENT_DOMAIN}, data {event_data}')
+    self._hass.bus.async_fire(MASS_QUEUE_EVENT_DOMAIN, event_data)
     return
 
 class Queues():
@@ -282,6 +283,6 @@ class Queues():
     self.send_ha_event(event_data)
 
   def send_ha_event(self, event_data):
-    LOGGER.debug(f'Sending event type {EVENT_DOMAIN}, data {event_data}')
-    self._hass.bus.async_fire(EVENT_DOMAIN, event_data)
+    LOGGER.debug(f'Sending event type {MASS_QUEUE_EVENT_DOMAIN}, data {event_data}')
+    self._hass.bus.async_fire(MASS_QUEUE_EVENT_DOMAIN, event_data)
     return
