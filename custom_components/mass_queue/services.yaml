@@ -21,7 +21,6 @@ get_queue_items:
           step: 1
     limit_before:
       required: false
-      advanced: true
       example: 50
       default: 5
       selector:
@@ -31,7 +30,6 @@ get_queue_items:
           step: 1
     limit_after:
       required: false
-      advanced: true
       example: 50
       default: 100
       selector:
