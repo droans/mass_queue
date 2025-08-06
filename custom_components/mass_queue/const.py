@@ -27,7 +27,7 @@ ATTR_QUEUE_ITEMS = "queue_items"
 LOGGER = logging.getLogger(__package__)
 
 DEFAULT_QUEUE_ITEMS_LIMIT = 500
-DEFAULT_QUEUE_ITEMS_OFFSET = -1
+DEFAULT_QUEUE_ITEMS_OFFSET = -5
 
 MUSIC_ASSISTANT_EVENT_DOMAIN = "mass_music_assistant"
 MASS_QUEUE_EVENT_DOMAIN = "mass_queue"
