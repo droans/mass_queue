@@ -43,8 +43,6 @@ get_queue_items:
         entity:
           domain: media_player
           integration: music_assistant
-          supported_features:
-            - media_player.MediaPlayerEntityFeature.PLAY_MEDIA
 remove_queue_item:
   fields:
     queue_item_id:
@@ -57,8 +55,6 @@ remove_queue_item:
         entity:
           domain: media_player
           integration: music_assistant
-          supported_features:
-            - media_player.MediaPlayerEntityFeature.PLAY_MEDIA
 move_queue_item_up:
   fields:
     queue_item_id:
