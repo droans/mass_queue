@@ -15,7 +15,9 @@ from .const import (
   ATTR_CONFIG_ENTRY_ID,
   ATTR_PLAYER_ENTITY,
   ATTR_OFFSET,
-  ATTR_LIMIT
+  ATTR_LIMIT,
+  ATTR_LIMIT_BEFORE,
+  ATTR_LIMIT_AFTER
 )
 
 QUEUE_ITEM_SCHEMA = vol.Schema(
@@ -40,6 +42,8 @@ QUEUE_ITEMS_SERVICE_SCHEMA = vol.Schema(
     vol.Required(ATTR_PLAYER_ENTITY): str,
     vol.Optional(ATTR_OFFSET): int,
     vol.Optional(ATTR_LIMIT): int,
+    vol.Optional(ATTR_LIMIT_BEFORE): int,
+    vol.Optional(ATTR_LIMIT_AFTER): int,
 
   }
 )

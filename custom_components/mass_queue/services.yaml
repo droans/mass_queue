@@ -18,6 +18,26 @@ get_queue_items:
           min: 1
           max: 1000
           step: 1
+    limit_before:
+      required: false
+      advanced: true
+      example: 50
+      default: 5
+      selector:
+        number:
+          min: 1
+          max: 1000
+          step: 1
+    limit_after:
+      required: false
+      advanced: true
+      example: 50
+      default: 100
+      selector:
+        number:
+          min: 1
+          max: 1000
+          step: 1
     entity:
       required: true
       selector:
