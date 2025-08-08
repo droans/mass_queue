@@ -1,6 +1,6 @@
 {
   "domain": "mass_queue",
-  "name": "Music Assistant Queue Items",
+  "name": "Music Assistant Queue Actions",
   "codeowners": ["@droans"],
   "config_flow": true,
   "dependencies": ["music_assistant"],
