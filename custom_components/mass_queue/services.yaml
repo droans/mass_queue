@@ -1,7 +1,7 @@
 get_queue_items:
   fields:
     limit:
-      advanced: true
+      required: false
       example: 50
       default: 500
       selector:
@@ -10,9 +10,28 @@ get_queue_items:
           max: 1000
           step: 1
     offset:
+      required: false
       advanced: true
       example: 50
       default: 0
+      selector:
+        number:
+          min: 1
+          max: 1000
+          step: 1
+    limit_before:
+      required: false
+      example: 50
+      default: 5
+      selector:
+        number:
+          min: 1
+          max: 1000
+          step: 1
+    limit_after:
+      required: false
+      example: 50
+      default: 100
       selector:
         number:
           min: 1
@@ -24,8 +43,6 @@ get_queue_items:
         entity:
           domain: media_player
           integration: music_assistant
-          supported_features:
-            - media_player.MediaPlayerEntityFeature.PLAY_MEDIA
 remove_queue_item:
   fields:
     queue_item_id:
@@ -38,8 +55,6 @@ remove_queue_item:
         entity:
           domain: media_player
           integration: music_assistant
-          supported_features:
-            - media_player.MediaPlayerEntityFeature.PLAY_MEDIA
 move_queue_item_up:
   fields:
     queue_item_id:

@@ -31,7 +31,11 @@ from .const import (
   ATTR_MEDIA_IMAGE,
   ATTR_PLAYER_ENTITY,
   ATTR_LIMIT,
-  ATTR_OFFSET
+  ATTR_OFFSET,
+  ATTR_LIMIT_BEFORE,
+  ATTR_LIMIT_AFTER,
+  DEFAULT_QUEUE_ITEMS_LIMIT,
+  DEFAULT_QUEUE_ITEMS_OFFSET,
 )
 from .schemas import (
   QUEUE_ITEM_SCHEMA,
@@ -153,14 +157,23 @@ class MassQueueActions():
   async def get_queue_items(self, call: ServiceCall) -> ServiceResponse:
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     queue_id = self.get_queue_id(entity_id)
-    limit = call.data.get(ATTR_LIMIT, 500)
-    offset = call.data.get(ATTR_OFFSET, -1)
-    if offset == -1:
-      try:
-        offset = await self.get_queue_index(entity_id) - 5
-      except:
-        offset = 0
-      offset = max(offset, 0)
+    offset = call.data.get(ATTR_OFFSET)
+    limit = call.data.get(ATTR_LIMIT)
+    limit_before = call.data.get(ATTR_LIMIT_BEFORE)
+    limit_after = call.data.get(ATTR_LIMIT_AFTER)
+    idx = await self.get_queue_index(entity_id)
+    if limit_before:
+      offset = idx - limit_before
+    if limit_after:
+      if limit_before:
+        limit = limit_before + limit_after + 1
+      else:
+        limit = limit_after + 1
+    if offset is None:
+      offset = idx + DEFAULT_QUEUE_ITEMS_OFFSET
+    if limit is None:
+      limit = DEFAULT_QUEUE_ITEMS_LIMIT
+    offset = max(offset, 0)
     queue_items = await self._controller.player_queue(queue_id, limit, offset)
     response: ServiceResponse = {
         entity_id: [self._format_queue_item(item) for item in queue_items]
@@ -178,7 +191,7 @@ class MassQueueActions():
     queue_item_id = call.data[ATTR_QUEUE_ITEM_ID]
     queue_id = self.get_queue_id(entity_id)
     await self._client.player_queues.queue_command_delete(queue_id, queue_item_id)
-  
+ 
   async def move_queue_item_up(self, call: ServiceCall) -> ServiceResponse:
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     queue_item_id = call.data[ATTR_QUEUE_ITEM_ID]
