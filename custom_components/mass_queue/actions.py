@@ -191,7 +191,7 @@ class MassQueueActions():
     queue_item_id = call.data[ATTR_QUEUE_ITEM_ID]
     queue_id = self.get_queue_id(entity_id)
     await self._client.player_queues.queue_command_delete(queue_id, queue_item_id)
-  
+ 
   async def move_queue_item_up(self, call: ServiceCall) -> ServiceResponse:
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     queue_item_id = call.data[ATTR_QUEUE_ITEM_ID]
