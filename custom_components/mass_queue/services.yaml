@@ -67,8 +67,6 @@ move_queue_item_up:
         entity:
           domain: media_player
           integration: music_assistant
-          supported_features:
-            - media_player.MediaPlayerEntityFeature.PLAY_MEDIA
 move_queue_item_down:
   fields:
     queue_item_id:
@@ -81,8 +79,6 @@ move_queue_item_down:
         entity:
           domain: media_player
           integration: music_assistant
-          supported_features:
-            - media_player.MediaPlayerEntityFeature.PLAY_MEDIA
 move_queue_item_next:
   fields:
     queue_item_id:
