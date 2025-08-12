@@ -95,8 +95,6 @@ move_queue_item_next:
         entity:
           domain: media_player
           integration: music_assistant
-          supported_features:
-            - media_player.MediaPlayerEntityFeature.PLAY_MEDIA
 play_queue_item:
   fields:
     queue_item_id:
@@ -109,5 +107,3 @@ play_queue_item:
         entity:
           domain: media_player
           integration: music_assistant
-          supported_features:
-            - media_player.MediaPlayerEntityFeature.PLAY_MEDIA
