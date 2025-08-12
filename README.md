@@ -59,11 +59,11 @@ Adds new actions to control player queues for Music Assistant
 ## Installation
 
 1. Add this to your HACS repositories.
-  * In Home Assistant, navigate to your HACS dashboard
-  * In the upper-right corner, select the three-dot overflow button and click "Custom Repositories".
-  * For the "Repository", type in `https://github.com/droans/mass_queue`. 
-  * For the "Type", select "Integration"
-  * Click "Add"
+    * In Home Assistant, navigate to your HACS dashboard
+    * In the upper-right corner, select the three-dot overflow button and click "Custom Repositories".
+    * For the "Repository", type in `https://github.com/droans/mass_queue`. 
+    * For the "Type", select "Integration"
+    * Click "Add"
 2. Search for "Music Assistant Queue Actions" in HACS. 
 3. Select the repository and install. 
 
