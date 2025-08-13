@@ -1,11 +1,14 @@
 [![GitHub Release](https://img.shields.io/github/release/droans/mass_queue.svg?style=for-the-badge)](https://github.com/droans/mass_card/releases)
 [![License](https://img.shields.io/github/license/droans/mass_queue.svg?style=for-the-badge)](LICENSE)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-blue.svg?style=for-the-badge)](https://github.com/hacs/default)
 [![Project Maintenance](https://img.shields.io/badge/maintainer-droans-blue.svg?style=for-the-badge)](https://github.com/droans)
 [![GitHub Activity](https://img.shields.io/github/last-commit/droans/mass_queue?style=for-the-badge)](https://github.com/droans/mass_card/commits/main)
 
 # Music Assistant Queue Actions
 
 Adds new actions to control player queues for Music Assistant 
+
+[![My Home Assistant](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?repository=mass_queue&owner=droans&category=Integration)
 
 ## New actions:
 
@@ -58,14 +61,7 @@ Adds new actions to control player queues for Music Assistant
 
 ## Installation
 
-1. Add this to your HACS repositories.
-    * In Home Assistant, navigate to your HACS dashboard
-    * In the upper-right corner, select the three-dot overflow button and click "Custom Repositories".
-    * For the "Repository", type in `https://github.com/droans/mass_queue`. 
-    * For the "Type", select "Integration"
-    * Click "Add"
-2. Search for "Music Assistant Queue Actions" in HACS. 
-3. Select the repository and install. 
+1. Download and install the integration by using the button above.
 
 ## Configuration
 
