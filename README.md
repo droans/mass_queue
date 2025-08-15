@@ -2,11 +2,12 @@
 
 [![GitHub Release][release-shield]][release]
 [![Beta][beta-shield]][beta]
-[![License][license-shield]][license]
-
+![Downloads][downloads-shield]
 [![HACS][hacs-badge-shield]][hacs-badge]
+
 [![Maintainer][maintainer-shield]][maintainer]
 [![GitHub Activity][activity-shield]][activity]
+[![License][license-shield]][license]
 
 </div>
 
@@ -22,6 +23,7 @@
 [activity]: https://github.com/droans/mass_card/commits/main
 [beta-shield]: https://img.shields.io/github/v/release/droans/mass_queue?include_prereleases&style=for-the-badge&filter=*b*&label=Pre-Release
 [beta]: https://github.com/droans/mass_queue/releases
+[downloads-shield]: https://img.shields.io/github/downloads/custom-cards/button-card/total?style=for-the-badge
 
 # Music Assistant Queue Actions
 
