@@ -1,9 +1,14 @@
+<div align="center">
+
 [![GitHub Release][release-shield]][release]
+[![Beta][beta-shield]][beta]
 [![License][license-shield]][license]
+
 [![HACS][hacs-badge-shield]][hacs-badge]
 [![Maintainer][maintainer-shield]][maintainer]
 [![GitHub Activity][activity-shield]][activity]
-[![Beta][beta-shield]][beta]
+
+</div>
 
 [release-shield]: https://img.shields.io/github/release/droans/mass_queue.svg?style=for-the-badge
 [release]: https://github.com/droans/mass_queue/releases
