@@ -26,7 +26,7 @@ Designed to work with [Music Assistant Queue Card](https://github.com/droans/mas
 | `limit_after`   | int  | No       | n/a                         | Number of items to pull after current active item in queue.                                                                                                      |
 
 Example Output:
-```
+```yaml
 media_player.music_assistant_speaker:
   - queue_item_id: f62a98bb794447e28e8400367cf0b68a
     media_title: Summer Friends (feat. Jeremih & Francis & The Lights)
