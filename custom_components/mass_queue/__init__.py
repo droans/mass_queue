@@ -1,32 +1,33 @@
+"""Initialize component."""
+
 from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from music_assistant_client import MusicAssistantClient
-from music_assistant_client.exceptions import CannotConnect, InvalidServerVersion
-from music_assistant_models.errors import ActionUnavailable, MusicAssistantError
-
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import CONF_URL, EVENT_HOMEASSISTANT_STOP
-from homeassistant.core import Event, HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers import config_validation as cv, device_registry as dr
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.issue_registry import (
     IssueSeverity,
     async_create_issue,
     async_delete_issue,
 )
+from music_assistant_client import MusicAssistantClient
+from music_assistant_client.exceptions import CannotConnect, InvalidServerVersion
+from music_assistant_models.errors import ActionUnavailable, MusicAssistantError
 
 from .actions import get_music_assistant_client, setup_controller_and_actions
 from .const import DOMAIN, LOGGER
 
 if TYPE_CHECKING:
-    from homeassistant.helpers.typing import ConfigType
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.typing import ConfigType, Event
 
-# PLATFORMS = [Platform.MEDIA_PLAYER]
 PLATFORMS = []
 
 CONNECT_TIMEOUT = 10
@@ -45,14 +46,15 @@ class MusicAssistantEntryData:
     listen_task: asyncio.Task
 
 
-async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:  # noqa: ARG001
     """Set up the Music Assistant component."""
     setup_controller_and_actions(hass)
     return True
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: MusicAssistantConfigEntry
+    hass: HomeAssistant,
+    entry: MusicAssistantConfigEntry,
 ) -> bool:
     """Set up Music Assistant from a config entry."""
     http_session = async_get_clientsession(hass, verify_ssl=False)
@@ -63,8 +65,9 @@ async def async_setup_entry(
         async with asyncio.timeout(CONNECT_TIMEOUT):
             await mass.connect()
     except (TimeoutError, CannotConnect) as err:
+        exc = f"Failed to connect to music assistant server {mass_url}"
         raise ConfigEntryNotReady(
-            f"Failed to connect to music assistant server {mass_url}"
+            exc,
         ) from err
     except InvalidServerVersion as err:
         async_create_issue(
@@ -75,21 +78,23 @@ async def async_setup_entry(
             severity=IssueSeverity.ERROR,
             translation_key="invalid_server_version",
         )
-        raise ConfigEntryNotReady(f"Invalid server version: {err}") from err
+        exc = f"Invalid server version: {err}"
+        raise ConfigEntryNotReady(exc) from err
     except MusicAssistantError as err:
         LOGGER.exception("Failed to connect to music assistant server", exc_info=err)
+        exc = f"Unknown error connecting to the Music Assistant server {mass_url}"
         raise ConfigEntryNotReady(
-            f"Unknown error connecting to the Music Assistant server {mass_url}"
+            exc,
         ) from err
 
     async_delete_issue(hass, DOMAIN, "invalid_server_version")
 
-    async def on_hass_stop(event: Event) -> None:
+    async def on_hass_stop(event: Event) -> None:  # noqa: ARG001
         """Handle incoming stop event from Home Assistant."""
         await mass.disconnect()
 
     entry.async_on_unload(
-        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, on_hass_stop)
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, on_hass_stop),
     )
 
     # launch the music assistant client listen task in the background
@@ -102,7 +107,8 @@ async def async_setup_entry(
             await init_ready.wait()
     except TimeoutError as err:
         listen_task.cancel()
-        raise ConfigEntryNotReady("Music Assistant client not ready") from err
+        exc = "Music Assistant client not ready"
+        raise ConfigEntryNotReady(exc) from err
 
     # store the listen task and mass client in the entry data
     entry.runtime_data = MusicAssistantEntryData(mass, listen_task)
@@ -158,7 +164,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_remove_config_entry_device(
-    hass: HomeAssistant, config_entry: ConfigEntry, device_entry: dr.DeviceEntry
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    device_entry: dr.DeviceEntry,
 ) -> bool:
     """Remove a config entry from a device."""
     player_id = next(

@@ -1,4 +1,7 @@
+"""Actions for integration."""
+
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from homeassistant.config_entries import ConfigEntryState
@@ -9,60 +12,66 @@ from homeassistant.core import (
     SupportsResponse,
     callback,
 )
-from music_assistant_client import MusicAssistantClient
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 
-from .controller import MassQueueController
 from .const import (
-    DOMAIN,
-    SERVICE_GET_QUEUE_ITEMS,
-    SERVICE_PLAY_QUEUE_ITEM,
-    SERVICE_REMOVE_QUEUE_ITEM,
-    SERVICE_MOVE_QUEUE_ITEM_UP,
-    SERVICE_MOVE_QUEUE_ITEM_DOWN,
-    SERVICE_MOVE_QUEUE_ITEM_NEXT,
-    ATTR_QUEUE_ITEM_ID,
-    ATTR_MEDIA_TITLE,
+    ATTR_LIMIT,
+    ATTR_LIMIT_AFTER,
+    ATTR_LIMIT_BEFORE,
     ATTR_MEDIA_ALBUM_NAME,
     ATTR_MEDIA_ARTIST,
     ATTR_MEDIA_CONTENT_ID,
     ATTR_MEDIA_IMAGE,
-    ATTR_PLAYER_ENTITY,
-    ATTR_LIMIT,
+    ATTR_MEDIA_TITLE,
     ATTR_OFFSET,
-    ATTR_LIMIT_BEFORE,
-    ATTR_LIMIT_AFTER,
+    ATTR_PLAYER_ENTITY,
+    ATTR_QUEUE_ITEM_ID,
     DEFAULT_QUEUE_ITEMS_LIMIT,
     DEFAULT_QUEUE_ITEMS_OFFSET,
+    DOMAIN,
+    SERVICE_GET_QUEUE_ITEMS,
+    SERVICE_MOVE_QUEUE_ITEM_DOWN,
+    SERVICE_MOVE_QUEUE_ITEM_NEXT,
+    SERVICE_MOVE_QUEUE_ITEM_UP,
+    SERVICE_PLAY_QUEUE_ITEM,
+    SERVICE_REMOVE_QUEUE_ITEM,
 )
+from .controller import MassQueueController
 from .schemas import (
-    QUEUE_ITEM_SCHEMA,
-    QUEUE_ITEMS_SERVICE_SCHEMA,
-    PLAY_QUEUE_ITEM_SERVICE_SCHEMA,
-    REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
-    MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
+    MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
+    PLAY_QUEUE_ITEM_SERVICE_SCHEMA,
+    QUEUE_ITEM_SCHEMA,
+    QUEUE_ITEMS_SERVICE_SCHEMA,
+    REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
 )
 
 if TYPE_CHECKING:
+    from music_assistant_client import MusicAssistantClient
+
     from . import MassQueueEntryData
 
 
 class MassQueueActions:
+    """Class to manage Music Assistant actions without passing `hass` and `mass_client` each time."""
+
     def __init__(self, hass: HomeAssistant, mass_client: MusicAssistantClient):
+        """Initialize class."""
         self._hass: HomeAssistant = hass
         self._client: MusicAssistantClient = mass_client
         self._controller = MassQueueController(self._hass, self._client)
 
     def setup_controller(self):
+        """Setup Music Assistant controller."""
         self._controller.update_players()
         self._controller.subscribe_events()
         self._hass.loop.create_task(self._controller.update_queues())
 
     @callback
     def register_actions(self) -> None:
+        """Register actions with Home Assistant."""
         self._hass.services.async_register(
             DOMAIN,
             SERVICE_GET_QUEUE_ITEMS,
@@ -108,37 +117,33 @@ class MassQueueActions:
         )
 
     def get_queue_id(self, entity_id: str):
+        """Get the queue ID for a player."""
         registry = er.async_get(self._hass)
         entity = registry.async_get(entity_id)
         return entity.unique_id
 
     async def get_queue_index(self, entity_id: str):
+        """Get the current index of the queue."""
         active_queue = await self.get_active_queue(entity_id)
-        idx = active_queue.current_index
-        return idx
+        return active_queue.current_index
 
     async def get_active_queue(self, entity_id: str):
+        """Get active queue details."""
         queue_id = self.get_queue_id(entity_id)
-        queue = await self._client.player_queues.get_active_queue(queue_id)
-        return queue
+        return await self._client.player_queues.get_active_queue(queue_id)
 
     def _format_queue_item(self, queue_item: dict) -> dict:
+        """Format list of queue items for response."""
         queue_item = queue_item.to_dict()
         media = queue_item["media_item"]
 
         queue_item_id = queue_item["queue_item_id"]
         media_title = media["name"]
         media_album = media.get("album")
-        if media_album is None:
-            media_album_name = ""
-        else:
-            media_album_name = media_album.get("name", "")
+        media_album_name = "" if media_album is None else media_album.get("name", "")
         media_content_id = media["uri"]
         img = queue_item.get("image")
-        if img is None:
-            media_image = ""
-        else:
-            media_image = img.get("path", "")
+        media_image = "" if img is None else img.get("path", "")
 
         artists = media["artists"]
         artist_names = [artist["name"] for artist in artists]
@@ -151,11 +156,12 @@ class MassQueueActions:
                 ATTR_MEDIA_ARTIST: media_artist,
                 ATTR_MEDIA_CONTENT_ID: media_content_id,
                 ATTR_MEDIA_IMAGE: media_image,
-            }
+            },
         )
         return response
 
     async def get_queue_items(self, call: ServiceCall) -> ServiceResponse:
+        """Get all items in queue."""
         entity_id = call.data[ATTR_PLAYER_ENTITY]
         queue_id = self.get_queue_id(entity_id)
         offset = call.data.get(ATTR_OFFSET)
@@ -166,10 +172,7 @@ class MassQueueActions:
         if limit_before:
             offset = idx - limit_before
         if limit_after:
-            if limit_before:
-                limit = limit_before + limit_after + 1
-            else:
-                limit = limit_after + 1
+            limit = limit_before + limit_after + 1 if limit_before else limit_after + 1
         if offset is None:
             offset = idx + DEFAULT_QUEUE_ITEMS_OFFSET
         if limit is None:
@@ -177,49 +180,59 @@ class MassQueueActions:
         offset = max(offset, 0)
         queue_items = await self._controller.player_queue(queue_id, limit, offset)
         response: ServiceResponse = {
-            entity_id: [self._format_queue_item(item) for item in queue_items]
+            entity_id: [self._format_queue_item(item) for item in queue_items],
         }
         return response
 
     async def play_queue_item(self, call: ServiceCall) -> ServiceResponse:
+        """Play selected item in queue."""
         entity_id = call.data[ATTR_PLAYER_ENTITY]
         queue_item_id = call.data[ATTR_QUEUE_ITEM_ID]
         queue_id = self.get_queue_id(entity_id)
         await self._client.send_command(
-            "player_queues/play_index", queue_id=queue_id, index=queue_item_id
+            "player_queues/play_index",
+            queue_id=queue_id,
+            index=queue_item_id,
         )
 
     async def remove_queue_item(self, call: ServiceCall) -> ServiceResponse:
+        """Remove selected item from queue."""
         entity_id = call.data[ATTR_PLAYER_ENTITY]
         queue_item_id = call.data[ATTR_QUEUE_ITEM_ID]
         queue_id = self.get_queue_id(entity_id)
         await self._client.player_queues.queue_command_delete(queue_id, queue_item_id)
 
     async def move_queue_item_up(self, call: ServiceCall) -> ServiceResponse:
+        """Move selected item up in queue."""
         entity_id = call.data[ATTR_PLAYER_ENTITY]
         queue_item_id = call.data[ATTR_QUEUE_ITEM_ID]
         queue_id = self.get_queue_id(entity_id)
         await self._client.player_queues.queue_command_move_up(queue_id, queue_item_id)
 
     async def move_queue_item_down(self, call: ServiceCall) -> ServiceResponse:
+        """Move selected item down in queue."""
         entity_id = call.data[ATTR_PLAYER_ENTITY]
         queue_item_id = call.data[ATTR_QUEUE_ITEM_ID]
         queue_id = self.get_queue_id(entity_id)
         await self._client.player_queues.queue_command_move_down(
-            queue_id, queue_item_id
+            queue_id,
+            queue_item_id,
         )
 
     async def move_queue_item_next(self, call: ServiceCall) -> ServiceResponse:
+        """Move selected item next in queue."""
         entity_id = call.data[ATTR_PLAYER_ENTITY]
         queue_item_id = call.data[ATTR_QUEUE_ITEM_ID]
         queue_id = self.get_queue_id(entity_id)
         await self._client.player_queues.queue_command_move_next(
-            queue_id, queue_item_id
+            queue_id,
+            queue_item_id,
         )
 
 
 @callback
 def get_music_assistant_client_boostrap(hass: HomeAssistant) -> MusicAssistantClient:
+    """Get Music Assistant Client by finding its domain."""
     mass_domain = "music_assistant"
     entries = hass.config_entries.async_entries()
     config_entry = [entry for entry in entries if entry.domain == mass_domain][0]
@@ -228,8 +241,10 @@ def get_music_assistant_client_boostrap(hass: HomeAssistant) -> MusicAssistantCl
 
 @callback
 def get_music_assistant_client(
-    hass: HomeAssistant, entity_id: str
+    hass: HomeAssistant,
+    entity_id: str,
 ) -> MusicAssistantClient:
+    """Get Music Assistant client from entity_id."""
     registry = er.async_get(hass)
     entity = registry.async_get(entity_id)
     config_entry_id = entity.config_entry_id
@@ -238,20 +253,26 @@ def get_music_assistant_client(
 
 @callback
 def _get_music_assistant_client(
-    hass: HomeAssistant, config_entry_id: str
+    hass: HomeAssistant,
+    config_entry_id: str,
 ) -> MusicAssistantClient:
+    """Get Music Assistant Client from config_entry_id."""
     entry: MassQueueEntryData | None
     if not (entry := hass.config_entries.async_get_entry(config_entry_id)):
-        raise ServiceValidationError("Entry not found")
+        exc = "Entry not found."
+        raise ServiceValidationError(exc)
     if entry.state is not ConfigEntryState.LOADED:
-        raise ServiceValidationError("Entry not loaded")
+        exc = "Entry not loaded"
+        raise ServiceValidationError(exc)
     return entry.runtime_data.mass
 
 
 @callback
 def setup_controller_and_actions(
-    hass: HomeAssistant, mass_client: MusicAssistantClient | None = None
+    hass: HomeAssistant,
+    mass_client: MusicAssistantClient | None = None,
 ) -> MassQueueActions:
+    """Initialize client and actions class, add actions to Home Assistant."""
     if mass_client is None:
         mass_client = get_music_assistant_client_boostrap(hass)
     actions = MassQueueActions(hass, mass_client)
