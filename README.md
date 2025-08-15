@@ -8,6 +8,8 @@
 
 Adds new actions to control player queues for Music Assistant 
 
+Designed to work with [Music Assistant Queue Card](https://github.com/droans/mass_card)
+
 [![My Home Assistant](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?repository=mass_queue&owner=droans&category=Integration)
 
 ## New actions:
@@ -15,13 +17,32 @@ Adds new actions to control player queues for Music Assistant
 ---
 `mass_queue.get_queue_items`: Returns the items (songs, podcast episods, etc.) within a queue
 
-| Parameter | Type | Required | Default                     | Description                                                                                                                                                      |
-|-----------|------|----------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Parameter | Type | Required | Default                           | Description                                                                                                                                                      |
+|-----------|------|----------|-----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `entity`        | str  | Yes      | n/a                         | Music assistant player entity                                                                                                                                    |
 | `limit`         | int  | No       | 500                         | Number of items in queue to return                                                                                                                               |
-| `offset`        | int  | No       | <Current Item Position> - 5 | Location in queue to start where zero equals the first item in queue, not the current item. By default, will start with five items before actively playing item. |
-| `limit_before`  | int  | No       | n/a                         | Number of items to pull before current active item in queue.                                                                                                     |
-| `limit_after`   | int  | No       | n/a                         | Number of items to pull after current active item in queue.                                                                                                      |
+| `offset`        | int  | No       | n/a                         | Location in queue to start where zero equals the first item in queue, not the current item. By default, will start with five items before actively playing item. |
+| `limit_before`  | int  | No       | 5                           | Number of items to pull before current active item in queue.                                                                                                     |
+| `limit_after`   | int  | No       | 100                         | Number of items to pull after current active item in queue.                                                                                                      |
+
+Example Output:
+```yaml
+media_player.music_assistant_speaker:
+  - queue_item_id: f62a98bb794447e28e8400367cf0b68a
+    media_title: Summer Friends (feat. Jeremih & Francis & The Lights)
+    media_album_name: Coloring Book
+    media_artist: Chance the Rapper, Jeremih, Francis and the Lights
+    media_content_id: tidal://track/60920018
+    media_image: https://resources.tidal.com/images/1d765014/8be5/4f60/a657/bce7eee1ef8b/750x750.jpg
+  - queue_item_id: a6272438f57843808d891c59fec4c8bf
+    media_title: Fireflies
+    media_album_name: Ocean Eyes
+    media_artist: Owl City
+    media_content_id: tidal://track/3140991
+    media_image: https://resources.tidal.com/images/76b92beb/399c/4983/9b91/0eef89c796e1/750x750.jpg
+  ...
+    
+```
 
 `mass_queue.remove_queue_item`: Removes an item out of the queue
 

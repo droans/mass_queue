@@ -2,8 +2,7 @@ get_queue_items:
   fields:
     limit:
       required: false
-      example: 50
-      default: 500
+      example: 500
       selector:
         number:
           min: 1
@@ -13,7 +12,6 @@ get_queue_items:
       required: false
       advanced: true
       example: 50
-      default: 0
       selector:
         number:
           min: 1
@@ -21,7 +19,7 @@ get_queue_items:
           step: 1
     limit_before:
       required: false
-      example: 50
+      example: 5
       default: 5
       selector:
         number:
