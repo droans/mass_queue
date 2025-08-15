@@ -23,7 +23,7 @@
 [activity]: https://github.com/droans/mass_card/commits/main
 [beta-shield]: https://img.shields.io/github/v/release/droans/mass_queue?include_prereleases&style=for-the-badge&filter=*b*&label=Pre-Release
 [beta]: https://github.com/droans/mass_queue/releases
-[downloads-shield]: https://img.shields.io/github/downloads/custom-cards/button-card/total?style=for-the-badge
+[downloads-shield]: https://img.shields.io/github/downloads/droans/mass_queue/total?style=for-the-badge
 
 # Music Assistant Queue Actions
 
