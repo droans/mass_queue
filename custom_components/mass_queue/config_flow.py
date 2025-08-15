@@ -3,6 +3,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from music_assistant_client import MusicAssistantClient
+from music_assistant_client.exceptions import (
+    CannotConnect,
+    InvalidServerVersion,
+    MusicAssistantClientException,
+)
 
 import voluptuous as vol
 from music_assistant_models.api import ServerInfoMessage

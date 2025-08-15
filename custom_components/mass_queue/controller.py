@@ -133,7 +133,7 @@ class MassQueueController:
         if offset == -1:
             try:
                 offset = await self.get_queue_index(queue_id) - 5
-            except:
+            except Exception:
                 offset = 0
         offset = max(offset, 0)
         result = queue[offset : offset + limit]
@@ -154,7 +154,7 @@ class MassQueueController:
         if offset == -1:
             try:
                 offset = await self.get_queue_index(queue_id) - 5
-            except:
+            except Exception:
                 offset = 0
         offset = max(offset, 0)
         queue_items = await self._client.player_queues.get_player_queue_items(
