@@ -122,6 +122,8 @@ async def async_setup_entry(
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
+
+
 async def _client_listen(
     hass: HomeAssistant,
     entry: ConfigEntry,

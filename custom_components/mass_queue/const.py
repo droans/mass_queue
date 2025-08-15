@@ -1,4 +1,5 @@
 """Constants for the NEW_NAME integration."""
+
 import logging
 
 DOMAIN = "mass_queue"
@@ -15,8 +16,8 @@ ATTR_CONFIG_ENTRY_ID = "config_entry_id"
 ATTR_PLAYER_ENTITY = "entity"
 ATTR_OFFSET = "offset"
 ATTR_LIMIT = "limit"
-ATTR_LIMIT_BEFORE = 'limit_before'
-ATTR_LIMIT_AFTER = 'limit_after'
+ATTR_LIMIT_BEFORE = "limit_before"
+ATTR_LIMIT_AFTER = "limit_after"
 ATTR_QUEUE_ITEM_ID = "queue_item_id"
 ATTR_MEDIA_TITLE = "media_title"
 ATTR_MEDIA_ALBUM_NAME = "media_album_name"

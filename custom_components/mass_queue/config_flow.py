@@ -17,6 +17,7 @@ from .const import DOMAIN, LOGGER
 DEFAULT_URL = "http://mass.local:8095"
 DEFAULT_TITLE = "Music Assistant Queue Items"
 
+
 def get_manual_schema(user_input: dict[str, Any]) -> vol.Schema:
     """Return a schema for the manual step."""
     default_url = user_input.get(CONF_URL, DEFAULT_URL)
