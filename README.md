@@ -3,8 +3,8 @@
 [![GitHub Release][release-shield]][release]
 [![Beta][beta-shield]][beta]
 [![License][license-shield]][license]
-[![HACS][hacs-badge-shield]][hacs-badge]
 
+[![HACS][hacs-badge-shield]][hacs-badge]
 [![Maintainer][maintainer-shield]][maintainer]
 [![GitHub Activity][activity-shield]][activity]
 
