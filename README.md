@@ -1,8 +1,22 @@
-[![GitHub Release](https://img.shields.io/github/release/droans/mass_queue.svg?style=for-the-badge)](https://github.com/droans/mass_card/releases)
-[![License](https://img.shields.io/github/license/droans/mass_queue.svg?style=for-the-badge)](LICENSE)
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-blue.svg?style=for-the-badge)](https://github.com/hacs/default)
-[![Project Maintenance](https://img.shields.io/badge/maintainer-droans-blue.svg?style=for-the-badge)](https://github.com/droans)
-[![GitHub Activity](https://img.shields.io/github/last-commit/droans/mass_queue?style=for-the-badge)](https://github.com/droans/mass_card/commits/main)
+[![GitHub Release][release-shield]][release]
+[![License][license-shield]][license]
+[![HACS][hacs-badge-shield]][hacs-badge]
+[![Maintainer][maintainer-shield]][maintainer]
+[![GitHub Activity][activity-shield]][activity]
+[![Beta][beta-shield]][beta]
+
+[release-shield]: https://img.shields.io/github/release/droans/mass_queue.svg?style=for-the-badge
+[release]: https://github.com/droans/mass_queue/releases
+[license-shield]: https://img.shields.io/github/license/droans/mass_queue.svg?style=for-the-badge
+[license]: LICENSE
+[hacs-badge-shield]: https://img.shields.io/badge/HACS-Default-blue.svg?style=for-the-badge
+[hacs-badge]: https://github.com/hacs/default
+[maintainer-shield]: https://img.shields.io/badge/maintainer-droans-blue.svg?style=for-the-badge
+[maintainer]: https://github.com/droans
+[activity-shield]: https://img.shields.io/github/last-commit/droans/mass_queue?style=for-the-badge
+[activity]: https://github.com/droans/mass_card/commits/main
+[beta-shield]: https://img.shields.io/github/v/release/droans/mass_queue?include_prereleases&style=for-the-badge&filter=*b*&label=Pre-Release
+[beta]: https://github.com/droans/mass_queue/releases
 
 # Music Assistant Queue Actions
 
@@ -41,7 +55,6 @@ media_player.music_assistant_speaker:
     media_content_id: tidal://track/3140991
     media_image: https://resources.tidal.com/images/76b92beb/399c/4983/9b91/0eef89c796e1/750x750.jpg
   ...
-    
 ```
 
 `mass_queue.remove_queue_item`: Removes an item out of the queue
