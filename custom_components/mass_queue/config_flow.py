@@ -3,6 +3,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from music_assistant_client import MusicAssistantClient
+from music_assistant_client.exceptions import (
+    CannotConnect,
+    InvalidServerVersion,
+    MusicAssistantClientException,
+)
 
 import voluptuous as vol
 from music_assistant_models.api import ServerInfoMessage
@@ -16,6 +21,7 @@ from .const import DOMAIN, LOGGER
 
 DEFAULT_URL = "http://mass.local:8095"
 DEFAULT_TITLE = "Music Assistant Queue Items"
+
 
 def get_manual_schema(user_input: dict[str, Any]) -> vol.Schema:
     """Return a schema for the manual step."""

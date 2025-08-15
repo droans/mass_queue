@@ -25,7 +25,7 @@
 
 # Music Assistant Queue Actions
 
-Adds new actions to control player queues for Music Assistant 
+Adds new actions to control player queues for Music Assistant
 
 Designed to work with [Music Assistant Queue Card](https://github.com/droans/mass_card)
 
