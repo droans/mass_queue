@@ -55,7 +55,6 @@ media_player.music_assistant_speaker:
     media_content_id: tidal://track/3140991
     media_image: https://resources.tidal.com/images/76b92beb/399c/4983/9b91/0eef89c796e1/750x750.jpg
   ...
-    
 ```
 
 `mass_queue.remove_queue_item`: Removes an item out of the queue
