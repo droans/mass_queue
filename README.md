@@ -3,11 +3,11 @@
 [![GitHub Release][release-shield]][release]
 [![Beta][beta-shield]][beta]
 ![Downloads][downloads-shield]
-[![License][license-shield]][license]
-
 [![HACS][hacs-badge-shield]][hacs-badge]
+
 [![Maintainer][maintainer-shield]][maintainer]
 [![GitHub Activity][activity-shield]][activity]
+[![License][license-shield]][license]
 
 </div>
 
