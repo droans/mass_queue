@@ -1,23 +1,27 @@
+"""Config flow for integration."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+import voluptuous as vol
+from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.const import CONF_URL
+from homeassistant.helpers import aiohttp_client
 from music_assistant_client import MusicAssistantClient
 from music_assistant_client.exceptions import (
     CannotConnect,
     InvalidServerVersion,
     MusicAssistantClientException,
 )
-
-import voluptuous as vol
 from music_assistant_models.api import ServerInfoMessage
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
-from homeassistant.const import CONF_URL
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers import aiohttp_client
-from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 
 from .const import DOMAIN, LOGGER
+
+if TYPE_CHECKING:
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
+
 
 DEFAULT_URL = "http://mass.local:8095"
 DEFAULT_TITLE = "Music Assistant Queue Items"
@@ -29,14 +33,15 @@ def get_manual_schema(user_input: dict[str, Any]) -> vol.Schema:
     return vol.Schema(
         {
             vol.Required(CONF_URL, default=default_url): str,
-        }
+        },
     )
 
 
 async def get_server_info(hass: HomeAssistant, url: str) -> ServerInfoMessage:
     """Validate the user input allows us to connect."""
     async with MusicAssistantClient(
-        url, aiohttp_client.async_get_clientsession(hass)
+        url,
+        aiohttp_client.async_get_clientsession(hass),
     ) as client:
         if TYPE_CHECKING:
             assert client.server_info is not None
@@ -53,17 +58,20 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
         self.server_info: ServerInfoMessage | None = None
 
     async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
+        self,
+        user_input: dict[str, Any] | None = None,
     ) -> ConfigFlowResult:
         """Handle a manual configuration."""
         errors: dict[str, str] = {}
         if user_input is not None:
             try:
                 self.server_info = await get_server_info(
-                    self.hass, user_input[CONF_URL]
+                    self.hass,
+                    user_input[CONF_URL],
                 )
                 await self.async_set_unique_id(
-                    self.server_info.server_id, raise_on_progress=False
+                    self.server_info.server_id,
+                    raise_on_progress=False,
                 )
                 self._abort_if_unique_id_configured(
                     updates={CONF_URL: self.server_info.base_url},
@@ -85,13 +93,16 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
                 )
 
             return self.async_show_form(
-                step_id="user", data_schema=get_manual_schema(user_input), errors=errors
+                step_id="user",
+                data_schema=get_manual_schema(user_input),
+                errors=errors,
             )
 
         return self.async_show_form(step_id="user", data_schema=get_manual_schema({}))
 
     async def async_step_zeroconf(
-        self, discovery_info: ZeroconfServiceInfo
+        self,
+        discovery_info: ZeroconfServiceInfo,
     ) -> ConfigFlowResult:
         """Handle a discovered Mass server.
 
@@ -116,7 +127,8 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
         return await self.async_step_discovery_confirm()
 
     async def async_step_discovery_confirm(
-        self, user_input: dict[str, Any] | None = None
+        self,
+        user_input: dict[str, Any] | None = None,
     ) -> ConfigFlowResult:
         """Handle user-confirmation of discovered server."""
         if TYPE_CHECKING:
