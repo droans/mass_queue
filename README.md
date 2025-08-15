@@ -17,13 +17,13 @@ Designed to work with [Music Assistant Queue Card](https://github.com/droans/mas
 ---
 `mass_queue.get_queue_items`: Returns the items (songs, podcast episods, etc.) within a queue
 
-| Parameter | Type | Required | Default                     | Description                                                                                                                                                      |
-|-----------|------|----------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Parameter | Type | Required | Default                           | Description                                                                                                                                                      |
+|-----------|------|----------|-----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `entity`        | str  | Yes      | n/a                         | Music assistant player entity                                                                                                                                    |
 | `limit`         | int  | No       | 500                         | Number of items in queue to return                                                                                                                               |
-| `offset`        | int  | No       | <Current Item Position> - 5 | Location in queue to start where zero equals the first item in queue, not the current item. By default, will start with five items before actively playing item. |
-| `limit_before`  | int  | No       | n/a                         | Number of items to pull before current active item in queue.                                                                                                     |
-| `limit_after`   | int  | No       | n/a                         | Number of items to pull after current active item in queue.                                                                                                      |
+| `offset`        | int  | No       | n/a                         | Location in queue to start where zero equals the first item in queue, not the current item. By default, will start with five items before actively playing item. |
+| `limit_before`  | int  | No       | 5                           | Number of items to pull before current active item in queue.                                                                                                     |
+| `limit_after`   | int  | No       | 100                         | Number of items to pull after current active item in queue.                                                                                                      |
 
 Example Output:
 ```yaml
