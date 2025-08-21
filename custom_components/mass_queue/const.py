@@ -10,6 +10,7 @@ SERVICE_REMOVE_QUEUE_ITEM = "remove_queue_item"
 SERVICE_MOVE_QUEUE_ITEM_UP = "move_queue_item_up"
 SERVICE_MOVE_QUEUE_ITEM_DOWN = "move_queue_item_down"
 SERVICE_MOVE_QUEUE_ITEM_NEXT = "move_queue_item_next"
+SERVICE_SEND_COMMAND = "send_command"
 
 ATTR_CONFIG_ENTRY_ID = "config_entry_id"
 ATTR_LIMIT = "limit"
@@ -24,6 +25,8 @@ ATTR_MEDIA_IMAGE = "media_image"
 ATTR_OFFSET = "offset"
 ATTR_PLAYER_ENTITY = "entity"
 ATTR_QUEUE_ITEMS = "queue_items"
+ATTR_COMMAND = "command"
+ATTR_DATA = "data"
 LOGGER = logging.getLogger(__package__)
 
 DEFAULT_QUEUE_ITEMS_LIMIT = 500

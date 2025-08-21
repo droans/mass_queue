@@ -16,6 +16,8 @@ from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 
 from .const import (
+    ATTR_COMMAND,
+    ATTR_DATA,
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
     ATTR_LIMIT_BEFORE,
@@ -36,6 +38,7 @@ from .const import (
     SERVICE_MOVE_QUEUE_ITEM_UP,
     SERVICE_PLAY_QUEUE_ITEM,
     SERVICE_REMOVE_QUEUE_ITEM,
+    SERVICE_SEND_COMMAND,
 )
 from .controller import MassQueueController
 from .schemas import (
@@ -46,6 +49,7 @@ from .schemas import (
     QUEUE_ITEM_SCHEMA,
     QUEUE_ITEMS_SERVICE_SCHEMA,
     REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
+    SEND_COMMAND_SERVICE_SCHEMA,
 )
 
 if TYPE_CHECKING:
@@ -115,6 +119,13 @@ class MassQueueActions:
             schema=MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
             supports_response=SupportsResponse.NONE,
         )
+        self._hass.services.async_register(
+            DOMAIN,
+            SERVICE_SEND_COMMAND,
+            self.send_command,
+            schema=SEND_COMMAND_SERVICE_SCHEMA,
+            supports_response=SupportsResponse.OPTIONAL,
+        )
 
     def get_queue_id(self, entity_id: str):
         """Get the queue ID for a player."""
@@ -159,6 +170,13 @@ class MassQueueActions:
             },
         )
         return response
+
+    async def send_command(self, call: ServiceCall) -> ServiceResponse:
+        """Sends command to Music Assistant and returns response."""
+        command = call.data[ATTR_COMMAND]
+        data = call.data.get(ATTR_DATA)
+        response = await self._controller.send_command(command, data)
+        return {'response': response}
 
     async def get_queue_items(self, call: ServiceCall) -> ServiceResponse:
         """Get all items in queue."""
