@@ -1,5 +1,5 @@
 ---
-name: Release Drafter
+name: Pre-Release Drafter
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   update_release_draft:
-    name: Draft release
+    name: Draft pre-release
     runs-on: ubuntu-latest
     permissions:
       contents: write
