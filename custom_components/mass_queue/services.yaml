@@ -1,6 +1,8 @@
 get_queue_items:
   fields:
     limit:
+      name: Limit
+      description: Limit on the number of items in queue to return
       required: false
       example: 500
       selector:
@@ -9,6 +11,8 @@ get_queue_items:
           max: 1000
           step: 1
     offset:
+      name: Offset
+      description: Location in queue to start where zero equals the first item in queue, not the current item.
       required: false
       advanced: true
       example: 50
@@ -18,6 +22,8 @@ get_queue_items:
           max: 1000
           step: 1
     limit_before:
+      name: Limit Before
+      description: Number of items to pull before current active item in queue.
       required: false
       example: 5
       default: 5
@@ -27,6 +33,8 @@ get_queue_items:
           max: 1000
           step: 1
     limit_after:
+      name: Limit After
+      description: Number of items to pull after current active item in queue.
       required: false
       example: 50
       default: 100
@@ -36,6 +44,8 @@ get_queue_items:
           max: 1000
           step: 1
     entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
       required: true
       selector:
         entity:
@@ -44,10 +54,13 @@ get_queue_items:
 remove_queue_item:
   fields:
     queue_item_id:
+      name: Queue Item ID
       required: true
       selector:
         text:
     entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
       required: true
       selector:
         entity:
@@ -56,10 +69,13 @@ remove_queue_item:
 move_queue_item_up:
   fields:
     queue_item_id:
+      name: Queue Item ID
       required: true
       selector:
         text:
     entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
       required: true
       selector:
         entity:
@@ -68,10 +84,13 @@ move_queue_item_up:
 move_queue_item_down:
   fields:
     queue_item_id:
+      name: Queue Item ID
       required: true
       selector:
         text:
     entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
       required: true
       selector:
         entity:
@@ -80,10 +99,13 @@ move_queue_item_down:
 move_queue_item_next:
   fields:
     queue_item_id:
+      name: Queue Item ID
       required: true
       selector:
         text:
     entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
       required: true
       selector:
         entity:
@@ -92,10 +114,13 @@ move_queue_item_next:
 play_queue_item:
   fields:
     queue_item_id:
+      name: Queue Item ID
       required: true
       selector:
         text:
     entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
       required: true
       selector:
         entity:
@@ -104,9 +129,15 @@ play_queue_item:
 send_command:
   fields:
     command:
+      name: Command
+      description: Command to send to Music Assistant
       required: true
       selector:
         text:
     data:
+      name: Data
+      description: Command data to send
       required: false
       default: {}
+      selector:
+        object:
