@@ -101,3 +101,12 @@ play_queue_item:
         entity:
           domain: media_player
           integration: music_assistant
+send_command:
+  fields:
+    command:
+      required: true
+      selector:
+        text:
+    data:
+      required: false
+      default: {}

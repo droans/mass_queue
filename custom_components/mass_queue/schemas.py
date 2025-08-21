@@ -6,6 +6,8 @@ import voluptuous as vol
 from homeassistant.helpers import config_validation as cv
 
 from .const import (
+    ATTR_COMMAND,
+    ATTR_DATA,
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
     ATTR_LIMIT_BEFORE,
@@ -77,5 +79,12 @@ MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_PLAYER_ENTITY): str,
         vol.Required(ATTR_QUEUE_ITEM_ID): str,
+    },
+)
+
+SEND_COMMAND_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_COMMAND): str,
+        vol.Optional(ATTR_DATA, default={}): dict,
     },
 )
