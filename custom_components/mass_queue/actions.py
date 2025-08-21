@@ -176,7 +176,7 @@ class MassQueueActions:
         command = call.data[ATTR_COMMAND]
         data = call.data.get(ATTR_DATA)
         response = await self._controller.send_command(command, data)
-        return {'response': response}
+        return {"response": response}
 
     async def get_queue_items(self, call: ServiceCall) -> ServiceResponse:
         """Get all items in queue."""
