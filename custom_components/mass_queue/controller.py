@@ -119,6 +119,11 @@ class MassQueueController:
         queue_id = get_queue_id_from_player_data(player)
         self.players.update(player_id, queue_id)
 
+    async def send_command(self, command: str, data: dict | None = None):
+        """Sends command to Music Assistant and returns response."""
+        data = data if data else {}
+        return await self._client.send_command(command, require_schema=None, **data)
+
     async def get_player_queue(self, player_id: str):
         """Gets queue items for single Music Assistant queue."""
         player = self._client.players.get(player_id)
