@@ -139,3 +139,5 @@ send_command:
       description: Command data to send
       required: false
       default: {}
+      selector:
+        object:
