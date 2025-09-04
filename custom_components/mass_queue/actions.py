@@ -136,7 +136,10 @@ class MassQueueActions:
     async def get_queue_index(self, entity_id: str):
         """Get the current index of the queue."""
         active_queue = await self.get_active_queue(entity_id)
-        return active_queue.current_index or 0
+        try:
+            return active_queue.current_index or 0
+        except AttributeError:
+            return 0
 
     async def get_active_queue(self, entity_id: str):
         """Get active queue details."""
