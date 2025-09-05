@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import asyncio
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import (
     HomeAssistant,
@@ -12,7 +13,7 @@ from homeassistant.core import (
     SupportsResponse,
     callback,
 )
-from homeassistant.exceptions import ServiceValidationError
+from homeassistant.exceptions import ServiceValidationError, ConfigEntryError
 from homeassistant.helpers import entity_registry as er
 
 from .const import (
@@ -32,6 +33,9 @@ from .const import (
     DEFAULT_QUEUE_ITEMS_LIMIT,
     DEFAULT_QUEUE_ITEMS_OFFSET,
     DOMAIN,
+    LOGGER,
+    MAX_SETUP_FAILURES,
+    SETUP_FAILURE_RETRY_DELAY,
     SERVICE_GET_QUEUE_ITEMS,
     SERVICE_MOVE_QUEUE_ITEM_DOWN,
     SERVICE_MOVE_QUEUE_ITEM_NEXT,
@@ -252,13 +256,21 @@ class MassQueueActions:
 
 
 @callback
-def get_music_assistant_client_boostrap(hass: HomeAssistant) -> MusicAssistantClient:
+def get_music_assistant_client_boostrap(hass: HomeAssistant, failures: int = 0) -> MusicAssistantClient:
     """Get Music Assistant Client by finding its domain."""
     mass_domain = "music_assistant"
-    entries = hass.config_entries.async_entries()
-    config_entry = [entry for entry in entries if entry.domain == mass_domain][0]
-    return config_entry.runtime_data.mass
-
+    try:
+        entries = hass.config_entries.async_entries()
+        config_entry = [entry for entry in entries if entry.domain == mass_domain][0]
+        return config_entry.runtime_data.mass
+    except:
+        failures += 1
+        if failures >= MAX_SETUP_FAILURES:
+            err = f"Failed to set up Music Assistant Queue Actions after {failures} attempts. Please validate that Music Assistant is properly set up."
+            raise ConfigEntryError(err)
+        LOGGER.error(f"Failed to set up Music Assistant Queue Actions, retrying ({failures}/{MAX_SETUP_FAILURES})")
+        asyncio.sleep(5)
+        return get_music_assistant_client_boostrap(hass, failures)
 
 @callback
 def get_music_assistant_client(
