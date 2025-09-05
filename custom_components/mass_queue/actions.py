@@ -256,7 +256,7 @@ class MassQueueActions:
 
 
 @callback
-def get_music_assistant_client_boostrap(hass: HomeAssistant, failures: int = 0) -> MusicAssistantClient:
+async def get_music_assistant_client_boostrap(hass: HomeAssistant, failures: int = 0) -> MusicAssistantClient:
     """Get Music Assistant Client by finding its domain."""
     mass_domain = "music_assistant"
     try:
@@ -269,8 +269,8 @@ def get_music_assistant_client_boostrap(hass: HomeAssistant, failures: int = 0) 
             err = f"Failed to set up Music Assistant Queue Actions after {failures} attempts. Please validate that Music Assistant is properly set up."
             raise ConfigEntryError(err)
         LOGGER.error(f"Failed to set up Music Assistant Queue Actions, retrying ({failures}/{MAX_SETUP_FAILURES})")
-        asyncio.sleep(5)
-        return get_music_assistant_client_boostrap(hass, failures)
+        await asyncio.sleep(SETUP_FAILURE_RETRY_DELAY)
+        return await get_music_assistant_client_boostrap(hass, failures)
 
 @callback
 def get_music_assistant_client(
@@ -301,13 +301,13 @@ def _get_music_assistant_client(
 
 
 @callback
-def setup_controller_and_actions(
+async def setup_controller_and_actions(
     hass: HomeAssistant,
     mass_client: MusicAssistantClient | None = None,
 ) -> MassQueueActions:
     """Initialize client and actions class, add actions to Home Assistant."""
     if mass_client is None:
-        mass_client = get_music_assistant_client_boostrap(hass)
+        mass_client = await get_music_assistant_client_boostrap(hass)
     actions = MassQueueActions(hass, mass_client)
     actions.setup_controller()
     actions.register_actions()

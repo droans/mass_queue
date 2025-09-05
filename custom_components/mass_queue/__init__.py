@@ -48,7 +48,7 @@ class MusicAssistantEntryData:
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:  # noqa: ARG001
     """Set up the Music Assistant component."""
-    setup_controller_and_actions(hass)
+    await setup_controller_and_actions(hass)
     return True
 
 
