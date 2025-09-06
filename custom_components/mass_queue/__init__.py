@@ -48,7 +48,6 @@ class MusicAssistantEntryData:
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:  # noqa: ARG001
     """Set up the Music Assistant component."""
-    await setup_controller_and_actions(hass)
     return True
 
 
@@ -112,6 +111,7 @@ async def async_setup_entry(
 
     # store the listen task and mass client in the entry data
     entry.runtime_data = MusicAssistantEntryData(mass, listen_task)
+    await setup_controller_and_actions(hass, mass)
 
     # If the listen task is already failed, we need to raise ConfigEntryNotReady
     if listen_task.done() and (listen_error := listen_task.exception()) is not None:
