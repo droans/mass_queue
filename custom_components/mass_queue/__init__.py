@@ -21,8 +21,13 @@ from music_assistant_client import MusicAssistantClient
 from music_assistant_client.exceptions import CannotConnect, InvalidServerVersion
 from music_assistant_models.errors import ActionUnavailable, MusicAssistantError
 
-from .actions import get_music_assistant_client, setup_controller_and_actions
+from .actions import (
+    MassQueueActions,
+    get_music_assistant_client,
+    setup_controller_and_actions,
+)
 from .const import DOMAIN, LOGGER
+from .services import register_actions
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -35,14 +40,15 @@ LISTEN_READY_TIMEOUT = 30
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
-type MusicAssistantConfigEntry = ConfigEntry[MusicAssistantEntryData]
+type MusicAssistantConfigEntry = ConfigEntry[MusicAssistantQueueEntryData]
 
 
 @dataclass
-class MusicAssistantEntryData:
+class MusicAssistantQueueEntryData:
     """Hold Mass data for the config entry."""
 
     mass: MusicAssistantClient
+    actions: MassQueueActions
     listen_task: asyncio.Task
 
 
@@ -110,8 +116,9 @@ async def async_setup_entry(
         raise ConfigEntryNotReady(exc) from err
 
     # store the listen task and mass client in the entry data
-    entry.runtime_data = MusicAssistantEntryData(mass, listen_task)
-    await setup_controller_and_actions(hass, mass)
+    actions = await setup_controller_and_actions(hass, mass)
+    register_actions(hass)
+    entry.runtime_data = MusicAssistantQueueEntryData(mass, actions, listen_task)
 
     # If the listen task is already failed, we need to raise ConfigEntryNotReady
     if listen_task.done() and (listen_error := listen_task.exception()) is not None:
@@ -156,7 +163,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
     if unload_ok:
-        mass_entry_data: MusicAssistantEntryData = entry.runtime_data
+        mass_entry_data: MusicAssistantQueueEntryData = entry.runtime_data
         mass_entry_data.listen_task.cancel()
         await mass_entry_data.mass.disconnect()
 

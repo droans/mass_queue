@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 from typing import TYPE_CHECKING
 
 from homeassistant.config_entries import ConfigEntryState
@@ -13,7 +12,7 @@ from homeassistant.core import (
     SupportsResponse,
     callback,
 )
-from homeassistant.exceptions import ConfigEntryError, ServiceValidationError
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 
 from .const import (
@@ -33,8 +32,6 @@ from .const import (
     DEFAULT_QUEUE_ITEMS_LIMIT,
     DEFAULT_QUEUE_ITEMS_OFFSET,
     DOMAIN,
-    LOGGER,
-    MAX_SETUP_FAILURES,
     SERVICE_GET_QUEUE_ITEMS,
     SERVICE_MOVE_QUEUE_ITEM_DOWN,
     SERVICE_MOVE_QUEUE_ITEM_NEXT,
@@ -42,7 +39,6 @@ from .const import (
     SERVICE_PLAY_QUEUE_ITEM,
     SERVICE_REMOVE_QUEUE_ITEM,
     SERVICE_SEND_COMMAND,
-    SETUP_FAILURE_RETRY_DELAY,
 )
 from .controller import MassQueueController
 from .schemas import (
@@ -256,24 +252,6 @@ class MassQueueActions:
 
 
 @callback
-async def get_music_assistant_client_boostrap(hass: HomeAssistant, failures: int = 0) -> MusicAssistantClient:
-    """Get Music Assistant Client by finding its domain."""
-    mass_domain = "music_assistant"
-    try:
-        entries = hass.config_entries.async_entries()
-        config_entry = [entry for entry in entries if entry.domain == mass_domain][0]
-    except Exception as e:
-        failures += 1
-        if failures >= MAX_SETUP_FAILURES:
-            err = f"Failed to set up Music Assistant Queue Actions after {failures} attempts. Please validate that Music Assistant is properly set up."
-            raise ConfigEntryError(err) from e
-        LOGGER.error(f"Failed to set up Music Assistant Queue Actions, retrying ({failures}/{MAX_SETUP_FAILURES})")
-        await asyncio.sleep(SETUP_FAILURE_RETRY_DELAY)
-        return await get_music_assistant_client_boostrap(hass, failures)
-    else:
-        return config_entry.runtime_data.mass
-
-@callback
 def get_music_assistant_client(
     hass: HomeAssistant,
     entity_id: str,
@@ -304,12 +282,9 @@ def _get_music_assistant_client(
 @callback
 async def setup_controller_and_actions(
     hass: HomeAssistant,
-    mass_client: MusicAssistantClient | None = None,
+    mass_client: MusicAssistantClient,
 ) -> MassQueueActions:
     """Initialize client and actions class, add actions to Home Assistant."""
-    if mass_client is None:
-        mass_client = await get_music_assistant_client_boostrap(hass)
     actions = MassQueueActions(hass, mass_client)
     actions.setup_controller()
-    actions.register_actions()
     return actions
