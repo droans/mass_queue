@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import TYPE_CHECKING
 
-import asyncio
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import (
     HomeAssistant,
@@ -13,7 +13,7 @@ from homeassistant.core import (
     SupportsResponse,
     callback,
 )
-from homeassistant.exceptions import ServiceValidationError, ConfigEntryError
+from homeassistant.exceptions import ConfigEntryError, ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 
 from .const import (
@@ -35,7 +35,6 @@ from .const import (
     DOMAIN,
     LOGGER,
     MAX_SETUP_FAILURES,
-    SETUP_FAILURE_RETRY_DELAY,
     SERVICE_GET_QUEUE_ITEMS,
     SERVICE_MOVE_QUEUE_ITEM_DOWN,
     SERVICE_MOVE_QUEUE_ITEM_NEXT,
@@ -43,6 +42,7 @@ from .const import (
     SERVICE_PLAY_QUEUE_ITEM,
     SERVICE_REMOVE_QUEUE_ITEM,
     SERVICE_SEND_COMMAND,
+    SETUP_FAILURE_RETRY_DELAY,
 )
 from .controller import MassQueueController
 from .schemas import (
@@ -262,15 +262,16 @@ async def get_music_assistant_client_boostrap(hass: HomeAssistant, failures: int
     try:
         entries = hass.config_entries.async_entries()
         config_entry = [entry for entry in entries if entry.domain == mass_domain][0]
-        return config_entry.runtime_data.mass
-    except:
+    except Exception as e:
         failures += 1
         if failures >= MAX_SETUP_FAILURES:
             err = f"Failed to set up Music Assistant Queue Actions after {failures} attempts. Please validate that Music Assistant is properly set up."
-            raise ConfigEntryError(err)
+            raise ConfigEntryError(err) from e
         LOGGER.error(f"Failed to set up Music Assistant Queue Actions, retrying ({failures}/{MAX_SETUP_FAILURES})")
         await asyncio.sleep(SETUP_FAILURE_RETRY_DELAY)
         return await get_music_assistant_client_boostrap(hass, failures)
+    else:
+        return config_entry.runtime_data.mass
 
 @callback
 def get_music_assistant_client(
