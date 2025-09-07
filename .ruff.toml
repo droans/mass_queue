@@ -1,6 +1,6 @@
 # The contents of this file is based on https://github.com/home-assistant/core/blob/dev/pyproject.toml
 
-target-version = "py310"
+target-version = "py312"
 [lint]
 select = ["ALL"]
 
@@ -9,6 +9,8 @@ select = ["ALL"]
 ignore = [
     "ANN",
     "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in {name}
+    "D203",
+    "D213",
     "D401",    # First line of docstring should be in imperative mood
     "E501",    # line too long
     "FBT001",  # Boolean positional arg in function definition
@@ -44,9 +46,6 @@ ignore = [
     "TD003",   # Missing issue link on the line following this TODO
 ]
 ".github/*py" = ["INP001"]
-"webapp/homeassistant_util_color.py" = ["ALL"]
-"webapp/app.py" = ["INP001", "DTZ011", "A002"]
-"custom_components/adaptive_lighting/homeassistant_util_color.py" = ["ALL"]
 
 [lint.flake8-pytest-style]
 fixture-parentheses = false

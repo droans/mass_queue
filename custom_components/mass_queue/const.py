@@ -12,6 +12,7 @@ SERVICE_MOVE_QUEUE_ITEM_DOWN = "move_queue_item_down"
 SERVICE_MOVE_QUEUE_ITEM_NEXT = "move_queue_item_next"
 SERVICE_SEND_COMMAND = "send_command"
 
+ATTR_QUEUE_ID = "active_queue"
 ATTR_CONFIG_ENTRY_ID = "config_entry_id"
 ATTR_LIMIT = "limit"
 ATTR_LIMIT_AFTER = "limit_after"

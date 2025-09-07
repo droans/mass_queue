@@ -28,6 +28,7 @@ from .const import (
     ATTR_MEDIA_TITLE,
     ATTR_OFFSET,
     ATTR_PLAYER_ENTITY,
+    ATTR_QUEUE_ID,
     ATTR_QUEUE_ITEM_ID,
     DEFAULT_QUEUE_ITEMS_LIMIT,
     DEFAULT_QUEUE_ITEMS_OFFSET,
@@ -129,9 +130,7 @@ class MassQueueActions:
 
     def get_queue_id(self, entity_id: str):
         """Get the queue ID for a player."""
-        registry = er.async_get(self._hass)
-        entity = registry.async_get(entity_id)
-        return entity.unique_id
+        return self._hass.states.get(entity_id).attributes[ATTR_QUEUE_ID]
 
     async def get_queue_index(self, entity_id: str):
         """Get the current index of the queue."""
@@ -252,15 +251,6 @@ class MassQueueActions:
 
 
 @callback
-def get_music_assistant_client_boostrap(hass: HomeAssistant) -> MusicAssistantClient:
-    """Get Music Assistant Client by finding its domain."""
-    mass_domain = "music_assistant"
-    entries = hass.config_entries.async_entries()
-    config_entry = [entry for entry in entries if entry.domain == mass_domain][0]
-    return config_entry.runtime_data.mass
-
-
-@callback
 def get_music_assistant_client(
     hass: HomeAssistant,
     entity_id: str,
@@ -289,14 +279,11 @@ def _get_music_assistant_client(
 
 
 @callback
-def setup_controller_and_actions(
+async def setup_controller_and_actions(
     hass: HomeAssistant,
-    mass_client: MusicAssistantClient | None = None,
+    mass_client: MusicAssistantClient,
 ) -> MassQueueActions:
     """Initialize client and actions class, add actions to Home Assistant."""
-    if mass_client is None:
-        mass_client = get_music_assistant_client_boostrap(hass)
     actions = MassQueueActions(hass, mass_client)
     actions.setup_controller()
-    actions.register_actions()
     return actions
