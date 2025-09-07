@@ -7,6 +7,7 @@ from homeassistant.helpers import config_validation as cv
 
 from .const import (
     ATTR_COMMAND,
+    ATTR_CONFIG_ENTRY_ID,
     ATTR_DATA,
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
@@ -86,5 +87,6 @@ SEND_COMMAND_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_COMMAND): str,
         vol.Optional(ATTR_DATA, default={}): dict,
+        vol.Required(ATTR_CONFIG_ENTRY_ID): str
     },
 )

@@ -141,3 +141,9 @@ send_command:
       default: {}
       selector:
         object:
+    config_entry_id:
+      name: Config Entry ID
+      required: true
+      selector:
+        config_entry:
+          integration: mass_queue

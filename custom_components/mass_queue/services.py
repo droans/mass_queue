@@ -14,6 +14,7 @@ from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 
 from .const import (
+    ATTR_CONFIG_ENTRY_ID,
     ATTR_PLAYER_ENTITY,
     DOMAIN,
     SERVICE_GET_QUEUE_ITEMS,
@@ -182,4 +183,9 @@ async def remove_queue_item(call: ServiceCall):
   return await actions.remove_queue_item(call)
 
 async def send_command(call: ServiceCall):
+  entry_id = call.data[ATTR_CONFIG_ENTRY_ID]
+  hass = call.hass
+  entry = hass.config_entries.async_get_entry(entry_id)
+  actions = entry.runtime_data.actions
+  return await actions.send_command(call)
   """Service wrapper to move queue item down."""
