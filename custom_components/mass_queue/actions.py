@@ -28,6 +28,7 @@ from .const import (
     ATTR_MEDIA_TITLE,
     ATTR_OFFSET,
     ATTR_PLAYER_ENTITY,
+    ATTR_QUEUE_ID,
     ATTR_QUEUE_ITEM_ID,
     DEFAULT_QUEUE_ITEMS_LIMIT,
     DEFAULT_QUEUE_ITEMS_OFFSET,
@@ -129,9 +130,7 @@ class MassQueueActions:
 
     def get_queue_id(self, entity_id: str):
         """Get the queue ID for a player."""
-        registry = er.async_get(self._hass)
-        entity = registry.async_get(entity_id)
-        return entity.unique_id
+        return self._hass.states.get(entity_id).attributes[ATTR_QUEUE_ID]
 
     async def get_queue_index(self, entity_id: str):
         """Get the current index of the queue."""
