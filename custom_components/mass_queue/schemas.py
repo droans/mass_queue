@@ -87,6 +87,6 @@ SEND_COMMAND_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_COMMAND): str,
         vol.Optional(ATTR_DATA, default={}): dict,
-        vol.Required(ATTR_CONFIG_ENTRY_ID): str
+        vol.Required(ATTR_CONFIG_ENTRY_ID): str,
     },
 )
