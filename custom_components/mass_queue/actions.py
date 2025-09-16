@@ -184,6 +184,8 @@ class MassQueueActions:
         """Get all items in queue."""
         entity_id = call.data[ATTR_PLAYER_ENTITY]
         queue_id = self.get_queue_id(entity_id)
+        if queue_id is None:
+            return {entity_id: []}
         offset = call.data.get(ATTR_OFFSET)
         limit = call.data.get(ATTR_LIMIT)
         limit_before = call.data.get(ATTR_LIMIT_BEFORE)
