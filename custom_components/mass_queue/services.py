@@ -214,6 +214,7 @@ async def send_command(call: ServiceCall):
     actions = entry.runtime_data.actions
     return await actions.send_command(call)
 
+
 async def unfavorite_current_item(call: ServiceCall):
     """Service wrapper to unfavorite currently playing item."""
     entity_id = call.data[ATTR_PLAYER_ENTITY]
