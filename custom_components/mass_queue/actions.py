@@ -18,6 +18,7 @@ from homeassistant.helpers import entity_registry as er
 from .const import (
     ATTR_COMMAND,
     ATTR_DATA,
+    ATTR_FAVORITE,
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
     ATTR_LIMIT_BEFORE,
@@ -157,6 +158,7 @@ class MassQueueActions:
         media_content_id = media["uri"]
         img = queue_item.get("image")
         media_image = "" if img is None else img.get("path", "")
+        favorite = media["favorite"]
 
         artists = media["artists"]
         artist_names = [artist["name"] for artist in artists]
@@ -169,6 +171,7 @@ class MassQueueActions:
                 ATTR_MEDIA_ARTIST: media_artist,
                 ATTR_MEDIA_CONTENT_ID: media_content_id,
                 ATTR_MEDIA_IMAGE: media_image,
+                ATTR_FAVORITE: favorite,
             },
         )
         return response
