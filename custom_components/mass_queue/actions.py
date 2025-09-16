@@ -14,6 +14,10 @@ from homeassistant.core import (
 )
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
+from music_assistant_models.errors import (
+    InvalidCommand,
+    MediaNotFoundError,
+)
 
 from .const import (
     ATTR_COMMAND,
@@ -58,7 +62,6 @@ if TYPE_CHECKING:
     from music_assistant_client import MusicAssistantClient
 
     from . import MassQueueEntryData
-
 
 class MassQueueActions:
     """Class to manage Music Assistant actions without passing `hass` and `mass_client` each time."""
@@ -253,7 +256,24 @@ class MassQueueActions:
             queue_id,
             queue_item_id,
         )
-
+    async def unfavorite_item(self, call: ServiceCall) -> ServiceResponse:
+        """Unfavorites currently playing item in queue."""
+        entity_id = call.data[ATTR_PLAYER_ENTITY]
+        attrs = self._hass.states.get(entity_id).attributes
+        content_id = attrs.get(ATTR_MEDIA_CONTENT_ID)
+        if not content_id:
+            msg = f"Cannot find media with content id {content_id}"
+            raise MediaNotFoundError(msg)
+        provider = content_id.split("://")[0]
+        if provider != "library":
+            msg = f"Unfavorite can only apply to library media items, not from provider {provider}"
+            raise InvalidCommand(msg)
+        item_id = str(content_id.split("/")[-1])
+        await self._client.send_command(
+            "music/favorites/remove_item",
+            media_type="track",
+            library_item_id=item_id,
+        )
 
 @callback
 def get_music_assistant_client(

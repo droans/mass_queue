@@ -92,3 +92,9 @@ SEND_COMMAND_SERVICE_SCHEMA = vol.Schema(
         vol.Required(ATTR_CONFIG_ENTRY_ID): str,
     },
 )
+
+UNFAVORITE_CURRENT_ITEM_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_PLAYER_ENTITY): str,
+    },
+)

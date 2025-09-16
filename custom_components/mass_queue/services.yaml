@@ -147,3 +147,14 @@ send_command:
       selector:
         config_entry:
           integration: mass_queue
+
+unfavorite_current_item:
+  fields:
+    entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
+      required: true
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
