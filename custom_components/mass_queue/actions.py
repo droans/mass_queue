@@ -63,6 +63,7 @@ if TYPE_CHECKING:
 
     from . import MassQueueEntryData
 
+
 class MassQueueActions:
     """Class to manage Music Assistant actions without passing `hass` and `mass_client` each time."""
 
@@ -256,6 +257,7 @@ class MassQueueActions:
             queue_id,
             queue_item_id,
         )
+
     async def unfavorite_item(self, call: ServiceCall) -> ServiceResponse:
         """Unfavorites currently playing item in queue."""
         entity_id = call.data[ATTR_PLAYER_ENTITY]
@@ -274,6 +276,7 @@ class MassQueueActions:
             media_type="track",
             library_item_id=item_id,
         )
+
 
 @callback
 def get_music_assistant_client(
