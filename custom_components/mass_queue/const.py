@@ -28,6 +28,7 @@ ATTR_PLAYER_ENTITY = "entity"
 ATTR_QUEUE_ITEMS = "queue_items"
 ATTR_COMMAND = "command"
 ATTR_DATA = "data"
+ATTR_FAVORITE = "favorite"
 LOGGER = logging.getLogger(__package__)
 
 DEFAULT_QUEUE_ITEMS_LIMIT = 500
