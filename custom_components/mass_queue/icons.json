@@ -1,0 +1,12 @@
+{
+  "services": {
+    "get_queue_items": { "service": "mdi:playlist-music" },
+    "move_queue_item_down": { "service": "mdi:arrow-down" },
+    "move_queue_item_next": { "service": "mdi:arrow-collapse-up" },
+    "move_queue_item_up": { "service": "mdi:arrow-up" },
+    "play_queue_item": { "service": "mdi:play" },
+    "remove_queue_item": { "service": "mdi:close" },
+    "send_command": { "service": "mdi:send" },
+    "unfavorite_current_item": { "service": "mdi:heart-remove" }
+  }
+}

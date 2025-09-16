@@ -1,0 +1,166 @@
+{
+  "config": {
+    "step": {
+      "init": {
+        "data": {
+          "url": "URL of the Music Assistant server"
+        }
+      },
+      "manual": {
+        "title": "Manually add Music Assistant server",
+        "description": "Enter the URL to your already running Music Assistant server. If you do not have the Music Assistant server running, you should install it first.",
+        "data": {
+          "url": "URL of the Music Assistant server"
+        }
+      },
+      "discovery_confirm": {
+        "description": "Do you want to add the Music Assistant server `{url}` to Home Assistant?",
+        "title": "Discovered Music Assistant server"
+      }
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "invalid_server_version": "The Music Assistant server is not the correct version",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]",
+      "already_in_progress": "[%key:common::config_flow::abort::already_in_progress%]",
+      "reconfiguration_successful": "Successfully reconfigured the Music Assistant integration.",
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]"
+    }
+  },
+  "issues": {
+    "invalid_server_version": {
+      "title": "The Music Assistant server is not the correct version",
+      "description": "Check if there are updates available for the Music Assistant server and/or integration."
+    }
+  },
+  "services": {
+    "get_queue_items": {
+      "name": "Get Queue Items",
+      "description": "Returns a list of the current items in a player's queue.",
+      "fields": {
+        "limit": {
+          "name": "Limit",
+          "description": "Limit on the number of items in queue to return."
+        },
+        "offset": {
+          "name": "Offset",
+          "description": "Location in queue to start where zero equals the first item in queue, not the current item.."
+        },
+        "limit_before": {
+          "name": "Limit Before",
+          "description": "Number of items to pull before current active item in queue.."
+        },
+        "limit_after": {
+          "name": "Limit After",
+          "description": "Number of items to pull after current active item in queue.."
+        },
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        }
+      }
+    },
+    "remove_queue_item": {
+      "name": "Remove Queue Item",
+      "description": "Removes an item from the current active queue for a player.",
+      "fields": {
+        "queue_item_id": {
+          "name": "Queue Item ID",
+          "description": "ID for the item to remove."
+        },
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        }
+      }
+    },
+    "move_queue_item_up": {
+      "name": "Move Queue Item Up",
+      "description": "Moves an item up in a player's queue.",
+      "fields": {
+        "queue_item_id": {
+          "name": "Queue Item ID",
+          "description": "ID for the item to move up."
+        },
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        }
+      }
+    },
+    "move_queue_item_down": {
+      "name": "Move Queue Item Down",
+      "description": "Moves an item down in a player's queue.",
+      "fields": {
+        "queue_item_id": {
+          "name": "Queue Item ID",
+          "description": "ID for the item to move down."
+        },
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        }
+      }
+    },
+    "move_queue_item_next": {
+      "name": "Move Queue Item Next",
+      "description": "Moves an item next in a player's queue.",
+      "fields": {
+        "queue_item_id": {
+          "name": "Queue Item ID",
+          "description": "ID for the item to move next."
+        },
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        }
+      }
+    },
+    "play_queue_item": {
+      "name": "Play Queue Item",
+      "description": "Plays an item that's currently in a player queue.",
+      "fields": {
+        "queue_item_id": {
+          "name": "Queue Item ID",
+          "description": "ID for the item to play."
+        },
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        }
+      }
+    },
+    "send_command": {
+      "name": "Send Command",
+      "description": "Sends a command to the Music Assistant API.",
+      "fields": {
+        "command": {
+          "name": "Command",
+          "description": "Command to send to Music Assistant."
+        },
+        "data": {
+          "name": "Data",
+          "description": "Command data to send."
+        },
+        "config_entry_id": {
+          "name": "Config Entry ID",
+          "description": "Config Entry ID for the Music Assistant Queue Items instance."
+        }
+      }
+    },
+    "unfavorite_current_item": {
+      "name": "Unfavorite Current Item",
+      "description": "Unfavorites the currently playing item in a player queue.",
+      "fields": {
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        }
+      }
+    }
+  }
+}
