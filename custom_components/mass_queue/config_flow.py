@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import voluptuous as vol
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import SOURCE_IGNORE, ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_URL
 from homeassistant.helpers import aiohttp_client
 from music_assistant_client import MusicAssistantClient
@@ -121,6 +121,9 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
         existing_entry = self.hass.config_entries.async_entry_for_domain_unique_id(
             DOMAIN, self.server_info.server_id)
         if existing_entry:
+            # If the entry was ignored or disabled, don't make any changes
+            if existing_entry.source == SOURCE_IGNORE or existing_entry.disabled_by:
+                return self.async_abort(reason="already_configured")
             # Test connectivity to the current URL first
             current_url = existing_entry.data[CONF_URL]
             try:
