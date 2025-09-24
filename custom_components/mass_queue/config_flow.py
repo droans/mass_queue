@@ -57,7 +57,6 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
         """Set up flow instance."""
         self.server_info: ServerInfoMessage | None = None
 
-
     async def async_step_user(
         self,
         user_input: dict[str, Any] | None = None,
@@ -113,13 +112,15 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
         # abort if discovery info is not what we expect
         if "server_id" not in discovery_info.properties:
             return self.async_abort(reason="missing_server_id")
-        
+
         self.server_info = ServerInfoMessage.from_dict(discovery_info.properties)
         await self.async_set_unique_id(self.server_info.server_id)
-        
+
         # Check if we already have a config entry for this server_id
         existing_entry = self.hass.config_entries.async_entry_for_domain_unique_id(
-            DOMAIN, self.server_info.server_id)
+            DOMAIN,
+            self.server_info.server_id,
+        )
         if existing_entry:
             # If the entry was ignored or disabled, don't make any changes
             if existing_entry.source == SOURCE_IGNORE or existing_entry.disabled_by:

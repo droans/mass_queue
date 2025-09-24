@@ -38,13 +38,16 @@ def mock_setup_entry():
 async def test_user_form(hass: HomeAssistant, mock_get_server_info: AsyncMock) -> None:
     """Test we get the user initiated form."""
     result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": SOURCE_USER}
+        DOMAIN,
+        context={"source": SOURCE_USER},
     )
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "user"
     assert result["errors"] == {}
 
-    server_info = ServerInfoMessage.from_dict({"server_id": "1234", "base_url": "http://test:8095"})
+    server_info = ServerInfoMessage.from_dict(
+        {"server_id": "1234", "base_url": "http://test:8095"},
+    )
     mock_get_server_info.return_value = server_info
 
     result = await hass.config_entries.flow.async_configure(
@@ -59,13 +62,15 @@ async def test_user_form(hass: HomeAssistant, mock_get_server_info: AsyncMock) -
 
 
 async def test_user_form_cannot_connect(
-    hass: HomeAssistant, mock_get_server_info: AsyncMock
+    hass: HomeAssistant,
+    mock_get_server_info: AsyncMock,
 ) -> None:
     """Test we handle cannot connect error."""
     mock_get_server_info.side_effect = CannotConnect
 
     result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": SOURCE_USER}
+        DOMAIN,
+        context={"source": SOURCE_USER},
     )
 
     result = await hass.config_entries.flow.async_configure(
@@ -79,13 +84,15 @@ async def test_user_form_cannot_connect(
 
 
 async def test_user_form_invalid_server_version(
-    hass: HomeAssistant, mock_get_server_info: AsyncMock
+    hass: HomeAssistant,
+    mock_get_server_info: AsyncMock,
 ) -> None:
     """Test we handle invalid server version error."""
     mock_get_server_info.side_effect = InvalidServerVersion
 
     result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": SOURCE_USER}
+        DOMAIN,
+        context={"source": SOURCE_USER},
     )
 
     result = await hass.config_entries.flow.async_configure(
@@ -99,13 +106,15 @@ async def test_user_form_invalid_server_version(
 
 
 async def test_user_form_unknown_error(
-    hass: HomeAssistant, mock_get_server_info: AsyncMock
+    hass: HomeAssistant,
+    mock_get_server_info: AsyncMock,
 ) -> None:
     """Test we handle unknown error."""
     mock_get_server_info.side_effect = Exception("Unknown error")
 
     result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": SOURCE_USER}
+        DOMAIN,
+        context={"source": SOURCE_USER},
     )
 
     result = await hass.config_entries.flow.async_configure(
@@ -119,7 +128,8 @@ async def test_user_form_unknown_error(
 
 
 async def test_user_form_duplicate(
-    hass: HomeAssistant, mock_get_server_info: AsyncMock
+    hass: HomeAssistant,
+    mock_get_server_info: AsyncMock,
 ) -> None:
     """Test we handle duplicate error."""
     mock_config_entry = MockConfigEntry(
@@ -130,11 +140,14 @@ async def test_user_form_duplicate(
     )
     mock_config_entry.add_to_hass(hass)
 
-    server_info = ServerInfoMessage.from_dict({"server_id": "1234", "base_url": "http://test:8095"})
+    server_info = ServerInfoMessage.from_dict(
+        {"server_id": "1234", "base_url": "http://test:8095"},
+    )
     mock_get_server_info.return_value = server_info
 
     result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": SOURCE_USER}
+        DOMAIN,
+        context={"source": SOURCE_USER},
     )
 
     result = await hass.config_entries.flow.async_configure(
@@ -146,9 +159,14 @@ async def test_user_form_duplicate(
     assert result["reason"] == "already_configured"
 
 
-async def test_zeroconf_discovery(hass: HomeAssistant, mock_get_server_info: AsyncMock) -> None:
+async def test_zeroconf_discovery(
+    hass: HomeAssistant,
+    mock_get_server_info: AsyncMock,
+) -> None:
     """Test zeroconf discovery."""
-    server_info = ServerInfoMessage.from_dict({"server_id": "1234", "base_url": "http://test:8095"})
+    server_info = ServerInfoMessage.from_dict(
+        {"server_id": "1234", "base_url": "http://test:8095"},
+    )
     mock_get_server_info.return_value = server_info
 
     result = await hass.config_entries.flow.async_init(
@@ -180,7 +198,8 @@ async def test_zeroconf_discovery(hass: HomeAssistant, mock_get_server_info: Asy
 
 
 async def test_zeroconf_discovery_cannot_connect(
-    hass: HomeAssistant, mock_get_server_info: AsyncMock
+    hass: HomeAssistant,
+    mock_get_server_info: AsyncMock,
 ) -> None:
     """Test zeroconf discovery cannot connect."""
     mock_get_server_info.side_effect = CannotConnect
@@ -222,7 +241,8 @@ async def test_zeroconf_discovery_missing_server_id(hass: HomeAssistant) -> None
 
 
 async def test_zeroconf_existing_entry(
-    hass: HomeAssistant, mock_get_server_info: AsyncMock
+    hass: HomeAssistant,
+    mock_get_server_info: AsyncMock,
 ) -> None:
     """Test zeroconf discovery with existing entry."""
     mock_config_entry = MockConfigEntry(
@@ -234,7 +254,9 @@ async def test_zeroconf_existing_entry(
     mock_config_entry.add_to_hass(hass)
 
     # Mock server info with discovered URL
-    server_info = ServerInfoMessage.from_dict({"server_id": "1234", "base_url": "http://discovered:8095"})
+    server_info = ServerInfoMessage.from_dict(
+        {"server_id": "1234", "base_url": "http://discovered:8095"},
+    )
     mock_get_server_info.return_value = server_info
 
     result = await hass.config_entries.flow.async_init(
@@ -255,7 +277,8 @@ async def test_zeroconf_existing_entry(
 
 
 async def test_zeroconf_existing_entry_broken_url(
-    hass: HomeAssistant, mock_get_server_info: AsyncMock
+    hass: HomeAssistant,
+    mock_get_server_info: AsyncMock,
 ) -> None:
     """Test zeroconf discovery with existing entry that has broken URL."""
     mock_config_entry = MockConfigEntry(
@@ -267,7 +290,9 @@ async def test_zeroconf_existing_entry_broken_url(
     mock_config_entry.add_to_hass(hass)
 
     # Mock server info with discovered URL
-    server_info = ServerInfoMessage.from_dict({"server_id": "1234", "base_url": "http://discovered-working-url:8095"})
+    server_info = ServerInfoMessage.from_dict(
+        {"server_id": "1234", "base_url": "http://discovered-working-url:8095"},
+    )
     mock_get_server_info.return_value = server_info
 
     # First call fails (broken URL), second call succeeds (discovered URL)
@@ -282,7 +307,10 @@ async def test_zeroconf_existing_entry_broken_url(
             hostname="test.local.",
             type="_music-assistant._tcp.local.",
             name="Music Assistant._music-assistant._tcp.local.",
-            properties={"server_id": "1234", "base_url": "http://discovered-working-url:8095"},
+            properties={
+                "server_id": "1234",
+                "base_url": "http://discovered-working-url:8095",
+            },
         ),
     )
 
@@ -295,7 +323,8 @@ async def test_zeroconf_existing_entry_broken_url(
 
 
 async def test_zeroconf_existing_entry_ignored(
-    hass: HomeAssistant, mock_get_server_info: AsyncMock
+    hass: HomeAssistant,
+    mock_get_server_info: AsyncMock,
 ) -> None:
     """Test zeroconf flow when existing entry was ignored."""
     # Create an ignored config entry (no URL field)
@@ -309,7 +338,9 @@ async def test_zeroconf_existing_entry_ignored(
     ignored_config_entry.add_to_hass(hass)
 
     # Mock server info with discovered URL
-    server_info = ServerInfoMessage.from_dict({"server_id": "1234", "base_url": "http://discovered-url:8095"})
+    server_info = ServerInfoMessage.from_dict(
+        {"server_id": "1234", "base_url": "http://discovered-url:8095"},
+    )
     mock_get_server_info.return_value = server_info
 
     result = await hass.config_entries.flow.async_init(
