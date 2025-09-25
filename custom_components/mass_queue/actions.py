@@ -14,10 +14,15 @@ from homeassistant.core import (
 )
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
+from music_assistant_models.errors import (
+    InvalidCommand,
+    MediaNotFoundError,
+)
 
 from .const import (
     ATTR_COMMAND,
     ATTR_DATA,
+    ATTR_FAVORITE,
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
     ATTR_LIMIT_BEFORE,
@@ -157,6 +162,7 @@ class MassQueueActions:
         media_content_id = media["uri"]
         img = queue_item.get("image")
         media_image = "" if img is None else img.get("path", "")
+        favorite = media["favorite"]
 
         artists = media["artists"]
         artist_names = [artist["name"] for artist in artists]
@@ -169,6 +175,7 @@ class MassQueueActions:
                 ATTR_MEDIA_ARTIST: media_artist,
                 ATTR_MEDIA_CONTENT_ID: media_content_id,
                 ATTR_MEDIA_IMAGE: media_image,
+                ATTR_FAVORITE: favorite,
             },
         )
         return response
@@ -184,6 +191,8 @@ class MassQueueActions:
         """Get all items in queue."""
         entity_id = call.data[ATTR_PLAYER_ENTITY]
         queue_id = self.get_queue_id(entity_id)
+        if queue_id is None:
+            return {entity_id: []}
         offset = call.data.get(ATTR_OFFSET)
         limit = call.data.get(ATTR_LIMIT)
         limit_before = call.data.get(ATTR_LIMIT_BEFORE)
@@ -247,6 +256,25 @@ class MassQueueActions:
         await self._client.player_queues.queue_command_move_next(
             queue_id,
             queue_item_id,
+        )
+
+    async def unfavorite_item(self, call: ServiceCall) -> ServiceResponse:
+        """Unfavorites currently playing item in queue."""
+        entity_id = call.data[ATTR_PLAYER_ENTITY]
+        attrs = self._hass.states.get(entity_id).attributes
+        content_id = attrs.get(ATTR_MEDIA_CONTENT_ID)
+        if not content_id:
+            msg = f"Cannot find media with content id {content_id}"
+            raise MediaNotFoundError(msg)
+        provider = content_id.split("://")[0]
+        if provider != "library":
+            msg = f"Unfavorite can only apply to library media items, not from provider {provider}"
+            raise InvalidCommand(msg)
+        item_id = str(content_id.split("/")[-1])
+        await self._client.send_command(
+            "music/favorites/remove_item",
+            media_type="track",
+            library_item_id=item_id,
         )
 
 

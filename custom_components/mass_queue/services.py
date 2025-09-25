@@ -25,6 +25,7 @@ from .const import (
     SERVICE_PLAY_QUEUE_ITEM,
     SERVICE_REMOVE_QUEUE_ITEM,
     SERVICE_SEND_COMMAND,
+    SERVICE_UNFAVORITE_CURRENT_ITEM,
 )
 from .schemas import (
     MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
@@ -34,6 +35,7 @@ from .schemas import (
     QUEUE_ITEMS_SERVICE_SCHEMA,
     REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
     SEND_COMMAND_SERVICE_SCHEMA,
+    UNFAVORITE_CURRENT_ITEM_SERVICE_SCHEMA,
 )
 
 if TYPE_CHECKING:
@@ -93,6 +95,13 @@ def register_actions(hass) -> None:
         send_command,
         schema=SEND_COMMAND_SERVICE_SCHEMA,
         supports_response=SupportsResponse.OPTIONAL,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_UNFAVORITE_CURRENT_ITEM,
+        unfavorite_current_item,
+        schema=UNFAVORITE_CURRENT_ITEM_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.NONE,
     )
 
 
@@ -204,3 +213,11 @@ async def send_command(call: ServiceCall):
     entry = hass.config_entries.async_get_entry(entry_id)
     actions = entry.runtime_data.actions
     return await actions.send_command(call)
+
+
+async def unfavorite_current_item(call: ServiceCall):
+    """Service wrapper to unfavorite currently playing item."""
+    entity_id = call.data[ATTR_PLAYER_ENTITY]
+    hass = call.hass
+    actions = get_entity_actions_controller(hass, entity_id)
+    await actions.unfavorite_item(call)

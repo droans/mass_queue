@@ -99,10 +99,11 @@ media_player.music_assistant_speaker:
 
 `mass_queue.send_command`: Sends a command to the Music Assistant API and returns the response. You may find the various commands by searching for `@api_command` in the [music_assistant/server](http://github.com/music-assistant/server/) repository.
 
-| Parameter | Type | Required | Default | Description                                    |
-|-----------|------|----------|---------|------------------------------------------------|
-| `command` | str  | Yes      | n/a     | The command to send to Music Assistant         |
-| `data`    | dict | No       | None    | Any data to send with the command              |
+| Parameter         | Type | Required | Default | Description                                 |
+|-------------------|------|----------|---------|---------------------------------------------|
+| `command`         | str  | Yes      | n/a     | The command to send to Music Assistant      |
+| `data`            | dict | No       | None    | Any data to send with the command           |
+| `config_entry_id` | dict | No       | None    | The ID of the used `mass_queue` integration |
 
 ## Installation
 
