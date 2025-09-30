@@ -27,7 +27,7 @@
 
 Adds new actions to control player queues for Music Assistant
 
-Designed to work with [Music Assistant Queue Card](https://github.com/droans/mass_card)
+Designed to work with [Music Assistant Player Card](https://github.com/droans/mass-player-card)
 
 [![My Home Assistant](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?repository=mass_queue&owner=droans&category=Integration)
 
