@@ -57,6 +57,7 @@ from .schemas import (
     REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
     SEND_COMMAND_SERVICE_SCHEMA,
 )
+from .util import find_image
 
 if TYPE_CHECKING:
     from music_assistant_client import MusicAssistantClient
@@ -160,8 +161,7 @@ class MassQueueActions:
         media_album = media.get("album")
         media_album_name = "" if media_album is None else media_album.get("name", "")
         media_content_id = media["uri"]
-        img = queue_item.get("image")
-        media_image = "" if img is None else img.get("path", "")
+        media_image = find_image(queue_item)
         favorite = media["favorite"]
 
         artists = media["artists"]
