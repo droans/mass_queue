@@ -57,7 +57,7 @@ from .schemas import (
     REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
     SEND_COMMAND_SERVICE_SCHEMA,
 )
-from .util import find_image
+from .utils import find_image
 
 if TYPE_CHECKING:
     from music_assistant_client import MusicAssistantClient
