@@ -161,7 +161,7 @@ class MassQueueActions:
         media_album = media.get("album")
         media_album_name = "" if media_album is None else media_album.get("name", "")
         media_content_id = media["uri"]
-        media_image = find_image(queue_item)
+        media_image = find_image(queue_item) or ""
         favorite = media["favorite"]
 
         artists = media["artists"]
