@@ -16,7 +16,6 @@ from homeassistant.helpers import entity_registry as er
 
 from .const import (
     ATTR_CONFIG_ENTRY_ID,
-    ATTR_PROVIDERS,
     ATTR_PLAYER_ENTITY,
     DOMAIN,
     SERVICE_GET_QUEUE_ITEMS,
@@ -233,6 +232,7 @@ async def unfavorite_current_item(call: ServiceCall):
     await actions.unfavorite_item(call)
 
 async def get_recommendations(call: ServiceCall):
+    """Service wrapper to get recommendations from providers."""
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     hass = call.hass
     actions = get_entity_actions_controller(hass, entity_id)
