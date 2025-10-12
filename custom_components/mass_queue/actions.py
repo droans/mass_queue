@@ -33,12 +33,14 @@ from .const import (
     ATTR_MEDIA_TITLE,
     ATTR_OFFSET,
     ATTR_PLAYER_ENTITY,
+    ATTR_PROVIDERS,
     ATTR_QUEUE_ID,
     ATTR_QUEUE_ITEM_ID,
     DEFAULT_QUEUE_ITEMS_LIMIT,
     DEFAULT_QUEUE_ITEMS_OFFSET,
     DOMAIN,
     SERVICE_GET_QUEUE_ITEMS,
+    SERVICE_GET_RECOMMENDATIONS,
     SERVICE_MOVE_QUEUE_ITEM_DOWN,
     SERVICE_MOVE_QUEUE_ITEM_NEXT,
     SERVICE_MOVE_QUEUE_ITEM_UP,
@@ -48,6 +50,7 @@ from .const import (
 )
 from .controller import MassQueueController
 from .schemas import (
+    GET_RECOMMENDATIONS_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
@@ -133,6 +136,13 @@ class MassQueueActions:
             schema=SEND_COMMAND_SERVICE_SCHEMA,
             supports_response=SupportsResponse.OPTIONAL,
         )
+        self._hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_RECOMMENDATIONS,
+            self.get_recommendations,
+            schema=GET_RECOMMENDATIONS_SERVICE_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
 
     def get_queue_id(self, entity_id: str):
         """Get the queue ID for a player."""
@@ -185,6 +195,12 @@ class MassQueueActions:
         command = call.data[ATTR_COMMAND]
         data = call.data.get(ATTR_DATA)
         response = await self._controller.send_command(command, data)
+        return {"response": response}
+
+    async def get_recommendations(self, call: ServiceCall) -> ServiceResponse:
+        """Pulls all recommendations for the providers given."""
+        providers = call.data.get(ATTR_PROVIDERS)
+        response = await self._controller.get_recommendations(providers)
         return {"response": response}
 
     async def get_queue_items(self, call: ServiceCall) -> ServiceResponse:

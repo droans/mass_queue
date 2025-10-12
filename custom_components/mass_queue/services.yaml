@@ -158,3 +158,20 @@ unfavorite_current_item:
         entity:
           domain: media_player
           integration: music_assistant
+get_recommendations:
+  fields:
+    entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
+      required: true
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
+    providers:
+      name: Providers
+      description: Limit recommendations to the specified providers.
+      required: false
+      selector:
+        text:
+          multiple: true

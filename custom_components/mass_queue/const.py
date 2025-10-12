@@ -5,6 +5,7 @@ import logging
 DOMAIN = "mass_queue"
 DEFAULT_NAME = "Music Assistant Queue Items"
 SERVICE_GET_QUEUE_ITEMS = "get_queue_items"
+SERVICE_GET_RECOMMENDATIONS = "get_recommendations"
 SERVICE_PLAY_QUEUE_ITEM = "play_queue_item"
 SERVICE_REMOVE_QUEUE_ITEM = "remove_queue_item"
 SERVICE_MOVE_QUEUE_ITEM_UP = "move_queue_item_up"
@@ -29,6 +30,7 @@ ATTR_QUEUE_ITEMS = "queue_items"
 ATTR_COMMAND = "command"
 ATTR_DATA = "data"
 ATTR_FAVORITE = "favorite"
+ATTR_PROVIDERS = "providers"
 LOGGER = logging.getLogger(__package__)
 
 DEFAULT_QUEUE_ITEMS_LIMIT = 500
