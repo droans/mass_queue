@@ -16,9 +16,11 @@ from homeassistant.helpers import entity_registry as er
 
 from .const import (
     ATTR_CONFIG_ENTRY_ID,
+    ATTR_PROVIDERS,
     ATTR_PLAYER_ENTITY,
     DOMAIN,
     SERVICE_GET_QUEUE_ITEMS,
+    SERVICE_GET_RECOMMENDATIONS,
     SERVICE_MOVE_QUEUE_ITEM_DOWN,
     SERVICE_MOVE_QUEUE_ITEM_NEXT,
     SERVICE_MOVE_QUEUE_ITEM_UP,
@@ -28,6 +30,7 @@ from .const import (
     SERVICE_UNFAVORITE_CURRENT_ITEM,
 )
 from .schemas import (
+    GET_RECOMMENDATIONS_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
@@ -102,6 +105,13 @@ def register_actions(hass) -> None:
         unfavorite_current_item,
         schema=UNFAVORITE_CURRENT_ITEM_SERVICE_SCHEMA,
         supports_response=SupportsResponse.NONE,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_RECOMMENDATIONS,
+        get_recommendations,
+        schema=GET_RECOMMENDATIONS_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
     )
 
 
@@ -221,3 +231,9 @@ async def unfavorite_current_item(call: ServiceCall):
     hass = call.hass
     actions = get_entity_actions_controller(hass, entity_id)
     await actions.unfavorite_item(call)
+
+async def get_recommendations(call: ServiceCall):
+    entity_id = call.data[ATTR_PLAYER_ENTITY]
+    hass = call.hass
+    actions = get_entity_actions_controller(hass, entity_id)
+    return await actions.get_recommendations(call)

@@ -19,6 +19,7 @@ from .const import (
     ATTR_MEDIA_IMAGE,
     ATTR_MEDIA_TITLE,
     ATTR_OFFSET,
+    ATTR_PROVIDERS,
     ATTR_PLAYER_ENTITY,
     ATTR_QUEUE_ITEM_ID,
     ATTR_QUEUE_ITEMS,
@@ -91,6 +92,13 @@ SEND_COMMAND_SERVICE_SCHEMA = vol.Schema(
         vol.Optional(ATTR_DATA, default={}): dict,
         vol.Required(ATTR_CONFIG_ENTRY_ID): str,
     },
+)
+
+GET_RECOMMENDATIONS_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_PLAYER_ENTITY): str,
+        vol.Optional(ATTR_PROVIDERS): [str],
+    }
 )
 
 UNFAVORITE_CURRENT_ITEM_SERVICE_SCHEMA = vol.Schema(

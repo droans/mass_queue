@@ -123,6 +123,12 @@ class MassQueueController:
         """Sends command to Music Assistant and returns response."""
         data = data if data else {}
         return await self._client.send_command(command, require_schema=None, **data)
+    async def get_recommendations(self, providers: list = None):
+        """Pulls all recommendations."""
+        recs = await self._client.music.recommendations()
+        if not providers:
+            return recs
+        return [rec for rec in recs if rec.provider in providers]
 
     async def get_player_queue(self, player_id: str):
         """Gets queue items for single Music Assistant queue."""

@@ -161,6 +161,20 @@
           "description": "Music Assistant Media Player Entity."
         }
       }
+    },
+    "get_recommendations": {
+      "name": "Get Recommendations",
+      "description": "Get recommendations from your music providers.",
+      "fields": {
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        },
+        "providers": {
+          "name": "Providers",
+          "description": "Limit recommendations to the specified providers."
+        }
+      }
     }
   }
 }
