@@ -201,7 +201,7 @@ class MassQueueActions:
         """Pulls all recommendations for the providers given."""
         providers = call.data.get(ATTR_PROVIDERS)
         response = await self._controller.get_recommendations(providers)
-        return {"response": response}
+        return response
 
     async def get_queue_items(self, call: ServiceCall) -> ServiceResponse:
         """Get all items in queue."""

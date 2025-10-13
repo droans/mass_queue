@@ -1,5 +1,7 @@
 """Utilities."""
 
+from .const import LOGGER
+
 
 def format_event_data_queue_item(queue_item):
     """Format event data results for usage by controller."""
@@ -97,3 +99,46 @@ def find_image(data: dict):
     from_album = find_image_from_album(data)
     from_artists = find_image_from_artists(data)
     return from_image or from_metadata or from_album or from_artists
+
+def _get_recommendation_item_image(item: dict):
+    try:
+        images = item["metadata"]["images"]
+        accessible = [image for image in images if image["remotely_accessible"]]
+        if accessible:
+            return accessible[0]
+    except: # noqa: E722
+        LOGGER.debug(f"Unable to get images for item {item}, received error:")
+    return ""
+
+def process_recommendation_section_item(item: dict):
+    """Process and reformat a single recommendation item."""
+    return {
+        "item_id": item["item_id"],
+        "name": item["name"],
+        "sort_name": item["sort_name"],
+        "uri": item["uri"],
+        "media_type": item["media_type"],
+        "image": _get_recommendation_item_image(item),
+    }
+
+
+def process_recommendation_section_items(items: list):
+    """Process and reformat items for a single recommendation section."""
+    return [process_recommendation_section_item(item) for item in items]
+
+def process_recommendation_section(section: dict):
+    """Process and reformat a single recommendation section."""
+    LOGGER.debug(f"Got section: {section}")
+    return {
+        "item_id": section["item_id"],
+        "provider": section["provider"],
+        "sort_name": section["sort_name"],
+        "uri": section["uri"],
+        "icon": section["icon"],
+        "image": section["image"],
+        "items": process_recommendation_section_items(section["items"]),
+    }
+
+def process_recommendations(recs: list):
+    """Process and reformat items all recommendation sections."""
+    return [process_recommendation_section(rec) for rec in recs]
