@@ -6,6 +6,7 @@ import asyncio
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from homeassistant.components import websocket_api
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import CONF_URL, EVENT_HOMEASSISTANT_STOP
 from homeassistant.exceptions import ConfigEntryNotReady
@@ -28,6 +29,7 @@ from .actions import (
 )
 from .const import DOMAIN, LOGGER
 from .services import register_actions
+from .utils import download_images
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -119,6 +121,7 @@ async def async_setup_entry(
     actions = await setup_controller_and_actions(hass, mass)
     register_actions(hass)
     entry.runtime_data = MusicAssistantQueueEntryData(mass, actions, listen_task)
+    websocket_api.async_register_command(hass, download_images)
 
     # If the listen task is already failed, we need to raise ConfigEntryNotReady
     if listen_task.done() and (listen_error := listen_task.exception()) is not None:
