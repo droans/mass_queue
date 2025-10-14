@@ -1,6 +1,79 @@
 """Utilities."""
 
+from __future__ import annotations
+
+import base64
+import urllib.parse
+from typing import TYPE_CHECKING
+
+import voluptuous as vol
+from homeassistant.components import websocket_api
+from homeassistant.config_entries import ConfigEntryState
+from homeassistant.core import callback
+from homeassistant.exceptions import ServiceValidationError
+from homeassistant.helpers import aiohttp_client
+from homeassistant.helpers import entity_registry as er
+
+if TYPE_CHECKING:
+    from homeassistant.core import HomeAssistant
+    from music_assistant_client import MusicAssistantClient
+
+    from . import MassQueueEntryData
+
 from .const import LOGGER
+
+
+@callback
+def _get_config_entry(
+    hass: HomeAssistant,
+    config_entry_id: str,
+) -> MusicAssistantClient:
+    """Get Music Assistant Client from config_entry_id."""
+    entry: MassQueueEntryData | None
+    if not (entry := hass.config_entries.async_get_entry(config_entry_id)):
+        exc = "Entry not found."
+        raise ServiceValidationError(exc)
+    if entry.state is not ConfigEntryState.LOADED:
+        exc = "Entry not loaded"
+        raise ServiceValidationError(exc)
+    return entry
+
+
+def get_entity_actions_controller(hass, entity_id):
+    """Gets the actions for the selected entity."""
+    mass_entry = get_mass_entry(hass, entity_id)
+    mass = mass_entry.runtime_data.mass.connection.ws_server_url
+    mass_queue_entry = find_mass_queue_entry(hass, mass)
+    return mass_queue_entry.runtime_data.actions
+
+
+def get_mass_entry(hass, entity_id):
+    """Helper function to pull MA Config Entry."""
+    config_id = _get_mass_entity_config_entry_id(hass, entity_id)
+    return _get_config_entry(hass, config_id)
+
+
+def _get_mass_entity_config_entry_id(hass, entity_id):
+    """Helper to grab config entry ID from entity ID."""
+    registry = er.async_get(hass)
+    return registry.async_get(entity_id).config_entry_id
+
+
+def find_mass_queue_entry(hass, mass_url):
+    """Finds the mass_queue entry for the given MA URL."""
+    entries = _get_mass_queue_entries(hass)
+    for entry in entries:
+        entry_url = entry.runtime_data.mass.connection.ws_server_url
+        if entry_url == mass_url:
+            return entry
+    msg = f"Cannot find entry for Music Assistant at {mass_url}"
+    raise ServiceValidationError(msg)
+
+
+def _get_mass_queue_entries(hass):
+    """Gets all entries for mass_queue domain."""
+    entries = hass.config_entries.async_entries()
+    return [entry for entry in entries if entry.domain == "mass_queue"]
 
 
 def format_event_data_queue_item(queue_item):
@@ -173,3 +246,57 @@ def process_recommendations(recs: list):
         if len(processed["items"]):
             result.append(processed)
     return result
+
+
+def _generate_image_url(image_data: dict, client):
+    img_path = image_data["path"]
+    provider = image_data["provider"]
+    base_url = client.server_url
+    img = urllib.parse.quote_plus(urllib.parse.quote_plus(img_path))
+    return f"{base_url}/imageproxy?provider={provider}&size=256&format=png&path={img}"
+
+
+async def _download_single_image(image_data: dict, entity_id, hass, session):
+    """Downloads a single image from Music Assistant and returns the base64 encoded string."""
+    entry = get_mass_entry(hass, entity_id)
+    client = entry.runtime_data.mass
+    url = _generate_image_url(image_data, client)
+    try:
+        req = await session.get(url)
+        read = await req.content.read()
+        return f"data:image;base64,{base64.b64encode(read).decode('utf-8')}"
+    except:  # noqa: E722
+        LOGGER.error(f"Unable to get image with data {image_data}")
+        return None
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "mass_queue/encode_images",
+        vol.Required("entity_id"): str,
+        vol.Required("images"): list,
+    },
+)
+@websocket_api.async_response
+async def download_images(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict,
+) -> None:
+    """Download images and return them as b64 encoded."""
+    LOGGER.error(f"Received message: {msg}")
+    session = aiohttp_client.async_get_clientsession(hass)
+    LOGGER.error("Got session")
+    images = msg["images"]
+    LOGGER.error("Pulled images from message")
+    LOGGER.error(images)
+    result = []
+    entity_id = msg["entity_id"]
+    for image in images:
+        img = await _download_single_image(image, entity_id, hass, session)
+        LOGGER.error(f"Downloaded image: {img}")
+        image["encoded"] = img
+        result.append(image)
+    LOGGER.error("Final:")
+    LOGGER.error(result)
+    connection.send_result(msg["id"], result)

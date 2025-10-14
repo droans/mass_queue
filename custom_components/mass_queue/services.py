@@ -2,17 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import (
-    HomeAssistant,
     ServiceCall,
     SupportsResponse,
     callback,
 )
-from homeassistant.exceptions import ServiceValidationError
-from homeassistant.helpers import entity_registry as er
 
 from .const import (
     ATTR_CONFIG_ENTRY_ID,
@@ -39,12 +33,7 @@ from .schemas import (
     SEND_COMMAND_SERVICE_SCHEMA,
     UNFAVORITE_CURRENT_ITEM_SERVICE_SCHEMA,
 )
-from .utils import process_recommendations
-
-if TYPE_CHECKING:
-    from music_assistant_client import MusicAssistantClient
-
-    from . import MassQueueEntryData
+from .utils import get_entity_actions_controller, process_recommendations
 
 
 @callback
@@ -113,59 +102,6 @@ def register_actions(hass) -> None:
         schema=GET_RECOMMENDATIONS_SERVICE_SCHEMA,
         supports_response=SupportsResponse.ONLY,
     )
-
-
-def _get_mass_entity_config_entry_id(hass, entity_id):
-    """Helper to grab config entry ID from entity ID."""
-    registry = er.async_get(hass)
-    return registry.async_get(entity_id).config_entry_id
-
-
-@callback
-def _get_config_entry(
-    hass: HomeAssistant,
-    config_entry_id: str,
-) -> MusicAssistantClient:
-    """Get Music Assistant Client from config_entry_id."""
-    entry: MassQueueEntryData | None
-    if not (entry := hass.config_entries.async_get_entry(config_entry_id)):
-        exc = "Entry not found."
-        raise ServiceValidationError(exc)
-    if entry.state is not ConfigEntryState.LOADED:
-        exc = "Entry not loaded"
-        raise ServiceValidationError(exc)
-    return entry
-
-
-def get_mass_entry(hass, entity_id):
-    """Helper function to pull MA Config Entry."""
-    config_id = _get_mass_entity_config_entry_id(hass, entity_id)
-    return _get_config_entry(hass, config_id)
-
-
-def _get_mass_queue_entries(hass):
-    """Gets all entries for mass_queue domain."""
-    entries = hass.config_entries.async_entries()
-    return [entry for entry in entries if entry.domain == "mass_queue"]
-
-
-def find_mass_queue_entry(hass, mass_url):
-    """Finds the mass_queue entry for the given MA URL."""
-    entries = _get_mass_queue_entries(hass)
-    for entry in entries:
-        entry_url = entry.runtime_data.mass.connection.ws_server_url
-        if entry_url == mass_url:
-            return entry
-    msg = f"Cannot find entry for Music Assistant at {mass_url}"
-    raise ServiceValidationError(msg)
-
-
-def get_entity_actions_controller(hass, entity_id):
-    """Gets the actions for the selected entity."""
-    mass_entry = get_mass_entry(hass, entity_id)
-    mass = mass_entry.runtime_data.mass.connection.ws_server_url
-    mass_queue_entry = find_mass_queue_entry(hass, mass)
-    return mass_queue_entry.runtime_data.actions
 
 
 async def get_queue_items(call: ServiceCall):
