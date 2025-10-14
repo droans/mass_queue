@@ -39,6 +39,7 @@ from .schemas import (
     SEND_COMMAND_SERVICE_SCHEMA,
     UNFAVORITE_CURRENT_ITEM_SERVICE_SCHEMA,
 )
+from .utils import process_recommendations
 
 if TYPE_CHECKING:
     from music_assistant_client import MusicAssistantClient
@@ -237,4 +238,5 @@ async def get_recommendations(call: ServiceCall):
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     hass = call.hass
     actions = get_entity_actions_controller(hass, entity_id)
-    return await actions.get_recommendations(call)
+    result = await actions.get_recommendations(call)
+    return {"response": process_recommendations(result)}
