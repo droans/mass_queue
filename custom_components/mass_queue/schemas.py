@@ -13,6 +13,7 @@ from .const import (
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
     ATTR_LIMIT_BEFORE,
+    ATTR_LOCAL_IMAGE_ENCODED,
     ATTR_MEDIA_ALBUM_NAME,
     ATTR_MEDIA_ARTIST,
     ATTR_MEDIA_CONTENT_ID,
@@ -34,6 +35,7 @@ QUEUE_ITEM_SCHEMA = vol.Schema(
         vol.Required(ATTR_MEDIA_CONTENT_ID): str,
         vol.Required(ATTR_MEDIA_IMAGE): str,
         vol.Required(ATTR_FAVORITE): bool,
+        vol.Optional(ATTR_LOCAL_IMAGE_ENCODED): str,
     },
 )
 
