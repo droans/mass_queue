@@ -122,13 +122,13 @@ Local music providers are a bit different than cloud. When you are using Plex or
 
 However, there is a workaround!
 
-You may enable the `download_local` option by navigating to the integration's listing in Home Assistant and selecting the cog next to the entry. When this is enabled, the integration will attempt to download and encode the image for any item which does not have any images marked as `remotely_accessible`. 
+You may enable the `download_local` option by navigating to the integration's listing in Home Assistant and selecting the cog next to the entry. When this is enabled, the integration will attempt to download and encode the image for any item which does not have any images marked as `remotely_accessible`.
 
 This option will then return a new attribute for these queue items labeled `local_image_encoded`. Custom cards can then utilize this in their code in place of the image URL.
 
 ### WARNINGS
 
-* This is not a cure-all and should not be enabled unless you need it. 
-* This will not have any effect unless any frontend card supports it. 
-* Loading the integration and updating the queue WILL take much longer. Each item must be downloaded and converted. This is NOT a quick process. Depending on your server, this may take between 2-20 seconds per item. 
-* This requires that Home Assistant can directly access the Music Assistant server along with the local provider. 
+* This is not a cure-all and should not be enabled unless you need it.
+* This will not have any effect unless any frontend card supports it.
+* Loading the integration and updating the queue WILL take much longer. Each item must be downloaded and converted. This is NOT a quick process. Depending on your server, this may take between 2-20 seconds per item.
+* This requires that Home Assistant can directly access the Music Assistant server along with the local provider.

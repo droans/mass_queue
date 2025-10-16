@@ -352,7 +352,7 @@ class Queues:
                     queue_item["local_image_encoded"] = result
                 except Exception as e:  # noqa: BLE001
                     LOGGER.debug(
-                        f"Received error {e} when downloading image for queue item: {queue_item}"
+                        f"Received error {e} when downloading image for queue item: {queue_item}",
                     )
             else:
                 LOGGER.debug("No media image found but not expected to download.")
@@ -363,7 +363,7 @@ class Queues:
         items = [item if type(item) is dict else item.to_dict() for item in queue_items]
         try:
             result = await asyncio.gather(
-                *[self.process_image_single_item(item) for item in items]
+                *[self.process_image_single_item(item) for item in items],
             )
         except:  # noqa: E722
             LOGGER.error(f"Unable to process queue items {items}!")

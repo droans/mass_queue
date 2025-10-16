@@ -258,7 +258,10 @@ def generate_image_url_from_image_data(image_data: dict, client):
 
 
 async def _download_single_image_from_image_data(
-    image_data: dict, entity_id, hass, session
+    image_data: dict,
+    entity_id,
+    hass,
+    session,
 ):
     """Downloads a single image from Music Assistant and returns the base64 encoded string."""
     entry = get_mass_entry(hass, entity_id)
@@ -296,7 +299,10 @@ async def download_images(
     entity_id = msg["entity_id"]
     for image in images:
         img = await _download_single_image_from_image_data(
-            image, entity_id, hass, session
+            image,
+            entity_id,
+            hass,
+            session,
         )
         image["encoded"] = img
         result.append(image)

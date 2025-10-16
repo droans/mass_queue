@@ -202,7 +202,8 @@ class OptionsFlowHandler(OptionsFlowWithReload):
         """Initialize options handler."""
         self._config_entry = config_entry
         self._download_local = config_entry.options.get(
-            CONF_DOWNLOAD_LOCAL, DEFAULT_DOWNLOAD_LOCAL
+            CONF_DOWNLOAD_LOCAL,
+            DEFAULT_DOWNLOAD_LOCAL,
         )
 
     async def async_step_init(self, user_input=None) -> ConfigFlowResult:
