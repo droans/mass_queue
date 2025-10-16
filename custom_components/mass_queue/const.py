@@ -15,6 +15,7 @@ SERVICE_SEND_COMMAND = "send_command"
 SERVICE_UNFAVORITE_CURRENT_ITEM = "unfavorite_current_item"
 ATTR_QUEUE_ID = "active_queue"
 ATTR_CONFIG_ENTRY_ID = "config_entry_id"
+ATTR_LOCAL_IMAGE_ENCODED = "local_image_encoded"
 ATTR_LIMIT = "limit"
 ATTR_LIMIT_AFTER = "limit_after"
 ATTR_LIMIT_BEFORE = "limit_before"
@@ -31,6 +32,9 @@ ATTR_COMMAND = "command"
 ATTR_DATA = "data"
 ATTR_FAVORITE = "favorite"
 ATTR_PROVIDERS = "providers"
+
+CONF_DOWNLOAD_LOCAL = "download_local"
+
 LOGGER = logging.getLogger(__package__)
 
 DEFAULT_QUEUE_ITEMS_LIMIT = 500

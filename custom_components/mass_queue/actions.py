@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from homeassistant.config_entries import ConfigEntryState
+from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.core import (
     HomeAssistant,
     ServiceCall,
@@ -26,6 +26,7 @@ from .const import (
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
     ATTR_LIMIT_BEFORE,
+    ATTR_LOCAL_IMAGE_ENCODED,
     ATTR_MEDIA_ALBUM_NAME,
     ATTR_MEDIA_ARTIST,
     ATTR_MEDIA_CONTENT_ID,
@@ -36,9 +37,11 @@ from .const import (
     ATTR_PROVIDERS,
     ATTR_QUEUE_ID,
     ATTR_QUEUE_ITEM_ID,
+    CONF_DOWNLOAD_LOCAL,
     DEFAULT_QUEUE_ITEMS_LIMIT,
     DEFAULT_QUEUE_ITEMS_OFFSET,
     DOMAIN,
+    LOGGER,
     SERVICE_GET_QUEUE_ITEMS,
     SERVICE_GET_RECOMMENDATIONS,
     SERVICE_MOVE_QUEUE_ITEM_DOWN,
@@ -60,7 +63,9 @@ from .schemas import (
     REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
     SEND_COMMAND_SERVICE_SCHEMA,
 )
-from .utils import find_image
+from .utils import (
+    find_image,
+)
 
 if TYPE_CHECKING:
     from music_assistant_client import MusicAssistantClient
@@ -71,11 +76,18 @@ if TYPE_CHECKING:
 class MassQueueActions:
     """Class to manage Music Assistant actions without passing `hass` and `mass_client` each time."""
 
-    def __init__(self, hass: HomeAssistant, mass_client: MusicAssistantClient):
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        mass_client: MusicAssistantClient,
+        config_entry: ConfigEntry,
+    ):
         """Initialize class."""
         self._hass: HomeAssistant = hass
         self._client: MusicAssistantClient = mass_client
-        self._controller = MassQueueController(self._hass, self._client)
+        self._controller = MassQueueController(self._hass, self._client, config_entry)
+        self._config_entry = config_entry
+        self._download_local = config_entry.options.get(CONF_DOWNLOAD_LOCAL)
 
     def setup_controller(self):
         """Setup Music Assistant controller."""
@@ -161,9 +173,9 @@ class MassQueueActions:
         queue_id = self.get_queue_id(entity_id)
         return await self._client.player_queues.get_active_queue(queue_id)
 
-    def _format_queue_item(self, queue_item: dict) -> dict:
+    async def _format_queue_item(self, queue_item: dict) -> dict:
         """Format list of queue items for response."""
-        queue_item = queue_item.to_dict()
+        LOGGER.debug(f"Got queue item with keys {queue_item.keys()}")
         media = queue_item["media_item"]
 
         queue_item_id = queue_item["queue_item_id"]
@@ -172,6 +184,7 @@ class MassQueueActions:
         media_album_name = "" if media_album is None else media_album.get("name", "")
         media_content_id = media["uri"]
         media_image = find_image(queue_item) or ""
+        local_image_encoded = queue_item.get(ATTR_LOCAL_IMAGE_ENCODED)
         favorite = media["favorite"]
 
         artists = media["artists"]
@@ -188,6 +201,9 @@ class MassQueueActions:
                 ATTR_FAVORITE: favorite,
             },
         )
+        if local_image_encoded:
+            response[ATTR_LOCAL_IMAGE_ENCODED] = local_image_encoded
+        LOGGER.debug(f"Sending back response with keys {response.keys()}")
         return response
 
     async def send_command(self, call: ServiceCall) -> ServiceResponse:
@@ -224,7 +240,7 @@ class MassQueueActions:
         offset = max(offset, 0)
         queue_items = await self._controller.player_queue(queue_id, limit, offset)
         response: ServiceResponse = {
-            entity_id: [self._format_queue_item(item) for item in queue_items],
+            entity_id: [await self._format_queue_item(item) for item in queue_items],
         }
         return response
 
@@ -325,8 +341,9 @@ def _get_music_assistant_client(
 async def setup_controller_and_actions(
     hass: HomeAssistant,
     mass_client: MusicAssistantClient,
+    entry: ConfigEntry,
 ) -> MassQueueActions:
     """Initialize client and actions class, add actions to Home Assistant."""
-    actions = MassQueueActions(hass, mass_client)
+    actions = MassQueueActions(hass, mass_client, entry)
     actions.setup_controller()
     return actions

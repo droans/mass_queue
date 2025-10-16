@@ -2,31 +2,51 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import TYPE_CHECKING
 
+from homeassistant.core import callback
+
 if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
+    from music_assistant_client import MusicAssistantClient
+
 from music_assistant_models.enums import EventType
 
 from .const import (
+    CONF_DOWNLOAD_LOCAL,
     DEFAULT_QUEUE_ITEMS_LIMIT,
     DEFAULT_QUEUE_ITEMS_OFFSET,
     LOGGER,
     MASS_QUEUE_EVENT_DOMAIN,
     MUSIC_ASSISTANT_EVENT_DOMAIN,
 )
-from .utils import format_queue_updated_event_data, get_queue_id_from_player_data
+from .utils import (
+    download_and_encode_image,
+    find_image,
+    format_queue_updated_event_data,
+    generate_image_url_from_image_data,
+    get_queue_id_from_player_data,
+)
 
 
 class MassQueueController:
     """Controller to hold methods, handle events, and control caches of players and queues."""
 
-    def __init__(self, hass: HomeAssistant, mass_client):
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        mass_client: MusicAssistantClient,
+        config_entry: ConfigEntry,
+    ):
         """Initialize class."""
         self._client = mass_client
         self._hass = hass
         self.players = Players(hass)
-        self.queues = Queues(hass)
+        self.queues = Queues(hass, mass_client, config_entry)
+        self._config_entry = config_entry
+        self._download_local = config_entry.options.get(CONF_DOWNLOAD_LOCAL)
 
     # Events
     def subscribe_events(self):
@@ -264,10 +284,19 @@ class Players:
 class Queues:
     """Class to hold all queue caches."""
 
-    def __init__(self, hass: HomeAssistant, queues: dict | None = None):
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        client: MusicAssistantClient,
+        config_entry: ConfigEntry,
+        queues: dict | None = None,
+    ):
         """Initialize class."""
-        self.queues = queues if queues else {}
+        self.queues = self.batch_add(queues) if queues else {}
         self._hass = hass
+        self._config_entry = config_entry
+        self._download_local = config_entry.options.get(CONF_DOWNLOAD_LOCAL)
+        self._client = client
 
     def get(self, queue_id):
         """Returns cached queue records."""
@@ -275,20 +304,20 @@ class Queues:
 
     def add(self, queue_id: str, queue_items: int):
         """Adds a single queue."""
-        self.queues[queue_id] = queue_items
+        self.process_queue_images(queue_items, queue_id)
         event_data = {"type": "queue_added", "data": {"queue_id": queue_id}}
         self.send_ha_event(event_data)
 
     def batch_add(self, queues):
         """Adds multiple queues at once."""
         for k, v in queues.items():
-            self.queues[k] = v
+            self.process_queue_images(v, k)
         event_data = {"type": "queues_added", "data": {"queue_id": list(queues.keys())}}
         self.send_ha_event(event_data)
 
     def update(self, queue_id, queue_items):
         """Updates queue items in record."""
-        self.queues[queue_id] = queue_items
+        self.queues[queue_id] = self.process_queue_images(queue_items, queue_id)
         event_data = {"type": "queue_updated", "data": {"queue_id": queue_id}}
         self.send_ha_event(event_data)
 
@@ -304,3 +333,47 @@ class Queues:
         """Send event to Home Assistant."""
         LOGGER.debug(f"Sending event type {MASS_QUEUE_EVENT_DOMAIN}, data {event_data}")
         self._hass.bus.async_fire(MASS_QUEUE_EVENT_DOMAIN, event_data)
+
+    async def process_image_single_item(self, queue_item: dict):
+        """Processes the images from a single item."""
+        media_image = find_image(queue_item)
+        if media_image:
+            queue_item["media_image"] = media_image
+        else:
+            queue_item["media_image"] = ""
+            if self._download_local:
+                try:
+                    LOGGER.debug("Expected to download locally.")
+                    img_data = queue_item["media_item"]["metadata"]["images"][0]
+                    url = generate_image_url_from_image_data(img_data, self._client)
+                    LOGGER.debug(f"Downloading URL {url}")
+                    result = await download_and_encode_image(url, self._hass)
+                    LOGGER.debug("Downloaded and setting")
+                    queue_item["local_image_encoded"] = result
+                except Exception as e:  # noqa: BLE001
+                    LOGGER.debug(
+                        f"Received error {e} when downloading image for queue item: {queue_item}"
+                    )
+            else:
+                LOGGER.debug("No media image found but not expected to download.")
+        return queue_item
+
+    async def _process_queue_images(self, queue_items: list, queue_id: str):
+        """Helper to process all images in a given queue."""
+        items = [item if type(item) is dict else item.to_dict() for item in queue_items]
+        try:
+            result = await asyncio.gather(
+                *[self.process_image_single_item(item) for item in items]
+            )
+        except:  # noqa: E722
+            LOGGER.error(f"Unable to process queue items {items}!")
+            result = items
+        self.queues[queue_id] = result
+        return result
+
+    @callback
+    def process_queue_images(self, queue_items: list, queue_id: str):
+        """Processes all images in a given queue."""
+        loop = self._hass.loop
+        LOGGER.debug(f"Processing queue: {queue_items}")
+        loop.create_task(self._process_queue_images(queue_items, queue_id))

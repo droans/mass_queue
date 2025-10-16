@@ -109,68 +109,68 @@ def get_queue_id_from_player_data(player_data):
     return current_media.get("queue_id")
 
 
-def return_image_or_none(img_data: dict):
+def return_image_or_none(img_data: dict, remotely_accessible: bool):
     """Returns None if image is not present or not remotely accessible."""
     if type(img_data) is dict:
         img = img_data.get("path")
         remote = img_data.get("remotely_accessible")
-        if remote:
+        if remote or not remotely_accessible:
             return img
     return None
 
 
-def search_image_list(images: list):
+def search_image_list(images: list, remotely_accessible: bool):
     """Checks through a list of image data and attempts to find an image."""
     result = None
     for item in images:
-        image = return_image_or_none(item)
+        image = return_image_or_none(item, remotely_accessible)
         if image is not None:
             result = image
             break
     return result
 
 
-def find_image_from_image(data: dict):
+def find_image_from_image(data: dict, remotely_accessible: bool):
     """Attempts to find the image via the image key."""
     img_data = data.get("image")
-    return return_image_or_none(img_data)
+    return return_image_or_none(img_data, remotely_accessible)
 
 
-def find_image_from_metadata(data: dict):
+def find_image_from_metadata(data: dict, remotely_accessible: bool):
     """Attempts to find the image via the metadata key."""
     media_item = data.get("media_item", {})
     metadata = media_item.get("metadata", {})
     img_data = metadata.get("images")
     if img_data is None:
         return None
-    return search_image_list(img_data)
+    return search_image_list(img_data, remotely_accessible)
 
 
-def find_image_from_album(data: dict):
+def find_image_from_album(data: dict, remotely_accessible: bool):
     """Attempts to find the image via the album key."""
     album = data.get("album", {})
     metadata = album.get("metadata", {})
     img_data = metadata.get("images")
     if img_data is None:
         return None
-    return search_image_list(img_data)
+    return search_image_list(img_data, remotely_accessible)
 
 
-def find_image_from_artists(data: dict):
+def find_image_from_artists(data: dict, remotely_accessible: bool):
     """Attempts to find the image via the artists key."""
     artist = data.get("artist", {})
     img_data = artist.get("image")
     if img_data is list:
-        return search_image_list(img_data)
-    return return_image_or_none(img_data)
+        return search_image_list(img_data, remotely_accessible)
+    return return_image_or_none(img_data, remotely_accessible)
 
 
-def find_image(data: dict):
+def find_image(data: dict, remotely_accessible: bool = True):
     """Returns None if image is not present or not remotely accessible."""
-    from_image = find_image_from_image(data)
-    from_metadata = find_image_from_metadata(data)
-    from_album = find_image_from_album(data)
-    from_artists = find_image_from_artists(data)
+    from_image = find_image_from_image(data, remotely_accessible)
+    from_metadata = find_image_from_metadata(data, remotely_accessible)
+    from_album = find_image_from_album(data, remotely_accessible)
+    from_artists = find_image_from_artists(data, remotely_accessible)
     return from_image or from_metadata or from_album or from_artists
 
 
@@ -248,19 +248,22 @@ def process_recommendations(recs: list):
     return result
 
 
-def _generate_image_url(image_data: dict, client):
+def generate_image_url_from_image_data(image_data: dict, client):
+    """Generates an image URL from `image_data`."""
     img_path = image_data["path"]
     provider = image_data["provider"]
-    base_url = client.server_url
+    base_url = "" if img_path.startswith("http") else client.server_url
     img = urllib.parse.quote_plus(urllib.parse.quote_plus(img_path))
     return f"{base_url}/imageproxy?provider={provider}&size=256&format=png&path={img}"
 
 
-async def _download_single_image(image_data: dict, entity_id, hass, session):
+async def _download_single_image_from_image_data(
+    image_data: dict, entity_id, hass, session
+):
     """Downloads a single image from Music Assistant and returns the base64 encoded string."""
     entry = get_mass_entry(hass, entity_id)
     client = entry.runtime_data.mass
-    url = _generate_image_url(image_data, client)
+    url = generate_image_url_from_image_data(image_data, client)
     try:
         req = await session.get(url)
         read = await req.content.read()
@@ -284,19 +287,45 @@ async def download_images(
     msg: dict,
 ) -> None:
     """Download images and return them as b64 encoded."""
-    LOGGER.error(f"Received message: {msg}")
+    LOGGER.debug(f"Received message: {msg}")
     session = aiohttp_client.async_get_clientsession(hass)
-    LOGGER.error("Got session")
     images = msg["images"]
-    LOGGER.error("Pulled images from message")
-    LOGGER.error(images)
+    LOGGER.debug("Pulled images from message")
+    LOGGER.debug(images)
     result = []
     entity_id = msg["entity_id"]
     for image in images:
-        img = await _download_single_image(image, entity_id, hass, session)
-        LOGGER.error(f"Downloaded image: {img}")
+        img = await _download_single_image_from_image_data(
+            image, entity_id, hass, session
+        )
         image["encoded"] = img
         result.append(image)
-    LOGGER.error("Final:")
-    LOGGER.error(result)
+    connection.send_result(msg["id"], result)
+
+
+async def download_and_encode_image(url: str, hass: HomeAssistant):
+    """Downloads and encodes a single image from the given URL."""
+    session = aiohttp_client.async_get_clientsession(hass)
+    req = await session.get(url)
+    read = await req.content.read()
+    return f"data:image;base64,{base64.b64encode(read).decode('utf-8')}"
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "mass_queue/download_and_encode_image",
+        vol.Required("url"): str,
+    },
+)
+@websocket_api.async_response
+async def api_download_and_encode_image(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict,
+) -> None:
+    """Download images and return them as b64 encoded."""
+    LOGGER.debug(f"Got message: {msg}")
+    url = msg["url"]
+    LOGGER.debug(f"URL: {url}")
+    result = await download_and_encode_image(url, hass)
     connection.send_result(msg["id"], result)

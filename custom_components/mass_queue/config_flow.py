@@ -5,8 +5,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import voluptuous as vol
-from homeassistant.config_entries import SOURCE_IGNORE, ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    SOURCE_IGNORE,
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlowWithReload,
+)
 from homeassistant.const import CONF_URL
+from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client
 from music_assistant_client import MusicAssistantClient
 from music_assistant_client.exceptions import (
@@ -16,7 +23,11 @@ from music_assistant_client.exceptions import (
 )
 from music_assistant_models.api import ServerInfoMessage
 
-from .const import DOMAIN, LOGGER
+from .const import (
+    CONF_DOWNLOAD_LOCAL,
+    DOMAIN,
+    LOGGER,
+)
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -25,6 +36,7 @@ if TYPE_CHECKING:
 
 DEFAULT_URL = "http://mass.local:8095"
 DEFAULT_TITLE = "Music Assistant Queue Items"
+DEFAULT_DOWNLOAD_LOCAL = False
 
 
 def get_manual_schema(user_input: dict[str, Any]) -> vol.Schema:
@@ -90,6 +102,7 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
                     data={
                         CONF_URL: user_input[CONF_URL],
                     },
+                    options={CONF_DOWNLOAD_LOCAL: DEFAULT_DOWNLOAD_LOCAL},
                 )
 
             return self.async_show_form(
@@ -164,9 +177,49 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
                 data={
                     CONF_URL: self.server_info.base_url,
                 },
+                options={CONF_DOWNLOAD_LOCAL: DEFAULT_DOWNLOAD_LOCAL},
             )
         self._set_confirm_only()
         return self.async_show_form(
             step_id="discovery_confirm",
             description_placeholders={"url": self.server_info.base_url},
+        )
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: ConfigEntry,
+    ) -> OptionsFlowHandler:
+        """Gets the options flow for this handler."""
+        LOGGER.debug("Starting options flow.")
+        return OptionsFlowHandler(config_entry)
+
+
+class OptionsFlowHandler(OptionsFlowWithReload):
+    """Options config flow for Music Assistant Queue Actions."""
+
+    def __init__(self, config_entry: ConfigEntry) -> None:
+        """Initialize options handler."""
+        self._config_entry = config_entry
+        self._download_local = config_entry.options.get(
+            CONF_DOWNLOAD_LOCAL, DEFAULT_DOWNLOAD_LOCAL
+        )
+
+    async def async_step_init(self, user_input=None) -> ConfigFlowResult:
+        """Manage options."""
+        if user_input is not None:
+            LOGGER.debug("User input is not none, submitting data")
+            entry = self.async_create_entry(data=self.config_entry.options | user_input)
+            LOGGER.debug(f"Created entry {entry} ({dir(entry)})")
+            return entry
+        LOGGER.debug("User input is none, showing form...")
+        default_download = self._download_local
+        data_schema = vol.Schema(
+            {
+                vol.Required(CONF_DOWNLOAD_LOCAL, default=default_download): bool,
+            },
+        )
+        return self.async_show_form(
+            step_id="init",
+            data_schema=data_schema,
         )
