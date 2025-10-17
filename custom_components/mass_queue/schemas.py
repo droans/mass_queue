@@ -24,6 +24,13 @@ from .const import (
     ATTR_PROVIDERS,
     ATTR_QUEUE_ITEM_ID,
     ATTR_QUEUE_ITEMS,
+    ATTR_VOLUME_LEVEL,
+)
+
+GET_GROUP_VOLUME_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_PLAYER_ENTITY): str,
+    },
 )
 
 QUEUE_ITEM_SCHEMA = vol.Schema(
@@ -106,5 +113,12 @@ GET_RECOMMENDATIONS_SERVICE_SCHEMA = vol.Schema(
 UNFAVORITE_CURRENT_ITEM_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_PLAYER_ENTITY): str,
+    },
+)
+
+SET_GROUP_VOLUME_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_PLAYER_ENTITY): str,
+        vol.Required(ATTR_VOLUME_LEVEL): int,
     },
 )

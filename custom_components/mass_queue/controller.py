@@ -151,6 +151,14 @@ class MassQueueController:
             return recs
         return [rec for rec in recs if rec.provider in providers]
 
+    async def get_grouped_volume(self, player_id: str):
+        """Get the grouped volume for a given player."""
+        return self._client.players.get(player_id).group_volume
+
+    async def set_grouped_volume(self, player_id: str, volume_level: int):
+        """Sets the grouped volume for a given player."""
+        await self._client.players.set_player_group_volume(player_id, volume_level)
+
     async def get_player_queue(self, player_id: str):
         """Gets queue items for single Music Assistant queue."""
         player = self._client.players.get(player_id)
