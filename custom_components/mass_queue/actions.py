@@ -37,11 +37,13 @@ from .const import (
     ATTR_PROVIDERS,
     ATTR_QUEUE_ID,
     ATTR_QUEUE_ITEM_ID,
+    ATTR_VOLUME_LEVEL,
     CONF_DOWNLOAD_LOCAL,
     DEFAULT_QUEUE_ITEMS_LIMIT,
     DEFAULT_QUEUE_ITEMS_OFFSET,
     DOMAIN,
     LOGGER,
+    SERVICE_GET_GROUP_VOLUME,
     SERVICE_GET_QUEUE_ITEMS,
     SERVICE_GET_RECOMMENDATIONS,
     SERVICE_MOVE_QUEUE_ITEM_DOWN,
@@ -50,9 +52,11 @@ from .const import (
     SERVICE_PLAY_QUEUE_ITEM,
     SERVICE_REMOVE_QUEUE_ITEM,
     SERVICE_SEND_COMMAND,
+    SERVICE_SET_GROUP_VOLUME,
 )
 from .controller import MassQueueController
 from .schemas import (
+    GET_GROUP_VOLUME_SERVICE_SCHEMA,
     GET_RECOMMENDATIONS_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
@@ -62,6 +66,7 @@ from .schemas import (
     QUEUE_ITEMS_SERVICE_SCHEMA,
     REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
     SEND_COMMAND_SERVICE_SCHEMA,
+    SET_GROUP_VOLUME_SERVICE_SCHEMA,
 )
 from .utils import (
     find_image,
@@ -155,6 +160,20 @@ class MassQueueActions:
             schema=GET_RECOMMENDATIONS_SERVICE_SCHEMA,
             supports_response=SupportsResponse.ONLY,
         )
+        self._hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_GROUP_VOLUME,
+            self.get_group_volume,
+            schema=GET_GROUP_VOLUME_SERVICE_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+        self._hass.services.async_register(
+            DOMAIN,
+            SERVICE_SET_GROUP_VOLUME,
+            self.set_group_volume,
+            schema=SET_GROUP_VOLUME_SERVICE_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
 
     def get_queue_id(self, entity_id: str):
         """Get the queue ID for a player."""
@@ -217,6 +236,23 @@ class MassQueueActions:
         """Pulls all recommendations for the providers given."""
         providers = call.data.get(ATTR_PROVIDERS)
         return await self._controller.get_recommendations(providers)
+
+    async def get_group_volume(self, call: ServiceCall) -> ServiceResponse:
+        """Gets the group volume for a single player."""
+        entity_id = call.data.get(ATTR_PLAYER_ENTITY)
+        queue_id = self.get_queue_id(entity_id)
+        try:
+            volume = await self._controller.get_grouped_volume(queue_id)
+        except:  # noqa: E722
+            volume = None
+        return volume
+
+    async def set_group_volume(self, call: ServiceCall) -> ServiceResponse:
+        """Sets the group volume for a player."""
+        entity_id = call.data.get(ATTR_PLAYER_ENTITY)
+        queue_id = self.get_queue_id(entity_id)
+        volume_level = call.data.get(ATTR_VOLUME_LEVEL)
+        await self._controller.set_grouped_volume(queue_id, volume_level)
 
     async def get_queue_items(self, call: ServiceCall) -> ServiceResponse:
         """Get all items in queue."""

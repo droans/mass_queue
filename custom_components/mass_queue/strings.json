@@ -187,6 +187,30 @@
           "description": "Limit recommendations to the specified providers."
         }
       }
+    },
+    "get_group_volume": {
+      "name": "Get Group Volume",
+      "description": "Returns the volume for a player group.",
+      "fields": {
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        }
+      }
+    },
+    "set_group_volume": {
+      "name": "Set Group Volume",
+      "description": "Sets the volume for a player group.",
+      "fields": {
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        },
+        "volume_level": {
+          "name": "Volume Level",
+          "description": "Volume level to set the player to."
+        }
+      }
     }
   }
 }

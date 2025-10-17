@@ -12,6 +12,7 @@ from .const import (
     ATTR_CONFIG_ENTRY_ID,
     ATTR_PLAYER_ENTITY,
     DOMAIN,
+    SERVICE_GET_GROUP_VOLUME,
     SERVICE_GET_QUEUE_ITEMS,
     SERVICE_GET_RECOMMENDATIONS,
     SERVICE_MOVE_QUEUE_ITEM_DOWN,
@@ -20,9 +21,11 @@ from .const import (
     SERVICE_PLAY_QUEUE_ITEM,
     SERVICE_REMOVE_QUEUE_ITEM,
     SERVICE_SEND_COMMAND,
+    SERVICE_SET_GROUP_VOLUME,
     SERVICE_UNFAVORITE_CURRENT_ITEM,
 )
 from .schemas import (
+    GET_GROUP_VOLUME_SERVICE_SCHEMA,
     GET_RECOMMENDATIONS_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
@@ -31,6 +34,7 @@ from .schemas import (
     QUEUE_ITEMS_SERVICE_SCHEMA,
     REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
     SEND_COMMAND_SERVICE_SCHEMA,
+    SET_GROUP_VOLUME_SERVICE_SCHEMA,
     UNFAVORITE_CURRENT_ITEM_SERVICE_SCHEMA,
 )
 from .utils import get_entity_actions_controller, process_recommendations
@@ -101,6 +105,20 @@ def register_actions(hass) -> None:
         get_recommendations,
         schema=GET_RECOMMENDATIONS_SERVICE_SCHEMA,
         supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_GROUP_VOLUME,
+        get_group_volume,
+        schema=GET_GROUP_VOLUME_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SET_GROUP_VOLUME,
+        set_group_volume,
+        schema=SET_GROUP_VOLUME_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.NONE,
     )
 
 
@@ -176,3 +194,20 @@ async def get_recommendations(call: ServiceCall):
     actions = get_entity_actions_controller(hass, entity_id)
     result = await actions.get_recommendations(call)
     return {"response": process_recommendations(result)}
+
+
+async def get_group_volume(call: ServiceCall):
+    """Service wrapper to get grouped volume."""
+    entity_id = call.data[ATTR_PLAYER_ENTITY]
+    hass = call.hass
+    actions = get_entity_actions_controller(hass, entity_id)
+    result = await actions.get_group_volume(call)
+    return {"volume_level": result}
+
+
+async def set_group_volume(call: ServiceCall):
+    """Service wrapper to set grouped volume."""
+    entity_id = call.data[ATTR_PLAYER_ENTITY]
+    hass = call.hass
+    actions = get_entity_actions_controller(hass, entity_id)
+    await actions.set_group_volume(call)
