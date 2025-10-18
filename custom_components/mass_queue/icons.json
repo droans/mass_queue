@@ -7,6 +7,9 @@
     "play_queue_item": { "service": "mdi:play" },
     "remove_queue_item": { "service": "mdi:close" },
     "send_command": { "service": "mdi:send" },
-    "unfavorite_current_item": { "service": "mdi:heart-remove" }
+    "unfavorite_current_item": { "service": "mdi:heart-remove" },
+    "get_recommendations": { "service": "mdi:creation"},
+    "get_group_volume": { "service": "mdi:speaker-multiple"},
+    "set_group_volume": { "service": "mdi:speaker-multiple"}
   }
 }

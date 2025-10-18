@@ -13,6 +13,7 @@ from .const import (
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
     ATTR_LIMIT_BEFORE,
+    ATTR_LOCAL_IMAGE_ENCODED,
     ATTR_MEDIA_ALBUM_NAME,
     ATTR_MEDIA_ARTIST,
     ATTR_MEDIA_CONTENT_ID,
@@ -20,8 +21,16 @@ from .const import (
     ATTR_MEDIA_TITLE,
     ATTR_OFFSET,
     ATTR_PLAYER_ENTITY,
+    ATTR_PROVIDERS,
     ATTR_QUEUE_ITEM_ID,
     ATTR_QUEUE_ITEMS,
+    ATTR_VOLUME_LEVEL,
+)
+
+GET_GROUP_VOLUME_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_PLAYER_ENTITY): str,
+    },
 )
 
 QUEUE_ITEM_SCHEMA = vol.Schema(
@@ -33,6 +42,7 @@ QUEUE_ITEM_SCHEMA = vol.Schema(
         vol.Required(ATTR_MEDIA_CONTENT_ID): str,
         vol.Required(ATTR_MEDIA_IMAGE): str,
         vol.Required(ATTR_FAVORITE): bool,
+        vol.Optional(ATTR_LOCAL_IMAGE_ENCODED): str,
     },
 )
 
@@ -93,8 +103,22 @@ SEND_COMMAND_SERVICE_SCHEMA = vol.Schema(
     },
 )
 
+GET_RECOMMENDATIONS_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_PLAYER_ENTITY): str,
+        vol.Optional(ATTR_PROVIDERS): [str],
+    },
+)
+
 UNFAVORITE_CURRENT_ITEM_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_PLAYER_ENTITY): str,
+    },
+)
+
+SET_GROUP_VOLUME_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_PLAYER_ENTITY): str,
+        vol.Required(ATTR_VOLUME_LEVEL): int,
     },
 )

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from homeassistant.config_entries import ConfigEntryState
+from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.core import (
     HomeAssistant,
     ServiceCall,
@@ -26,6 +26,7 @@ from .const import (
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
     ATTR_LIMIT_BEFORE,
+    ATTR_LOCAL_IMAGE_ENCODED,
     ATTR_MEDIA_ALBUM_NAME,
     ATTR_MEDIA_ARTIST,
     ATTR_MEDIA_CONTENT_ID,
@@ -33,21 +34,30 @@ from .const import (
     ATTR_MEDIA_TITLE,
     ATTR_OFFSET,
     ATTR_PLAYER_ENTITY,
+    ATTR_PROVIDERS,
     ATTR_QUEUE_ID,
     ATTR_QUEUE_ITEM_ID,
+    ATTR_VOLUME_LEVEL,
+    CONF_DOWNLOAD_LOCAL,
     DEFAULT_QUEUE_ITEMS_LIMIT,
     DEFAULT_QUEUE_ITEMS_OFFSET,
     DOMAIN,
+    LOGGER,
+    SERVICE_GET_GROUP_VOLUME,
     SERVICE_GET_QUEUE_ITEMS,
+    SERVICE_GET_RECOMMENDATIONS,
     SERVICE_MOVE_QUEUE_ITEM_DOWN,
     SERVICE_MOVE_QUEUE_ITEM_NEXT,
     SERVICE_MOVE_QUEUE_ITEM_UP,
     SERVICE_PLAY_QUEUE_ITEM,
     SERVICE_REMOVE_QUEUE_ITEM,
     SERVICE_SEND_COMMAND,
+    SERVICE_SET_GROUP_VOLUME,
 )
 from .controller import MassQueueController
 from .schemas import (
+    GET_GROUP_VOLUME_SERVICE_SCHEMA,
+    GET_RECOMMENDATIONS_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
@@ -56,6 +66,10 @@ from .schemas import (
     QUEUE_ITEMS_SERVICE_SCHEMA,
     REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
     SEND_COMMAND_SERVICE_SCHEMA,
+    SET_GROUP_VOLUME_SERVICE_SCHEMA,
+)
+from .utils import (
+    find_image,
 )
 
 if TYPE_CHECKING:
@@ -67,11 +81,18 @@ if TYPE_CHECKING:
 class MassQueueActions:
     """Class to manage Music Assistant actions without passing `hass` and `mass_client` each time."""
 
-    def __init__(self, hass: HomeAssistant, mass_client: MusicAssistantClient):
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        mass_client: MusicAssistantClient,
+        config_entry: ConfigEntry,
+    ):
         """Initialize class."""
         self._hass: HomeAssistant = hass
         self._client: MusicAssistantClient = mass_client
-        self._controller = MassQueueController(self._hass, self._client)
+        self._controller = MassQueueController(self._hass, self._client, config_entry)
+        self._config_entry = config_entry
+        self._download_local = config_entry.options.get(CONF_DOWNLOAD_LOCAL)
 
     def setup_controller(self):
         """Setup Music Assistant controller."""
@@ -132,6 +153,27 @@ class MassQueueActions:
             schema=SEND_COMMAND_SERVICE_SCHEMA,
             supports_response=SupportsResponse.OPTIONAL,
         )
+        self._hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_RECOMMENDATIONS,
+            self.get_recommendations,
+            schema=GET_RECOMMENDATIONS_SERVICE_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+        self._hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_GROUP_VOLUME,
+            self.get_group_volume,
+            schema=GET_GROUP_VOLUME_SERVICE_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+        self._hass.services.async_register(
+            DOMAIN,
+            SERVICE_SET_GROUP_VOLUME,
+            self.set_group_volume,
+            schema=SET_GROUP_VOLUME_SERVICE_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
 
     def get_queue_id(self, entity_id: str):
         """Get the queue ID for a player."""
@@ -150,9 +192,9 @@ class MassQueueActions:
         queue_id = self.get_queue_id(entity_id)
         return await self._client.player_queues.get_active_queue(queue_id)
 
-    def _format_queue_item(self, queue_item: dict) -> dict:
+    async def _format_queue_item(self, queue_item: dict) -> dict:
         """Format list of queue items for response."""
-        queue_item = queue_item.to_dict()
+        LOGGER.debug(f"Got queue item with keys {queue_item.keys()}")
         media = queue_item["media_item"]
 
         queue_item_id = queue_item["queue_item_id"]
@@ -160,8 +202,8 @@ class MassQueueActions:
         media_album = media.get("album")
         media_album_name = "" if media_album is None else media_album.get("name", "")
         media_content_id = media["uri"]
-        img = queue_item.get("image")
-        media_image = "" if img is None else img.get("path", "")
+        media_image = find_image(queue_item) or ""
+        local_image_encoded = queue_item.get(ATTR_LOCAL_IMAGE_ENCODED)
         favorite = media["favorite"]
 
         artists = media["artists"]
@@ -178,6 +220,9 @@ class MassQueueActions:
                 ATTR_FAVORITE: favorite,
             },
         )
+        if local_image_encoded:
+            response[ATTR_LOCAL_IMAGE_ENCODED] = local_image_encoded
+        LOGGER.debug(f"Sending back response with keys {response.keys()}")
         return response
 
     async def send_command(self, call: ServiceCall) -> ServiceResponse:
@@ -186,6 +231,28 @@ class MassQueueActions:
         data = call.data.get(ATTR_DATA)
         response = await self._controller.send_command(command, data)
         return {"response": response}
+
+    async def get_recommendations(self, call: ServiceCall) -> ServiceResponse:
+        """Pulls all recommendations for the providers given."""
+        providers = call.data.get(ATTR_PROVIDERS)
+        return await self._controller.get_recommendations(providers)
+
+    async def get_group_volume(self, call: ServiceCall) -> ServiceResponse:
+        """Gets the group volume for a single player."""
+        entity_id = call.data.get(ATTR_PLAYER_ENTITY)
+        queue_id = self.get_queue_id(entity_id)
+        try:
+            volume = await self._controller.get_grouped_volume(queue_id)
+        except:  # noqa: E722
+            volume = None
+        return volume
+
+    async def set_group_volume(self, call: ServiceCall) -> ServiceResponse:
+        """Sets the group volume for a player."""
+        entity_id = call.data.get(ATTR_PLAYER_ENTITY)
+        queue_id = self.get_queue_id(entity_id)
+        volume_level = call.data.get(ATTR_VOLUME_LEVEL)
+        await self._controller.set_grouped_volume(queue_id, volume_level)
 
     async def get_queue_items(self, call: ServiceCall) -> ServiceResponse:
         """Get all items in queue."""
@@ -209,7 +276,7 @@ class MassQueueActions:
         offset = max(offset, 0)
         queue_items = await self._controller.player_queue(queue_id, limit, offset)
         response: ServiceResponse = {
-            entity_id: [self._format_queue_item(item) for item in queue_items],
+            entity_id: [await self._format_queue_item(item) for item in queue_items],
         }
         return response
 
@@ -310,8 +377,9 @@ def _get_music_assistant_client(
 async def setup_controller_and_actions(
     hass: HomeAssistant,
     mass_client: MusicAssistantClient,
+    entry: ConfigEntry,
 ) -> MassQueueActions:
     """Initialize client and actions class, add actions to Home Assistant."""
-    actions = MassQueueActions(hass, mass_client)
+    actions = MassQueueActions(hass, mass_client, entry)
     actions.setup_controller()
     return actions

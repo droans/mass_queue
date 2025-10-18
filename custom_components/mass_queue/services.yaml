@@ -158,3 +158,51 @@ unfavorite_current_item:
         entity:
           domain: media_player
           integration: music_assistant
+get_recommendations:
+  fields:
+    entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
+      required: true
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
+    providers:
+      name: Providers
+      description: Limit recommendations to the specified providers.
+      required: false
+      selector:
+        text:
+          multiple: true
+get_group_volume:
+  fields:
+    entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
+      required: true
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
+set_group_volume:
+  fields:
+    entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
+      required: true
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
+    volume_level:
+      name: Volume Level
+      description: Volume level to set the player to.
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 100
+          step: 1
+          unit_of_measurement: "%"
+          mode: slider
