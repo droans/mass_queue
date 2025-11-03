@@ -223,11 +223,13 @@ async def set_group_volume(call: ServiceCall):
     actions = get_entity_actions_controller(hass, entity_id)
     await actions.set_group_volume(call)
 
+
 def filter_queue_after(queue, current_idx):
     """Returns all items after the current active track."""
     if current_idx == len(queue):
         return []
-    return queue[current_idx + 1:]
+    return queue[current_idx + 1 :]
+
 
 async def clear_queue_from_here(call: ServiceCall):
     """Service wrapper to clear queue from point."""
@@ -243,7 +245,7 @@ async def clear_queue_from_here(call: ServiceCall):
     client = actions._client
     if len(queue) == current_idx:
         return
-    items = queue[current_idx + 1:]
+    items = queue[current_idx + 1 :]
     LOGGER.debug(f"Filtered length: {len(items)}")
     LOGGER.debug(f"First item to remove {items[0]}")
     LOGGER.debug(f"Last item to remove {items[-1]}")
