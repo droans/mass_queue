@@ -4,6 +4,7 @@ import logging
 
 DOMAIN = "mass_queue"
 DEFAULT_NAME = "Music Assistant Queue Items"
+SERVICE_CLEAR_QUEUE_FROM_HERE = "clear_queue_from_here"
 SERVICE_GET_GROUP_VOLUME = "get_group_volume"
 SERVICE_GET_QUEUE_ITEMS = "get_queue_items"
 SERVICE_GET_RECOMMENDATIONS = "get_recommendations"

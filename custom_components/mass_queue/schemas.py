@@ -27,6 +27,12 @@ from .const import (
     ATTR_VOLUME_LEVEL,
 )
 
+CLEAR_QUEUE_FROM_HERE_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_PLAYER_ENTITY): str,
+    },
+)
+
 GET_GROUP_VOLUME_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_PLAYER_ENTITY): str,
