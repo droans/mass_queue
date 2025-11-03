@@ -11,7 +11,10 @@ from homeassistant.core import (
 from .const import (
     ATTR_CONFIG_ENTRY_ID,
     ATTR_PLAYER_ENTITY,
+    ATTR_QUEUE_ITEM_ID,
     DOMAIN,
+    LOGGER,
+    SERVICE_CLEAR_QUEUE_FROM_HERE,
     SERVICE_GET_GROUP_VOLUME,
     SERVICE_GET_QUEUE_ITEMS,
     SERVICE_GET_RECOMMENDATIONS,
@@ -25,6 +28,7 @@ from .const import (
     SERVICE_UNFAVORITE_CURRENT_ITEM,
 )
 from .schemas import (
+    CLEAR_QUEUE_FROM_HERE_SERVICE_SCHEMA,
     GET_GROUP_VOLUME_SERVICE_SCHEMA,
     GET_RECOMMENDATIONS_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
@@ -120,6 +124,13 @@ def register_actions(hass) -> None:
         schema=SET_GROUP_VOLUME_SERVICE_SCHEMA,
         supports_response=SupportsResponse.NONE,
     )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_CLEAR_QUEUE_FROM_HERE,
+        clear_queue_from_here,
+        schema=CLEAR_QUEUE_FROM_HERE_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.NONE,
+    )
 
 
 async def get_queue_items(call: ServiceCall):
@@ -211,3 +222,33 @@ async def set_group_volume(call: ServiceCall):
     hass = call.hass
     actions = get_entity_actions_controller(hass, entity_id)
     await actions.set_group_volume(call)
+
+
+def filter_queue_after(queue, current_idx):
+    """Returns all items after the current active track."""
+    if current_idx == len(queue):
+        return []
+    return queue[current_idx + 1 :]
+
+
+async def clear_queue_from_here(call: ServiceCall):
+    """Service wrapper to clear queue from point."""
+    entity_id = call.data[ATTR_PLAYER_ENTITY]
+    hass = call.hass
+    actions = get_entity_actions_controller(hass, entity_id)
+    current_idx = await actions.get_queue_index(entity_id)
+    LOGGER.debug(f"Current Index: {current_idx}")
+    queue_id = actions.get_queue_id(entity_id)
+    LOGGER.debug(f"Queue ID: {queue_id}")
+    queue = actions._controller.queues.get(queue_id)
+    LOGGER.debug(f"Queue length: {len(queue)}")
+    client = actions._client
+    if len(queue) == current_idx:
+        return
+    items = queue[current_idx + 1 :]
+    LOGGER.debug(f"Filtered length: {len(items)}")
+    LOGGER.debug(f"First item to remove {items[0]}")
+    LOGGER.debug(f"Last item to remove {items[-1]}")
+    for item in items:
+        queue_item_id = item[ATTR_QUEUE_ITEM_ID]
+        await client.player_queues.queue_command_delete(queue_id, queue_item_id)

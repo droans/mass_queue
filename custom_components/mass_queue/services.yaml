@@ -206,3 +206,14 @@ set_group_volume:
           step: 1
           unit_of_measurement: "%"
           mode: slider
+
+clear_queue_from_here:
+  fields:
+    entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
+      required: true
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
