@@ -208,6 +208,16 @@
           "description": "Volume level to set the player to."
         }
       }
+    },
+    "clear_queue_from_here": {
+      "name": "Clear Queue From Here",
+      "description": "Clears all items before/after the current track in a queue.",
+      "fields": {
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        }
+      }
     }
   }
 }

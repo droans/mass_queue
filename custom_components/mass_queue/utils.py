@@ -180,8 +180,8 @@ def _get_recommendation_item_image_from_metadata(item: dict):
         accessible = [image for image in images if image["remotely_accessible"]]
         if accessible:
             return accessible[0]["path"]
-    except:  # noqa: E722
-        LOGGER.debug(f"Unable to get images for item {item} from metadata.")
+    except:  # noqa: E722 S110
+        pass
     return ""
 
 
@@ -191,8 +191,8 @@ def _get_recommendation_item_image_from_image(item: dict):
         accessible = image_data["remotely_accessible"]
         if accessible:
             return image_data["path"]
-    except:  # noqa: E722
-        LOGGER.debug(f"Unable to get images for item {item} from image.")
+    except:  # noqa: E722 S110
+        pass
     return ""
 
 
@@ -206,7 +206,6 @@ def _get_recommendation_item_image(item: dict):
 
 def process_recommendation_section_item(item: dict):
     """Process and reformat a single recommendation item."""
-    LOGGER.debug(f"Got section item: {item}")
     return {
         "item_id": item["item_id"],
         "name": item["name"],
