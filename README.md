@@ -126,6 +126,10 @@ You may enable the `download_local` option by navigating to the integration's li
 
 This option will then return a new attribute for these queue items labeled `local_image_encoded`. Custom cards can then utilize this in their code in place of the image URL.
 
+## I am the creator of a custom card. Can I use these actions in my own card, too?
+
+Of course - this is open-source! The only requirement is that you give credit.
+
 ## I would like to sponsor you/the card and/or pay to add a new feature!
 
 While I appreciate it, I am not going to accept any funding.
