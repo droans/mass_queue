@@ -126,6 +126,12 @@ You may enable the `download_local` option by navigating to the integration's li
 
 This option will then return a new attribute for these queue items labeled `local_image_encoded`. Custom cards can then utilize this in their code in place of the image URL.
 
+## I would like to sponsor you/the card and/or pay to add a new feature!
+
+While I appreciate it, I am not going to accept any funding.
+
+When someone funds development, there's often an implied belief that the card will keep being developed or the maintainer will provide new projects. I want to be able to drop development on this card when I feel that it is complete. I do not want people to feel misled, cheated, or that I should prioritize their wants over anything else. This card is something I created for myself
+
 ### WARNINGS
 
 * This is not a cure-all and should not be enabled unless you need it.
