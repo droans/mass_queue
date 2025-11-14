@@ -15,7 +15,28 @@ from .const import LOGGER
 from .utils import (
     download_and_encode_image,
     download_single_image_from_image_data,
+    get_entity_info,
 )
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "mass_queue/get_info",
+        vol.Required("entity_id"): str,
+    },
+)
+@websocket_api.async_response
+def api_get_entity_info(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict,
+) -> None:
+    """Returns Music Assistant player information on a given player."""
+    LOGGER.debug(f"Got message: {msg}")
+    entity_id = msg["entity_id"]
+    result = get_entity_info(hass, entity_id)
+    LOGGER.debug(f"Sending result {result}")
+    connection.send_result(msg["id"], result)
 
 
 @websocket_api.websocket_command(
