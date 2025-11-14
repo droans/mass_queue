@@ -10,7 +10,9 @@ from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import callback
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import aiohttp_client
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.template import device_id
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -18,7 +20,7 @@ if TYPE_CHECKING:
 
     from . import MassQueueEntryData
 
-from .const import LOGGER
+from .const import ATTR_QUEUE_ID, LOGGER
 
 
 @callback
@@ -37,12 +39,23 @@ def _get_config_entry(
     return entry
 
 
-def get_entity_actions_controller(hass, entity_id):
+def get_mass_queue_entry(hass, entity_id):
     """Gets the actions for the selected entity."""
     mass_entry = get_mass_entry(hass, entity_id)
     mass = mass_entry.runtime_data.mass.connection.ws_server_url
-    mass_queue_entry = find_mass_queue_entry(hass, mass)
+    return find_mass_queue_entry(hass, mass)
+
+
+def get_entity_actions_controller(hass, entity_id):
+    """Gets the actions for the selected entity."""
+    mass_queue_entry = get_mass_queue_entry(hass, entity_id)
     return mass_queue_entry.runtime_data.actions
+
+
+def get_mass_client(hass, entity_id):
+    """Gets the actions for the selected entity."""
+    mass_queue_entry = get_mass_queue_entry(hass, entity_id)
+    return mass_queue_entry.runtime_data.mass
 
 
 def get_mass_entry(hass, entity_id):
@@ -204,6 +217,7 @@ def _get_recommendation_item_image(item: dict):
 
 def process_recommendation_section_item(item: dict):
     """Process and reformat a single recommendation item."""
+    LOGGER.debug(f"Got section item: {item}")
     return {
         "item_id": item["item_id"],
         "name": item["name"],
@@ -279,3 +293,65 @@ async def download_and_encode_image(url: str, hass: HomeAssistant):
     req = await session.get(url)
     read = await req.content.read()
     return f"data:image;base64,{base64.b64encode(read).decode('utf-8')}"
+
+
+def get_entity_info(hass: HomeAssistant, entity_id: str):
+    """Gets the server and client info for a given player."""
+    client = get_mass_client(hass, entity_id)
+    state = hass.states.get(entity_id)
+    registry = dr.async_get(hass)
+    dev_id = device_id(hass, entity_id)
+    dev = registry.async_get(dev_id)
+    identifiers = dev.identifiers
+
+    player_id = [_id[1] for _id in identifiers if _id[0] == "music_assistant"][0]
+    player = client.players.get(player_id)
+
+    mass_entry_id = _get_mass_entity_config_entry_id(hass, entity_id)
+    mass_queue_id = get_mass_queue_entry(hass, entity_id).entry_id
+
+    queue_id = state.attributes.get(ATTR_QUEUE_ID)
+
+    server_url = client.server_info.base_url
+    ws_url = client.connection.ws_server_url
+
+    config_url = dev.configuration_url
+    manufacturer = dev.manufacturer
+    model = dev.model
+
+    available = player.available
+    can_group_with = player.can_group_with
+    ip_address = player.device_info.ip_address
+    features = list(player.supported_features)
+    name = player.name
+    provider = player.provider
+    synced_to = player.synced_to
+    player_type = player.type
+
+    return {
+        "available": available,
+        "can_group_with": can_group_with,
+        "connection": {
+            "configuration_url": config_url,
+            "url": ip_address,
+        },
+        "entries": {
+            "music_assistant": mass_entry_id,
+            "mass_queue": mass_queue_id,
+        },
+        "features": features,
+        "manufacturer": manufacturer,
+        "model": model,
+        "name": name,
+        "player_id": player_id,
+        "provider": provider,
+        "queue_id": queue_id,
+        "server": {
+            "connection": {
+                "url": server_url,
+                "websocket": ws_url,
+            },
+        },
+        "synced_to": synced_to,
+        "type": player_type,
+    }
