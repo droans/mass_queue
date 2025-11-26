@@ -192,9 +192,6 @@ class MassQueueController:
             except IndexError:
                 offset = 0
         offset = max(offset, 0)
-        LOGGER.debug(
-            f"Returning queue (len {len(queue)}) with offset {offset}, limit {limit}",
-        )
         return queue[offset : offset + limit] if queue else []
 
     async def update_queue_items(self, queue_id: str):
