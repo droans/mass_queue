@@ -216,7 +216,7 @@ class MassQueueController:
             except IndexError:
                 offset = 0
         offset = max(offset, 0)
-        return await self._client.player_queues.get_player_queue_items(
+        return await self._client.player_queues.get_queue_items(
             queue_id=queue_id,
             limit=limit,
             offset=offset,
