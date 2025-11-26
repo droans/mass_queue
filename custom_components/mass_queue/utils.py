@@ -12,7 +12,6 @@ from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
-from homeassistant.helpers.template import device_id
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -299,9 +298,10 @@ def get_entity_info(hass: HomeAssistant, entity_id: str):
     """Gets the server and client info for a given player."""
     client = get_mass_client(hass, entity_id)
     state = hass.states.get(entity_id)
-    registry = dr.async_get(hass)
-    dev_id = device_id(hass, entity_id)
-    dev = registry.async_get(dev_id)
+    device_registry = dr.async_get(hass)
+    entity_registry = er.async_get(hass)
+    dev_id = entity_registry.async_get(entity_id).device_id
+    dev = device_registry.async_get(dev_id)
     identifiers = dev.identifiers
 
     player_id = [_id[1] for _id in identifiers if _id[0] == "music_assistant"][0]
