@@ -177,7 +177,16 @@ class MassQueueActions:
 
     def get_queue_id(self, entity_id: str):
         """Get the queue ID for a player."""
-        return self._hass.states.get(entity_id).attributes[ATTR_QUEUE_ID]
+        state = self._hass.states.get(entity_id)
+        if not state:
+            raise ServiceValidationError(f"Entity {entity_id} not found")
+        queue_id = state.attributes.get(ATTR_QUEUE_ID)
+        if not queue_id:
+            raise ServiceValidationError(
+                f"Entity {entity_id} does not have an active queue. "
+                "Make sure the player is playing or has content in its queue."
+            )
+        return queue_id
 
     async def get_queue_index(self, entity_id: str):
         """Get the current index of the queue."""

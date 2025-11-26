@@ -137,7 +137,7 @@ async def get_queue_items(call: ServiceCall):
     """Service wrapper to get queue items."""
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     hass = call.hass
-    actions = get_entity_actions_controller(hass, entity_id)
+    actions = await get_entity_actions_controller(hass, entity_id)
     return await actions.get_queue_items(call)
 
 
@@ -145,7 +145,7 @@ async def move_queue_item_down(call: ServiceCall):
     """Service wrapper to move queue item down."""
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     hass = call.hass
-    actions = get_entity_actions_controller(hass, entity_id)
+    actions = await get_entity_actions_controller(hass, entity_id)
     return await actions.move_queue_item_down(call)
 
 
@@ -153,7 +153,7 @@ async def move_queue_item_next(call: ServiceCall):
     """Service wrapper to move queue item next."""
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     hass = call.hass
-    actions = get_entity_actions_controller(hass, entity_id)
+    actions = await get_entity_actions_controller(hass, entity_id)
     return await actions.move_queue_item_next(call)
 
 
@@ -161,7 +161,7 @@ async def move_queue_item_up(call: ServiceCall):
     """Service wrapper to move queue item up."""
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     hass = call.hass
-    actions = get_entity_actions_controller(hass, entity_id)
+    actions = await get_entity_actions_controller(hass, entity_id)
     return await actions.move_queue_item_up(call)
 
 
@@ -169,7 +169,7 @@ async def play_queue_item(call: ServiceCall):
     """Service wrapper to play a queue item."""
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     hass = call.hass
-    actions = get_entity_actions_controller(hass, entity_id)
+    actions = await get_entity_actions_controller(hass, entity_id)
     return await actions.play_queue_item(call)
 
 
@@ -177,7 +177,7 @@ async def remove_queue_item(call: ServiceCall):
     """Service wrapper to remove a queue item."""
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     hass = call.hass
-    actions = get_entity_actions_controller(hass, entity_id)
+    actions = await get_entity_actions_controller(hass, entity_id)
     return await actions.remove_queue_item(call)
 
 
@@ -194,7 +194,7 @@ async def unfavorite_current_item(call: ServiceCall):
     """Service wrapper to unfavorite currently playing item."""
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     hass = call.hass
-    actions = get_entity_actions_controller(hass, entity_id)
+    actions = await get_entity_actions_controller(hass, entity_id)
     await actions.unfavorite_item(call)
 
 
@@ -202,7 +202,7 @@ async def get_recommendations(call: ServiceCall):
     """Service wrapper to get recommendations from providers."""
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     hass = call.hass
-    actions = get_entity_actions_controller(hass, entity_id)
+    actions = await get_entity_actions_controller(hass, entity_id)
     result = await actions.get_recommendations(call)
     return {"response": process_recommendations(result)}
 
@@ -211,7 +211,7 @@ async def get_group_volume(call: ServiceCall):
     """Service wrapper to get grouped volume."""
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     hass = call.hass
-    actions = get_entity_actions_controller(hass, entity_id)
+    actions = await get_entity_actions_controller(hass, entity_id)
     result = await actions.get_group_volume(call)
     return {"volume_level": result}
 
@@ -220,7 +220,7 @@ async def set_group_volume(call: ServiceCall):
     """Service wrapper to set grouped volume."""
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     hass = call.hass
-    actions = get_entity_actions_controller(hass, entity_id)
+    actions = await get_entity_actions_controller(hass, entity_id)
     await actions.set_group_volume(call)
 
 
@@ -235,7 +235,7 @@ async def clear_queue_from_here(call: ServiceCall):
     """Service wrapper to clear queue from point."""
     entity_id = call.data[ATTR_PLAYER_ENTITY]
     hass = call.hass
-    actions = get_entity_actions_controller(hass, entity_id)
+    actions = await get_entity_actions_controller(hass, entity_id)
     current_idx = await actions.get_queue_index(entity_id)
     LOGGER.debug(f"Current Index: {current_idx}")
     queue_id = actions.get_queue_id(entity_id)

@@ -26,7 +26,7 @@ from .utils import (
     },
 )
 @websocket_api.async_response
-def api_get_entity_info(
+async def api_get_entity_info(
     hass: HomeAssistant,
     connection: websocket_api.ActiveConnection,
     msg: dict,
@@ -34,7 +34,7 @@ def api_get_entity_info(
     """Returns Music Assistant player information on a given player."""
     LOGGER.debug(f"Got message: {msg}")
     entity_id = msg["entity_id"]
-    result = get_entity_info(hass, entity_id)
+    result = await get_entity_info(hass, entity_id)
     LOGGER.debug(f"Sending result {result}")
     connection.send_result(msg["id"], result)
 

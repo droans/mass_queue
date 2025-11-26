@@ -39,22 +39,22 @@ def _get_config_entry(
     return entry
 
 
-def get_mass_queue_entry(hass, entity_id):
+async def get_mass_queue_entry(hass, entity_id):
     """Gets the actions for the selected entity."""
     mass_entry = get_mass_entry(hass, entity_id)
     mass = mass_entry.runtime_data.mass.connection.ws_server_url
-    return find_mass_queue_entry(hass, mass)
+    return await find_mass_queue_entry(hass, mass)
 
 
-def get_entity_actions_controller(hass, entity_id):
+async def get_entity_actions_controller(hass, entity_id):
     """Gets the actions for the selected entity."""
-    mass_queue_entry = get_mass_queue_entry(hass, entity_id)
+    mass_queue_entry = await get_mass_queue_entry(hass, entity_id)
     return mass_queue_entry.runtime_data.actions
 
 
-def get_mass_client(hass, entity_id):
+async def get_mass_client(hass, entity_id):
     """Gets the actions for the selected entity."""
-    mass_queue_entry = get_mass_queue_entry(hass, entity_id)
+    mass_queue_entry = await get_mass_queue_entry(hass, entity_id)
     return mass_queue_entry.runtime_data.mass
 
 
@@ -70,14 +70,40 @@ def _get_mass_entity_config_entry_id(hass, entity_id):
     return registry.async_get(entity_id).config_entry_id
 
 
-def find_mass_queue_entry(hass, mass_url):
+def _normalize_ws_url(url: str) -> str:
+    """Normalize websocket URL by replacing hostname variations with a standard form."""
+    # Replace localhost, 127.0.0.1, mass.local, and any IP with a normalized host
+    # This allows matching URLs that point to the same server but use different hostnames
+    parsed = urllib.parse.urlparse(url)
+    # Just return the port and path for comparison - if they match, it's the same server
+    return f"{parsed.port}{parsed.path}"
+
+
+async def find_mass_queue_entry(hass, mass_url):
     """Finds the mass_queue entry for the given MA URL."""
     entries = _get_mass_queue_entries(hass)
+
+    LOGGER.debug(f"Looking for mass_url: {mass_url}")
+    normalized_mass_url = _normalize_ws_url(mass_url)
+    LOGGER.debug(f"Normalized mass_url: {normalized_mass_url}")
+    available_urls = []
+
     for entry in entries:
+        # Check if entry is loaded
+        if entry.state is not ConfigEntryState.LOADED:
+            LOGGER.debug(f"Entry {entry.entry_id} is not loaded (state: {entry.state})")
+            continue
         entry_url = entry.runtime_data.mass.connection.ws_server_url
-        if entry_url == mass_url:
+        available_urls.append(entry_url)
+        normalized_entry_url = _normalize_ws_url(entry_url)
+        LOGGER.debug(f"Found mass_queue entry with URL: {entry_url} (normalized: {normalized_entry_url})")
+        if normalized_entry_url == normalized_mass_url:
+            LOGGER.debug(f"Matched! Using entry {entry.entry_id}")
             return entry
-    msg = f"Cannot find entry for Music Assistant at {mass_url}"
+
+    # No matching entry found
+    LOGGER.error(f"Cannot find loaded entry for Music Assistant at {mass_url}. Available URLs: {available_urls}")
+    msg = f"Cannot find loaded entry for Music Assistant at {mass_url}. Available: {available_urls}"
     raise ServiceValidationError(msg)
 
 
@@ -289,15 +315,23 @@ async def download_single_image_from_image_data(
 
 async def download_and_encode_image(url: str, hass: HomeAssistant):
     """Downloads and encodes a single image from the given URL."""
-    session = aiohttp_client.async_get_clientsession(hass)
-    req = await session.get(url)
-    read = await req.content.read()
-    return f"data:image;base64,{base64.b64encode(read).decode('utf-8')}"
+    if not url or not isinstance(url, str):
+        LOGGER.error(f"Invalid URL provided for image download: {url}")
+        return None
+
+    try:
+        session = aiohttp_client.async_get_clientsession(hass)
+        req = await session.get(url)
+        read = await req.content.read()
+        return f"data:image;base64,{base64.b64encode(read).decode('utf-8')}"
+    except Exception as e:
+        LOGGER.error(f"Unable to download and encode image from URL '{url}': {e}")
+        return None
 
 
-def get_entity_info(hass: HomeAssistant, entity_id: str):
+async def get_entity_info(hass: HomeAssistant, entity_id: str):
     """Gets the server and client info for a given player."""
-    client = get_mass_client(hass, entity_id)
+    client = await get_mass_client(hass, entity_id)
     state = hass.states.get(entity_id)
     registry = dr.async_get(hass)
     dev_id = device_id(hass, entity_id)
@@ -308,7 +342,8 @@ def get_entity_info(hass: HomeAssistant, entity_id: str):
     player = client.players.get(player_id)
 
     mass_entry_id = _get_mass_entity_config_entry_id(hass, entity_id)
-    mass_queue_id = get_mass_queue_entry(hass, entity_id).entry_id
+    mass_queue_entry = await get_mass_queue_entry(hass, entity_id)
+    mass_queue_id = mass_queue_entry.entry_id
 
     queue_id = state.attributes.get(ATTR_QUEUE_ID)
 
