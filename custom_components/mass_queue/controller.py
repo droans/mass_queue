@@ -192,7 +192,10 @@ class MassQueueController:
             except IndexError:
                 offset = 0
         offset = max(offset, 0)
-        return queue[offset : offset + limit]
+        LOGGER.debug(
+            f"Returning queue (len {len(queue)}) with offset {offset}, limit {limit}",
+        )
+        return queue[offset : offset + limit] if queue else []
 
     async def update_queue_items(self, queue_id: str):
         """Update the queue items for a single queue."""
@@ -308,7 +311,7 @@ class Queues:
 
     def get(self, queue_id):
         """Returns cached queue records."""
-        return self.queues[queue_id]
+        return self.queues.get(queue_id, [])
 
     def add(self, queue_id: str, queue_items: int):
         """Adds a single queue."""
