@@ -31,6 +31,15 @@
       "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]"
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "download_local": "Attempt fallback support for local media images. May cause performance issues. Only enable if you cannot see media images for your players."
+        }
+      }
+    }
+  },
   "issues": {
     "invalid_server_version": {
       "title": "The Music Assistant server is not the correct version",
@@ -155,6 +164,54 @@
     "unfavorite_current_item": {
       "name": "Unfavorite Current Item",
       "description": "Unfavorites the currently playing item in a player queue.",
+      "fields": {
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        }
+      }
+    },
+    "get_recommendations": {
+      "name": "Get Recommendations",
+      "description": "Get recommendations from your music providers.",
+      "fields": {
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        },
+        "providers": {
+          "name": "Providers",
+          "description": "Limit recommendations to the specified providers."
+        }
+      }
+    },
+    "get_group_volume": {
+      "name": "Get Group Volume",
+      "description": "Returns the volume for a player group.",
+      "fields": {
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        }
+      }
+    },
+    "set_group_volume": {
+      "name": "Set Group Volume",
+      "description": "Sets the volume for a player group.",
+      "fields": {
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        },
+        "volume_level": {
+          "name": "Volume Level",
+          "description": "Volume level to set the player to."
+        }
+      }
+    },
+    "clear_queue_from_here": {
+      "name": "Clear Queue From Here",
+      "description": "Clears all items before/after the current track in a queue.",
       "fields": {
         "entity": {
           "name": "Entity",

@@ -1,0 +1,213 @@
+{
+  "config": {
+    "step": {
+      "init": {
+        "data": {
+          "url": "URL du serveur Music Assistant"
+        }
+      },
+      "manual": {
+        "title": "Ajouter manuellement le serveur Music Assistant",
+        "description": "Saisissez l’URL de votre serveur Music Assistant déjà en cours d’exécution. Si le serveur n’est pas encore installé, vous devez l’installer avant de poursuivre.",
+        "data": {
+          "url": "URL du serveur Music Assistant"
+        }
+      },
+      "discovery_confirm": {
+        "description": "Souhaitez-vous ajouter le serveur Music Assistant « {url} » à Home Assistant ?",
+        "title": "Serveur Music Assistant découvert"
+      }
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "invalid_server_version": "La version du serveur Music Assistant n’est pas compatible",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]",
+      "already_in_progress": "[%key:common::config_flow::abort::already_in_progress%]",
+      "reconfiguration_successful": "Réconfiguration de l’intégration Music Assistant réussie.",
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "download_local": "Active une solution de secours pour télécharger les images locales des médias. Peut entraîner des problèmes de performances. À activer uniquement si aucune image n’apparaît pour vos lecteurs."
+        }
+      }
+    }
+  },
+  "issues": {
+    "invalid_server_version": {
+      "title": "La version du serveur Music Assistant n’est pas compatible",
+      "description": "Vérifiez si des mises à jour sont disponibles pour le serveur et/ou l’intégration Music Assistant."
+    }
+  },
+  "services": {
+    "get_queue_items": {
+      "name": "Obtenir les éléments de file d’attente",
+      "description": "Retourne la liste des éléments actuellement présents dans la file d’attente d’un lecteur.",
+      "fields": {
+        "limit": {
+          "name": "Limite",
+          "description": "Limite sur le nombre d’éléments de la file à renvoyer."
+        },
+        "offset": {
+          "name": "Décalage",
+          "description": "Position de départ dans la file où zéro correspond au premier élément, et non à l’élément en cours."
+        },
+        "limit_before": {
+          "name": "Limite avant",
+          "description": "Nombre d’éléments à récupérer avant l’élément actif actuel."
+        },
+        "limit_after": {
+          "name": "Limite après",
+          "description": "Nombre d’éléments à récupérer après l’élément actif actuel."
+        },
+        "entity": {
+          "name": "Entité",
+          "description": "Entité media_player Music Assistant."
+        }
+      }
+    },
+    "remove_queue_item": {
+      "name": "Supprimer un élément de file",
+      "description": "Supprime un élément de la file active d’un lecteur.",
+      "fields": {
+        "queue_item_id": {
+          "name": "ID d’élément",
+          "description": "Identifiant de l’élément à supprimer."
+        },
+        "entity": {
+          "name": "Entité",
+          "description": "Entité media_player Music Assistant."
+        }
+      }
+    },
+    "move_queue_item_up": {
+      "name": "Monter un élément",
+      "description": "Monte un élément dans la file d’un lecteur.",
+      "fields": {
+        "queue_item_id": {
+          "name": "ID d’élément",
+          "description": "Identifiant de l’élément à monter."
+        },
+        "entity": {
+          "name": "Entité",
+          "description": "Entité media_player Music Assistant."
+        }
+      }
+    },
+    "move_queue_item_down": {
+      "name": "Descendre un élément",
+      "description": "Descend un élément dans la file d’un lecteur.",
+      "fields": {
+        "queue_item_id": {
+          "name": "ID d’élément",
+          "description": "Identifiant de l’élément à descendre."
+        },
+        "entity": {
+          "name": "Entité",
+          "description": "Entité media_player Music Assistant."
+        }
+      }
+    },
+    "move_queue_item_next": {
+      "name": "Lire ensuite",
+      "description": "Place un élément en lecture suivante dans la file d’un lecteur.",
+      "fields": {
+        "queue_item_id": {
+          "name": "ID d’élément",
+          "description": "Identifiant de l’élément à lire ensuite."
+        },
+        "entity": {
+          "name": "Entité",
+          "description": "Entité media_player Music Assistant."
+        }
+      }
+    },
+    "play_queue_item": {
+      "name": "Lire un élément",
+      "description": "Lit un élément actuellement présent dans la file d’un lecteur.",
+      "fields": {
+        "queue_item_id": {
+          "name": "ID d’élément",
+          "description": "Identifiant de l’élément à lire."
+        },
+        "entity": {
+          "name": "Entité",
+          "description": "Entité media_player Music Assistant."
+        }
+      }
+    },
+    "send_command": {
+      "name": "Envoyer une commande",
+      "description": "Envoie une commande à l’API Music Assistant.",
+      "fields": {
+        "command": {
+          "name": "Commande",
+          "description": "Commande à envoyer à Music Assistant."
+        },
+        "data": {
+          "name": "Données",
+          "description": "Données à transmettre avec la commande."
+        },
+        "config_entry_id": {
+          "name": "ID d’entrée de config",
+          "description": "Identifiant d’entrée de configuration pour l’instance Mass Queue Items."
+        }
+      }
+    },
+    "unfavorite_current_item": {
+      "name": "Retirer des favoris",
+      "description": "Retire l’élément en cours de la liste des favoris.",
+      "fields": {
+        "entity": {
+          "name": "Entité",
+          "description": "Entité media_player Music Assistant."
+        }
+      }
+    },
+    "get_recommendations": {
+      "name": "Obtenir des recommandations",
+      "description": "Récupère des recommandations auprès de vos fournisseurs de musique.",
+      "fields": {
+        "entity": {
+          "name": "Entité",
+          "description": "Entité media_player Music Assistant."
+        },
+        "providers": {
+          "name": "Fournisseurs",
+          "description": "Limiter les recommandations aux fournisseurs indiqués."
+        }
+      }
+    },
+    "get_group_volume": {
+      "name": "Obtenir le volume du groupe",
+      "description": "Retourne le volume d’un groupe de lecteurs.",
+      "fields": {
+        "entity": {
+          "name": "Entité",
+          "description": "Entité media_player Music Assistant."
+        }
+      }
+    },
+    "set_group_volume": {
+      "name": "Définir le volume du groupe",
+      "description": "Définit le volume d’un groupe de lecteurs.",
+      "fields": {
+        "entity": {
+          "name": "Entité",
+          "description": "Entité media_player Music Assistant."
+        },
+        "volume_level": {
+          "name": "Niveau sonore",
+          "description": "Niveau sonore à appliquer au lecteur."
+        }
+      }
+    }
+  }
+}
