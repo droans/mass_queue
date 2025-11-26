@@ -192,9 +192,6 @@ class MassQueueController:
             except IndexError:
                 offset = 0
         offset = max(offset, 0)
-        LOGGER.debug(
-            f"Returning queue (len {len(queue)}) with offset {offset}, limit {limit}",
-        )
         return queue[offset : offset + limit] if queue else []
 
     async def update_queue_items(self, queue_id: str):
@@ -216,11 +213,19 @@ class MassQueueController:
             except IndexError:
                 offset = 0
         offset = max(offset, 0)
-        return await self._client.player_queues.get_queue_items(
-            queue_id=queue_id,
-            limit=limit,
-            offset=offset,
-        )
+        # HA 2025.12 Fix: `get_player_queue_items` replaced with `get_queue_items`
+        try:
+            return await self._client.player_queues.get_queue_items(
+                queue_id=queue_id,
+                limit=limit,
+                offset=offset,
+            )
+        except AttributeError:
+            return await self._client.player_queues.get_player_queue_items(
+                queue_id=queue_id,
+                limit=limit,
+                offset=offset,
+            )
 
     async def get_active_queue(self, queue_id: str):
         """Get the active queue for a single queue."""
