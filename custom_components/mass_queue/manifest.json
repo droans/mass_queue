@@ -3,7 +3,7 @@
   "name": "Music Assistant Queue Actions",
   "codeowners": ["@droans"],
   "config_flow": true,
-  "dependencies": ["music_assistant"],
+  "dependencies": ["auth", "music_assistant"],
   "documentation": "https://www.github.com/droans/mass_queue",
   "homekit": {},
   "integration_type": "service",
