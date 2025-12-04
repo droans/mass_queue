@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from homeassistant.components import websocket_api
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import CONF_URL, EVENT_HOMEASSISTANT_STOP
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -19,15 +19,25 @@ from homeassistant.helpers.issue_registry import (
     async_delete_issue,
 )
 from music_assistant_client import MusicAssistantClient
-from music_assistant_client.exceptions import CannotConnect, InvalidServerVersion
-from music_assistant_models.errors import ActionUnavailable, MusicAssistantError
+from music_assistant_client.exceptions import (
+    CannotConnect,
+    InvalidServerVersion,
+    MusicAssistantClientException,
+)
+from music_assistant_models.errors import (
+    ActionUnavailable,
+    AuthenticationFailed,
+    AuthenticationRequired,
+    InvalidToken,
+    MusicAssistantError,
+)
 
 from .actions import (
     MassQueueActions,
     get_music_assistant_client,
     setup_controller_and_actions,
 )
-from .const import DOMAIN, LOGGER
+from .const import CONF_TOKEN, DOMAIN, LOGGER
 from .services import register_actions
 from .websocket_commands import (
     api_download_and_encode_image,
@@ -63,14 +73,16 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:  # noqa:
     return True
 
 
-async def async_setup_entry(
+async def async_setup_entry(  # noqa: PLR0915
     hass: HomeAssistant,
     entry: MusicAssistantConfigEntry,
 ) -> bool:
     """Set up Music Assistant from a config entry."""
     http_session = async_get_clientsession(hass, verify_ssl=False)
     mass_url = entry.data[CONF_URL]
-    mass = MusicAssistantClient(mass_url, http_session)
+    # Get token from config entry (for schema >= AUTH_SCHEMA_VERSION)
+    token = entry.data.get(CONF_TOKEN)
+    mass = MusicAssistantClient(mass_url, http_session, token=token)
 
     try:
         async with asyncio.timeout(CONNECT_TIMEOUT):
@@ -90,6 +102,12 @@ async def async_setup_entry(
             translation_key="invalid_server_version",
         )
         exc = f"Invalid server version: {err}"
+        raise ConfigEntryNotReady(exc) from err
+    except (AuthenticationRequired, AuthenticationFailed, InvalidToken) as err:
+        exc = f"Authentication failed for {mass_url}: {err}"
+        raise ConfigEntryAuthFailed(exc) from err
+    except MusicAssistantClientException as err:
+        exc = f"Failed to connect to music assistant server {mass_url}: {err}"
         raise ConfigEntryNotReady(exc) from err
     except MusicAssistantError as err:
         LOGGER.exception("Failed to connect to music assistant server", exc_info=err)
