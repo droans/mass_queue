@@ -21,7 +21,6 @@ from homeassistant.helpers.config_entry_oauth2_flow import (
     _encode_jwt,
     async_get_redirect_uri,
 )
-from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 from music_assistant_client import MusicAssistantClient
 from music_assistant_client.auth_helpers import create_long_lived_token, get_server_info
 from music_assistant_client.exceptions import (
@@ -80,28 +79,21 @@ def get_manual_schema(user_input: dict[str, Any]) -> vol.Schema:
 
 async def _get_server_info(hass: HomeAssistant, url: str) -> ServerInfoMessage:
     """Validate the user input allows us to connect."""
-    """Get MA server info for the given URL."""
     session = aiohttp_client.async_get_clientsession(hass)
     return await get_server_info(server_url=url, aiohttp_session=session)
 
 
-async def _test_connection(hass: HomeAssistant, url: str, token: str):
+async def _test_connection(hass: HomeAssistant, url: str, token: str) -> None:
     """Test connection to MA server with given URL and token."""
     session = aiohttp_client.async_get_clientsession(hass)
     async with MusicAssistantClient(
-        url,
-        aiohttp_client.async_get_clientsession(hass),
         server_url=url,
         aiohttp_session=session,
         token=token,
     ) as client:
-        if TYPE_CHECKING:
-            assert client.server_info is not None
-        return client.server_info
         # Just executing any command to test the connection.
         # If auth is required and the token is invalid, this will raise.
         await client.send_command("info")
-    return None
 
 
 class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -144,18 +136,23 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(
                     title=DEFAULT_TITLE,
                     data={
-                        CONF_URL: user_input[CONF_URL],
+                        CONF_URL: self.url,
                     },
                     options={CONF_DOWNLOAD_LOCAL: DEFAULT_DOWNLOAD_LOCAL},
                 )
 
-            return self.async_show_form(
-                step_id="user",
-                data_schema=get_manual_schema(user_input),
-                errors=errors,
-            )
+        suggested_values = user_input
+        if suggested_values is None:
+            suggested_values = {CONF_URL: DEFAULT_URL}
 
-        return self.async_show_form(step_id="user", data_schema=get_manual_schema({}))
+        return self.async_show_form(
+            step_id="user",
+            data_schema=self.add_suggested_values_to_schema(
+                get_manual_schema(user_input),
+                suggested_values,
+            ),
+            errors=errors,
+        )
 
     async def async_step_hassio(
         self,
@@ -232,25 +229,25 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
         self,
         discovery_info: ZeroconfServiceInfo,
     ) -> ConfigFlowResult:
-        """Handle a discovered Mass server.
-
-        This flow is triggered by the Zeroconf component. It will check if the
-        host is already configured and delegate to the import step if not.
-        """
-        # abort if discovery info is not what we expect
+        """Handle a zeroconf discovery for a Music Assistant server."""
         try:
-            server_info = ServerInfoMessage.from_dict(discovery_info.properties)
-        except LookupError:
+            # Parse zeroconf properties (strings) to ServerInfoMessage
             server_info = _parse_zeroconf_server_info(discovery_info.properties)
-        except (KeyError, ValueError):
+        except (LookupError, KeyError, ValueError):
             return self.async_abort(reason="invalid_discovery_info")
+
         if server_info.schema_version >= HASSIO_DISCOVERY_SCHEMA_VERSION:
+            # Ignore servers running as Home Assistant add-on
+            # (they should be discovered through hassio discovery instead)
             if server_info.homeassistant_addon:
                 LOGGER.debug("Ignoring add-on server in zeroconf discovery")
                 return self.async_abort(reason="already_discovered_addon")
+
+            # Ignore servers that have not completed onboarding yet
             if not server_info.onboard_done:
-                LOGGER.debug("Ignoring server that hasn't completed onboarding.")
-                return self.async_abort(reason="server_on_ready")
+                LOGGER.debug("Ignoring server that hasn't completed onboarding")
+                return self.async_abort(reason="server_not_ready")
+
         self.url = server_info.base_url
         self.server_info = server_info
 
@@ -261,6 +258,7 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
             await _get_server_info(self.hass, self.url)
         except CannotConnect:
             return self.async_abort(reason="cannot_connect")
+
         return await self.async_step_discovery_confirm()
 
     async def async_step_discovery_confirm(
@@ -271,9 +269,14 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
         if TYPE_CHECKING:
             assert self.url is not None
             assert self.server_info is not None
+
         if user_input is not None:
+            # Check if authentication is required for this server
             if self.server_info.schema_version >= AUTH_SCHEMA_VERSION:
+                # Redirect to browser-based authentication
                 return await self.async_step_auth()
+
+            # Old server, no auth needed
             return self.async_create_entry(
                 title=DEFAULT_TITLE,
                 data={
@@ -281,6 +284,7 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
                 },
                 options={CONF_DOWNLOAD_LOCAL: DEFAULT_DOWNLOAD_LOCAL},
             )
+
         self._set_confirm_only()
         return self.async_show_form(
             step_id="discovery_confirm",
