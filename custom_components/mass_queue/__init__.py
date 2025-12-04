@@ -80,6 +80,7 @@ async def async_setup_entry(  # noqa: PLR0915
     """Set up Music Assistant from a config entry."""
     http_session = async_get_clientsession(hass, verify_ssl=False)
     mass_url = entry.data[CONF_URL]
+    # Get token from config entry (for schema >= AUTH_SCHEMA_VERSION)
     token = entry.data.get(CONF_TOKEN)
     mass = MusicAssistantClient(mass_url, http_session, token=token)
 
@@ -106,8 +107,10 @@ async def async_setup_entry(  # noqa: PLR0915
         exc = f"Authentication failed for {mass_url}: {err}"
         raise ConfigEntryAuthFailed(exc) from err
     except MusicAssistantClientException as err:
-        LOGGER.exception("Failed to connect to music assistant server", exc_info=err)
+        exc = f"Failed to connect to music assistant server {mass_url}: {err}"
+        raise ConfigEntryNotReady(exc) from err
     except MusicAssistantError as err:
+        LOGGER.exception("Failed to connect to music assistant server", exc_info=err)
         exc = f"Unknown error connecting to the Music Assistant server {mass_url}"
         raise ConfigEntryNotReady(
             exc,
