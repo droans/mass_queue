@@ -2,6 +2,11 @@
 
 import logging
 
+AUTH_SCHEMA_VERSION = 28
+HASSIO_DISCOVERY_SCHEMA_VERSION = 28
+
+CONF_TOKEN = "token"  # noqa: S105
+
 DOMAIN = "mass_queue"
 DEFAULT_NAME = "Music Assistant Queue Items"
 SERVICE_CLEAR_QUEUE_FROM_HERE = "clear_queue_from_here"
