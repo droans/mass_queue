@@ -1,5 +1,6 @@
 {
   "name": "Music Assistant Queue Actions",
+  "homeassistant": "2025.12",
   "render_readme": true,
   "zip_release": false
 }

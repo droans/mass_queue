@@ -229,7 +229,7 @@ class MassQueueController:
 
     async def get_active_queue(self, queue_id: str):
         """Get the active queue for a single queue."""
-        return await self._client.get_active_queue(queue_id)
+        return await self._client.player_queues.get_active_queue(queue_id)
 
     async def get_queue_index(self, queue_id: str):
         """Get the active queue index for a single queue."""
