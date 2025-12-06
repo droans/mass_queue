@@ -69,7 +69,10 @@ def _parse_zeroconf_server_info(properties: dict[str, str]) -> ServerInfoMessage
 
 def get_manual_schema(user_input: dict[str, Any]) -> vol.Schema:
     """Return a schema for the manual step."""
-    default_url = user_input.get(CONF_URL, DEFAULT_URL)
+    if type(user_input) is dict:
+        default_url = user_input.get(CONF_URL, DEFAULT_URL)
+    else:
+        default_url = DEFAULT_URL
     return vol.Schema(
         {
             vol.Required(CONF_URL, default=default_url): str,
@@ -145,12 +148,14 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
         if suggested_values is None:
             suggested_values = {CONF_URL: DEFAULT_URL}
 
+        form = get_manual_schema(user_input)
+        schema = self.add_suggested_values_to_schema(
+            form,
+            suggested_values,
+        )
         return self.async_show_form(
             step_id="user",
-            data_schema=self.add_suggested_values_to_schema(
-                get_manual_schema(user_input),
-                suggested_values,
-            ),
+            data_schema=schema,
             errors=errors,
         )
 
