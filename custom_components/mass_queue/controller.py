@@ -149,7 +149,18 @@ class MassQueueController:
         recs = await self._client.music.recommendations()
         if not providers:
             return recs
-        return [rec for rec in recs if rec.provider in providers]
+        rec_providers = []
+        for rec in recs:
+            if rec.provider not in rec_providers:
+                rec_providers.append(rec.provider)
+
+        used_rec_providers = [
+            rec_provider
+            for rec_provider in rec_providers
+            for provider in providers
+            if rec_provider.startswith(provider)
+        ]
+        return [rec for rec in recs if rec.provider in used_rec_providers]
 
     async def get_grouped_volume(self, player_id: str):
         """Get the grouped volume for a given player."""
