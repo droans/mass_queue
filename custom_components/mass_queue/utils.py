@@ -6,6 +6,7 @@ import base64
 import urllib.parse
 from typing import TYPE_CHECKING
 
+from homeassistant.components.media_player import async_fetch_image
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import callback
 from homeassistant.exceptions import ServiceValidationError
@@ -282,7 +283,7 @@ async def download_single_image_from_image_data(
         read = await req.content.read()
         return f"data:image;base64,{base64.b64encode(read).decode('utf-8')}"
     except:  # noqa: E722
-        LOGGER.error(f"Unable to get image with data {image_data}")
+        LOGGER.exception(f"Unable to get image with data {image_data}")
         return None
 
 
@@ -355,3 +356,12 @@ def get_entity_info(hass: HomeAssistant, entity_id: str):
         "synced_to": synced_to,
         "type": player_type,
     }
+
+
+async def proxy_image(hass: HomeAssistant, url: str):
+    """Returns a proxied image for the URL."""
+    LOGGER.debug(f"Fetching image for {url}")
+    content, content_type = await async_fetch_image(LOGGER, hass, url)
+    LOGGER.debug(f"Got content {content}")
+    LOGGER.debug(f"Got content_type {content_type}")
+    return content, content_type

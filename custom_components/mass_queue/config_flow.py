@@ -360,10 +360,12 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
         except (TimeoutError, CannotConnect):
             return self.async_abort(reason="cannot_connect")
         except (AuthenticationFailed, InvalidToken) as err:
-            LOGGER.error("Authentication failed: %s", err)
+            msg = f"Authentication failed: {err}"
+            LOGGER.exception(msg)
             return self.async_abort(reason="auth_failed")
         except InvalidServerVersion as err:
-            LOGGER.error("Invalid server version: %s", err)
+            msg = f"Invalid server version: {err}"
+            LOGGER.exception(msg)
             return self.async_abort(reason="invalid_server_version")
         except MusicAssistantClientException:
             LOGGER.exception("Unexpected exception during connection test")
@@ -477,7 +479,8 @@ class OptionsFlowHandler(OptionsFlowWithReload):
         if user_input is not None:
             LOGGER.debug("User input is not none, submitting data")
             entry = self.async_create_entry(data=self.config_entry.options | user_input)
-            LOGGER.debug(f"Created entry {entry} ({dir(entry)})")
+            msg = f"Created entry {entry} ({dir(entry)})"
+            LOGGER.debug(msg)
             return entry
         LOGGER.debug("User input is none, showing form...")
         default_download = self._download_local

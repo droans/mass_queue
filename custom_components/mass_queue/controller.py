@@ -74,7 +74,7 @@ class MassQueueController:
         event_queue_id = event_data.get("queue_id")
         self._hass.loop.create_task(self.update_queue_items(event_queue_id))
         if event_data is None:
-            LOGGER.error(f"Event data is empty! Event: {event}")
+            LOGGER.exception(f"Event data is empty! Event: {event}")
             return
         data = format_queue_updated_event_data(event_data)
         ha_event_data = {"type": event_type, "object_id": event_object_id, "data": data}
@@ -89,7 +89,7 @@ class MassQueueController:
         event_queue_id = event_data.get("queue_id")
         self._hass.loop.create_task(self.update_queue_items(event_queue_id))
         if event_data is None:
-            LOGGER.error(f"Event data is empty! Event: {event}")
+            LOGGER.exception(f"Event data is empty! Event: {event}")
             return
         data = format_queue_updated_event_data(event_data)
         ha_event_data = {"type": event_type, "object_id": event_object_id, "data": data}
@@ -103,7 +103,7 @@ class MassQueueController:
         event_player = event_data["player_id"]
         self.update_player_queue(event_player)
         if event_data is None:
-            LOGGER.error(f"Event data is empty! Event: {event}")
+            LOGGER.exception(f"Event data is empty! Event: {event}")
             return
         ha_event_data = {
             "type": event_type,
@@ -382,7 +382,7 @@ class Queues:
                 *[self.process_image_single_item(item) for item in items],
             )
         except:  # noqa: E722
-            LOGGER.error(f"Unable to process queue items {items}!")
+            LOGGER.exception(f"Unable to process queue items {items}!")
             result = items
         self.queues[queue_id] = result
         return result

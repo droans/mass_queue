@@ -40,9 +40,13 @@ from .actions import (
 from .const import CONF_TOKEN, DOMAIN, LOGGER
 from .services import register_actions
 from .websocket_commands import (
+    ApiFakeView,
+    ApiFakeView2,
+    ApiMassQueueProxyByEntityAndIdView,
     api_download_and_encode_image,
     api_download_images,
     api_get_entity_info,
+    api_proxy_image,
 )
 
 if TYPE_CHECKING:
@@ -70,6 +74,9 @@ class MusicAssistantQueueEntryData:
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:  # noqa: ARG001
     """Set up the Music Assistant component."""
+    hass.http.register_view(ApiMassQueueProxyByEntityAndIdView)
+    hass.http.register_view(ApiFakeView)
+    hass.http.register_view(ApiFakeView2)
     return True
 
 
@@ -146,6 +153,7 @@ async def async_setup_entry(  # noqa: PLR0915
     websocket_api.async_register_command(hass, api_download_images)
     websocket_api.async_register_command(hass, api_download_and_encode_image)
     websocket_api.async_register_command(hass, api_get_entity_info)
+    websocket_api.async_register_command(hass, api_proxy_image)
 
     # If the listen task is already failed, we need to raise ConfigEntryNotReady
     if listen_task.done() and (listen_error := listen_task.exception()) is not None:
@@ -173,7 +181,7 @@ async def _client_listen(
     except MusicAssistantError as err:
         if entry.state != ConfigEntryState.LOADED:
             raise
-        LOGGER.error("Failed to listen: %s", err)
+        LOGGER.exception("Failed to listen: %s", err)
     except Exception as err:  # pylint: disable=broad-except
         # We need to guard against unknown exceptions to not crash this task.
         if entry.state != ConfigEntryState.LOADED:
