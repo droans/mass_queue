@@ -41,8 +41,8 @@ def _get_config_entry(
 def get_mass_queue_entry(hass, entity_id):
     """Gets the actions for the selected entity."""
     mass_entry = get_mass_entry(hass, entity_id)
-    mass = mass_entry.runtime_data.mass.connection.ws_server_url
-    return find_mass_queue_entry(hass, mass)
+    unique_id = mass_entry.unique_id
+    return find_mass_queue_entry_from_unique_id(hass, unique_id)
 
 
 def get_entity_actions_controller(hass, entity_id):
@@ -69,14 +69,13 @@ def _get_mass_entity_config_entry_id(hass, entity_id):
     return registry.async_get(entity_id).config_entry_id
 
 
-def find_mass_queue_entry(hass, mass_url):
+def find_mass_queue_entry_from_unique_id(hass: HomeAssistant, unique_id: str):
     """Finds the mass_queue entry for the given MA URL."""
     entries = _get_mass_queue_entries(hass)
     for entry in entries:
-        entry_url = entry.runtime_data.mass.connection.ws_server_url
-        if entry_url == mass_url:
+        if entry.unique_id == unique_id:
             return entry
-    msg = f"Cannot find entry for Music Assistant at {mass_url}"
+    msg = f"Cannot find entry for Music Assistant with unique ID {unique_id}"
     raise ServiceValidationError(msg)
 
 
