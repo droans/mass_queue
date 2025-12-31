@@ -62,6 +62,7 @@ from .schemas import (
     MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
     PLAY_QUEUE_ITEM_SERVICE_SCHEMA,
+    PLAYLIST_ITEM_SCHEMA,
     QUEUE_ITEM_SCHEMA,
     QUEUE_ITEMS_SERVICE_SCHEMA,
     REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
@@ -70,6 +71,7 @@ from .schemas import (
 )
 from .utils import (
     find_image,
+    parse_uri,
 )
 
 if TYPE_CHECKING:
@@ -343,6 +345,48 @@ class MassQueueActions:
             media_type="track",
             library_item_id=item_id,
         )
+
+    async def get_playlist_items(self, playlist_uri: str):
+        """Retrieves all playlist items."""
+        provider, item_id = parse_uri(playlist_uri)
+        LOGGER.debug(
+            f"Getting playlist items for provider {provider}, item_id {item_id}",
+        )
+        resp = await self._client.music.get_playlist_tracks(item_id, provider)
+        LOGGER.debug(f"Got response with {len(resp) if resp else 0} items")
+        result = [self.format_playlist_item(item.to_dict()) for item in resp]
+        msg = f"Got response {result[0]}"
+        if len(msg) > 200:
+            msg = f"{msg[180]}..." + "}"
+        LOGGER.debug(msg)
+        return result
+
+    def format_playlist_item(self, playlist_item: dict) -> dict:
+        """Processes the individual items in a playlist."""
+        media_title = playlist_item.get("name") or "N/A"
+        media_album = playlist_item.get("album") or "N/A"
+        media_album_name = "" if media_album is None else media_album.get("name", "")
+        media_content_id = playlist_item["uri"]
+        media_image = find_image(playlist_item) or ""
+        local_image_encoded = playlist_item.get(ATTR_LOCAL_IMAGE_ENCODED)
+        favorite = playlist_item["favorite"]
+
+        artists = playlist_item["artists"]
+        artist_names = [artist["name"] for artist in artists]
+        media_artist = ", ".join(artist_names)
+        response: ServiceResponse = PLAYLIST_ITEM_SCHEMA(
+            {
+                ATTR_MEDIA_TITLE: media_title,
+                ATTR_MEDIA_ALBUM_NAME: media_album_name,
+                ATTR_MEDIA_ARTIST: media_artist,
+                ATTR_MEDIA_CONTENT_ID: media_content_id,
+                ATTR_MEDIA_IMAGE: media_image,
+                ATTR_FAVORITE: favorite,
+            },
+        )
+        if local_image_encoded:
+            response[ATTR_LOCAL_IMAGE_ENCODED] = local_image_encoded
+        return response
 
 
 @callback

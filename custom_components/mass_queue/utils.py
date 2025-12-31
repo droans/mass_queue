@@ -147,8 +147,7 @@ def find_image_from_image(data: dict, remotely_accessible: bool):
 
 def find_image_from_metadata(data: dict, remotely_accessible: bool):
     """Attempts to find the image via the metadata key."""
-    media_item = data.get("media_item", {})
-    metadata = media_item.get("metadata", {})
+    metadata = data.get("metadata", {})
     img_data = metadata.get("images")
     if img_data is None:
         return None
@@ -168,16 +167,19 @@ def find_image_from_album(data: dict, remotely_accessible: bool):
 def find_image_from_artists(data: dict, remotely_accessible: bool):
     """Attempts to find the image via the artists key."""
     artist = data.get("artist", {})
-    img_data = artist.get("image")
-    if img_data is list:
+    img_data = artist.get("image") or []
+    img_data += artist.get("metadata") or []
+    if len(img_data):
         return search_image_list(img_data, remotely_accessible)
     return return_image_or_none(img_data, remotely_accessible)
 
 
 def find_image(data: dict, remotely_accessible: bool = True):
     """Returns None if image is not present or not remotely accessible."""
+    media_item = data.get("media_item", data)
+
     from_image = find_image_from_image(data, remotely_accessible)
-    from_metadata = find_image_from_metadata(data, remotely_accessible)
+    from_metadata = find_image_from_metadata(media_item, remotely_accessible)
     from_album = find_image_from_album(data, remotely_accessible)
     from_artists = find_image_from_artists(data, remotely_accessible)
     return from_image or from_metadata or from_album or from_artists
@@ -354,3 +356,10 @@ def get_entity_info(hass: HomeAssistant, entity_id: str):
         "synced_to": synced_to,
         "type": player_type,
     }
+
+
+def parse_uri(uri):
+    """Parse a URI and split to provider and item ID."""
+    provider = uri.split("://")[0]
+    item_id = uri.split("/")[-1]
+    return [provider, item_id]

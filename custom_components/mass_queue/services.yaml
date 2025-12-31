@@ -217,3 +217,18 @@ clear_queue_from_here:
         entity:
           domain: media_player
           integration: music_assistant
+get_playlist_tracks:
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      required: true
+      selector:
+        config_entry:
+          integration: mass_queue
+    uri:
+      name: Playlist URI
+      description: URI for the playlist
+      selector:
+        text:
+      example: "library://playlist/12"
+      required: true

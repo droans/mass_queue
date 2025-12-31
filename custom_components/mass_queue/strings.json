@@ -242,6 +242,20 @@
           "description": "Music Assistant Media Player Entity."
         }
       }
+    },
+    "get_playlist_tracks": {
+      "name": "Get Playlist Tracks",
+      "description": "Returns all tracks for the playlist given.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry ID",
+          "description": "Config Entry ID for the Music Assistant Queue Items instance."
+        },
+        "uri": {
+          "name": "Playlist URI",
+          "description": "URI for the playlist."
+        }
+      }
     }
   }
 }

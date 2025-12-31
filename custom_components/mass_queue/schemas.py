@@ -24,6 +24,7 @@ from .const import (
     ATTR_PROVIDERS,
     ATTR_QUEUE_ITEM_ID,
     ATTR_QUEUE_ITEMS,
+    ATTR_URI,
     ATTR_VOLUME_LEVEL,
 )
 
@@ -42,6 +43,18 @@ GET_GROUP_VOLUME_SERVICE_SCHEMA = vol.Schema(
 QUEUE_ITEM_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_QUEUE_ITEM_ID): str,
+        vol.Required(ATTR_MEDIA_TITLE): str,
+        vol.Required(ATTR_MEDIA_ALBUM_NAME): str,
+        vol.Required(ATTR_MEDIA_ARTIST): str,
+        vol.Required(ATTR_MEDIA_CONTENT_ID): str,
+        vol.Required(ATTR_MEDIA_IMAGE): str,
+        vol.Required(ATTR_FAVORITE): bool,
+        vol.Optional(ATTR_LOCAL_IMAGE_ENCODED): str,
+    },
+)
+
+PLAYLIST_ITEM_SCHEMA = vol.Schema(
+    {
         vol.Required(ATTR_MEDIA_TITLE): str,
         vol.Required(ATTR_MEDIA_ALBUM_NAME): str,
         vol.Required(ATTR_MEDIA_ARTIST): str,
@@ -106,6 +119,13 @@ SEND_COMMAND_SERVICE_SCHEMA = vol.Schema(
         vol.Required(ATTR_COMMAND): str,
         vol.Optional(ATTR_DATA, default={}): dict,
         vol.Required(ATTR_CONFIG_ENTRY_ID): str,
+    },
+)
+
+GET_PLAYLIST_TRACKS_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_CONFIG_ENTRY_ID): str,
+        vol.Required(ATTR_URI): str,
     },
 )
 
