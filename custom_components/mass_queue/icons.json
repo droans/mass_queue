@@ -1,5 +1,6 @@
 {
   "services": {
+    "get_playlist_tracks": { "service": "mdi:playlist-music"},
     "get_queue_items": { "service": "mdi:playlist-music" },
     "move_queue_item_down": { "service": "mdi:arrow-down" },
     "move_queue_item_next": { "service": "mdi:arrow-collapse-up" },

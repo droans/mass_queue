@@ -90,3 +90,18 @@ async def api_download_images(
         image["encoded"] = img
         result.append(image)
     connection.send_result(msg["id"], result)
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "mass_queue/get_playlist_items",
+        vol.Required("playlist_uri"): str,
+    },
+)
+@websocket_api.async_response
+async def get_playlist_items(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict,
+) -> None:
+    """Retrieves all playlist items."""
