@@ -20,6 +20,7 @@ from .const import (
     ATTR_MEDIA_IMAGE,
     ATTR_MEDIA_TITLE,
     ATTR_OFFSET,
+    ATTR_PAGE,
     ATTR_PLAYER_ENTITY,
     ATTR_PROVIDERS,
     ATTR_QUEUE_ITEM_ID,
@@ -126,6 +127,7 @@ GET_PLAYLIST_TRACKS_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_CONFIG_ENTRY_ID): str,
         vol.Required(ATTR_URI): str,
+        vol.Required(ATTR_PAGE): int,
     },
 )
 

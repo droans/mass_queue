@@ -254,6 +254,10 @@
         "uri": {
           "name": "Playlist URI",
           "description": "URI for the playlist."
+        },
+        "page": {
+          "name": "Page",
+          "description": "Page of results to return. If not provided, returns all."
         }
       }
     }

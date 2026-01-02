@@ -344,13 +344,17 @@ class MassQueueActions:
             library_item_id=item_id,
         )
 
-    async def get_playlist_items(self, playlist_uri: str):
+    async def get_playlist_tracks(self, playlist_uri: str, page: int | None = None):
         """Retrieves all playlist items."""
         provider, item_id = parse_uri(playlist_uri)
         LOGGER.debug(
             f"Getting playlist items for provider {provider}, item_id {item_id}",
         )
-        resp = await self._client.music.get_playlist_tracks(item_id, provider)
+        resp = (
+            await self._client.music.get_playlist_tracks(item_id, provider)
+            if not page
+            else await self._client.music.get_playlist_tracks(item_id, provider, page)
+        )
         return [self.format_playlist_item(item.to_dict()) for item in resp]
 
     def format_playlist_item(self, playlist_item: dict) -> dict:

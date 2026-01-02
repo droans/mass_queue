@@ -272,5 +272,5 @@ async def get_playlist_tracks(call: ServiceCall):
     entry = hass.config_entries.async_get_entry(config_entry)
     actions = entry.runtime_data.actions
     return {
-        "tracks": await actions.get_playlist_items(uri),
+        "tracks": await actions.get_playlist_tracks(uri),
     }
