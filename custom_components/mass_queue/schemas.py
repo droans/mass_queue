@@ -127,7 +127,7 @@ GET_TRACKS_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_CONFIG_ENTRY_ID): str,
         vol.Required(ATTR_URI): str,
-        vol.Required(ATTR_PAGE): int,
+        vol.Optional(ATTR_PAGE): int,
     },
 )
 
