@@ -349,7 +349,7 @@ class MassQueueActions:
         """Retrieves the details for an artist."""
         provider, item_id = parse_uri(artist_uri)
         LOGGER.debug(f"Getting artist details for provider {provider}")
-        return await self._client.music.get_album(item_id, provider)
+        return await self._client.music.get_artist(item_id, provider)
 
     async def get_album_details(self, album_uri):
         """Retrieves the details for an album."""
@@ -361,7 +361,7 @@ class MassQueueActions:
         """Retrieves the details for a playlist."""
         provider, item_id = parse_uri(playlist_uri)
         LOGGER.debug(f"Getting album details for provider {provider}")
-        return await self._client.music.get_album(item_id, provider)
+        return await self._client.music.get_playlist(item_id, provider)
 
     async def get_artist_tracks(self, artist_uri: str, page: int | None = None):
         """Retrieves a limited number of tracks from an artist."""
