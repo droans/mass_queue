@@ -260,6 +260,42 @@
           "description": "Page of results to return. If not provided, returns all."
         }
       }
+    },
+    "get_album_tracks": {
+      "name": "Get Album Tracks",
+      "description": "Returns all tracks for the album given.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry ID",
+          "description": "Config Entry ID for the Music Assistant Queue Items instance."
+        },
+        "uri": {
+          "name": "Album URI",
+          "description": "URI for the album."
+        },
+        "page": {
+          "name": "Page",
+          "description": "Page of results to return. If not provided, returns all."
+        }
+      }
+    },
+    "get_artist_tracks": {
+      "name": "Get Artist Tracks",
+      "description": "Returns all tracks for the artist given.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry ID",
+          "description": "Config Entry ID for the Music Assistant Queue Items instance."
+        },
+        "uri": {
+          "name": "Artist URI",
+          "description": "URI for the artist."
+        },
+        "page": {
+          "name": "Page",
+          "description": "Page of results to return. If not provided, returns all."
+        }
+      }
     }
   }
 }

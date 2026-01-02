@@ -54,7 +54,7 @@ QUEUE_ITEM_SCHEMA = vol.Schema(
     },
 )
 
-PLAYLIST_ITEM_SCHEMA = vol.Schema(
+TRACK_ITEM_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_MEDIA_TITLE): str,
         vol.Required(ATTR_MEDIA_ALBUM_NAME): str,
@@ -123,7 +123,7 @@ SEND_COMMAND_SERVICE_SCHEMA = vol.Schema(
     },
 )
 
-GET_PLAYLIST_TRACKS_SERVICE_SCHEMA = vol.Schema(
+GET_TRACKS_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_CONFIG_ENTRY_ID): str,
         vol.Required(ATTR_URI): str,

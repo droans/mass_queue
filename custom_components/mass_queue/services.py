@@ -16,6 +16,8 @@ from .const import (
     DOMAIN,
     LOGGER,
     SERVICE_CLEAR_QUEUE_FROM_HERE,
+    SERVICE_GET_ALBUM_TRACKS,
+    SERVICE_GET_ARTIST_TRACKS,
     SERVICE_GET_GROUP_VOLUME,
     SERVICE_GET_PLAYLIST_TRACKS,
     SERVICE_GET_QUEUE_ITEMS,
@@ -32,8 +34,8 @@ from .const import (
 from .schemas import (
     CLEAR_QUEUE_FROM_HERE_SERVICE_SCHEMA,
     GET_GROUP_VOLUME_SERVICE_SCHEMA,
-    GET_PLAYLIST_TRACKS_SERVICE_SCHEMA,
     GET_RECOMMENDATIONS_SERVICE_SCHEMA,
+    GET_TRACKS_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
@@ -138,7 +140,21 @@ def register_actions(hass) -> None:
         DOMAIN,
         SERVICE_GET_PLAYLIST_TRACKS,
         get_playlist_tracks,
-        schema=GET_PLAYLIST_TRACKS_SERVICE_SCHEMA,
+        schema=GET_TRACKS_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_ALBUM_TRACKS,
+        get_album_tracks,
+        schema=GET_TRACKS_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_ARTIST_TRACKS,
+        get_artist_tracks,
+        schema=GET_TRACKS_SERVICE_SCHEMA,
         supports_response=SupportsResponse.ONLY,
     )
 
@@ -262,6 +278,30 @@ async def clear_queue_from_here(call: ServiceCall):
     for item in items:
         queue_item_id = item[ATTR_QUEUE_ITEM_ID]
         await client.player_queues.queue_command_delete(queue_id, queue_item_id)
+
+
+async def get_album_tracks(call: ServiceCall):
+    """Gets all tracks in an album."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    uri = call.data[ATTR_URI]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    return {
+        "tracks": await actions.get_album_tracks(uri),
+    }
+
+
+async def get_artist_tracks(call: ServiceCall):
+    """Gets all tracks for an artist."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    uri = call.data[ATTR_URI]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    return {
+        "tracks": await actions.get_artist_tracks(uri),
+    }
 
 
 async def get_playlist_tracks(call: ServiceCall):

@@ -241,3 +241,51 @@ get_playlist_tracks:
           mode: box
       required: false
       example: 0
+get_album_tracks:
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      required: true
+      selector:
+        config_entry:
+          integration: mass_queue
+    uri:
+      name: Album URI
+      description: URI for the album
+      selector:
+        text:
+      example: "library://album/12"
+      required: true
+    page:
+      selector:
+        number:
+          min: 0
+          max: 1000
+          step: 1
+          mode: box
+      required: false
+      example: 0
+get_artist_tracks:
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      required: true
+      selector:
+        config_entry:
+          integration: mass_queue
+    uri:
+      name: Artist URI
+      description: URI for the artist
+      selector:
+        text:
+      example: "library://artist/12"
+      required: true
+    page:
+      selector:
+        number:
+          min: 0
+          max: 1000
+          step: 1
+          mode: box
+      required: false
+      example: 0
