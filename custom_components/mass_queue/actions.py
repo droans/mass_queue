@@ -196,7 +196,6 @@ class MassQueueActions:
 
     async def _format_queue_item(self, queue_item: dict) -> dict:
         """Format list of queue items for response."""
-        LOGGER.debug(f"Got queue item with keys {queue_item.keys()}")
         media = queue_item["media_item"]
 
         queue_item_id = queue_item["queue_item_id"]
@@ -224,7 +223,6 @@ class MassQueueActions:
         )
         if local_image_encoded:
             response[ATTR_LOCAL_IMAGE_ENCODED] = local_image_encoded
-        LOGGER.debug(f"Sending back response with keys {response.keys()}")
         return response
 
     async def send_command(self, call: ServiceCall) -> ServiceResponse:
@@ -353,13 +351,7 @@ class MassQueueActions:
             f"Getting playlist items for provider {provider}, item_id {item_id}",
         )
         resp = await self._client.music.get_playlist_tracks(item_id, provider)
-        LOGGER.debug(f"Got response with {len(resp) if resp else 0} items")
-        result = [self.format_playlist_item(item.to_dict()) for item in resp]
-        msg = f"Got response {result[0]}"
-        if len(msg) > 200:
-            msg = f"{msg[180]}..." + "}"
-        LOGGER.debug(msg)
-        return result
+        return [self.format_playlist_item(item.to_dict()) for item in resp]
 
     def format_playlist_item(self, playlist_item: dict) -> dict:
         """Processes the individual items in a playlist."""

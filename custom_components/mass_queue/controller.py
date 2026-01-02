@@ -304,7 +304,9 @@ class Players:
 
     def send_ha_event(self, event_data):
         """Send event to Home Assistant."""
-        LOGGER.debug(f"Sending event type {MASS_QUEUE_EVENT_DOMAIN}, data {event_data}")
+        LOGGER.debug(
+            f"Sending event type {MASS_QUEUE_EVENT_DOMAIN}, data {event_data}",
+        )
         self._hass.bus.async_fire(MASS_QUEUE_EVENT_DOMAIN, event_data)
 
 
@@ -358,7 +360,9 @@ class Queues:
 
     def send_ha_event(self, event_data):
         """Send event to Home Assistant."""
-        LOGGER.debug(f"Sending event type {MASS_QUEUE_EVENT_DOMAIN}, data {event_data}")
+        LOGGER.debug(
+            f"Sending event type {MASS_QUEUE_EVENT_DOMAIN}, data {event_data}",
+        )
         self._hass.bus.async_fire(MASS_QUEUE_EVENT_DOMAIN, event_data)
 
     async def process_image_single_item(self, queue_item: dict):
