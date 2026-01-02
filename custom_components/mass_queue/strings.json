@@ -296,6 +296,48 @@
           "description": "Page of results to return. If not provided, returns all."
         }
       }
+    },
+    "get_playlist": {
+      "name": "Get Playlist",
+      "description": "Returns information about a playlist from the server.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry ID",
+          "description": "Config Entry ID for the Music Assistant Queue Items instance."
+        },
+        "uri": {
+          "name": "Playlist URI",
+          "description": "URI for the playlist."
+        }
+      }
+    },
+    "get_album": {
+      "name": "Get Album",
+      "description": "Returns information about an album from the server.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry ID",
+          "description": "Config Entry ID for the Music Assistant Queue Items instance."
+        },
+        "uri": {
+          "name": "Album URI",
+          "description": "URI for the album."
+        }
+      }
+    },
+    "get_artist": {
+      "name": "Get Artist",
+      "description": "Returns information about an artist from the server.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry ID",
+          "description": "Config Entry ID for the Music Assistant Queue Items instance."
+        },
+        "uri": {
+          "name": "Artist URI",
+          "description": "URI for the artist."
+        }
+      }
     }
   }
 }

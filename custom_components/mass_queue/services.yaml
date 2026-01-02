@@ -289,3 +289,48 @@ get_artist_tracks:
           mode: box
       required: false
       example: 0
+get_album:
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      required: true
+      selector:
+        config_entry:
+          integration: mass_queue
+    uri:
+      name: Album URI
+      description: URI for the Album
+      selector:
+        text:
+      example: "library://album/12"
+      required: true
+get_artist:
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      required: true
+      selector:
+        config_entry:
+          integration: mass_queue
+    uri:
+      name: Artist URI
+      description: URI for the artist
+      selector:
+        text:
+      example: "library://artist/12"
+      required: true
+get_playlist:
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      required: true
+      selector:
+        config_entry:
+          integration: mass_queue
+    uri:
+      name: Playlist URI
+      description: URI for the playlist
+      selector:
+        text:
+      example: "library://playlist/12"
+      required: true

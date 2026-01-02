@@ -1,7 +1,10 @@
 {
   "services": {
+    "get_album": { "service": "mdi:album"},
     "get_album_tracks": { "service": "mdi:album"},
+    "get_artist": { "service": "mdi:account-music"},
     "get_artist_tracks": { "service": "mdi:account-music"},
+    "get_playlist": { "service": "mdi:playlist-music"},
     "get_playlist_tracks": { "service": "mdi:playlist-music"},
     "get_queue_items": { "service": "mdi:playlist-music" },
     "move_queue_item_down": { "service": "mdi:arrow-down" },

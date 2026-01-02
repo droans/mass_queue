@@ -16,9 +16,12 @@ from .const import (
     DOMAIN,
     LOGGER,
     SERVICE_CLEAR_QUEUE_FROM_HERE,
+    SERVICE_GET_ALBUM,
     SERVICE_GET_ALBUM_TRACKS,
+    SERVICE_GET_ARTIST,
     SERVICE_GET_ARTIST_TRACKS,
     SERVICE_GET_GROUP_VOLUME,
+    SERVICE_GET_PLAYLIST,
     SERVICE_GET_PLAYLIST_TRACKS,
     SERVICE_GET_QUEUE_ITEMS,
     SERVICE_GET_RECOMMENDATIONS,
@@ -33,6 +36,7 @@ from .const import (
 )
 from .schemas import (
     CLEAR_QUEUE_FROM_HERE_SERVICE_SCHEMA,
+    GET_DATA_SERVICE_SCHEMA,
     GET_GROUP_VOLUME_SERVICE_SCHEMA,
     GET_RECOMMENDATIONS_SERVICE_SCHEMA,
     GET_TRACKS_SERVICE_SCHEMA,
@@ -155,6 +159,27 @@ def register_actions(hass) -> None:
         SERVICE_GET_ARTIST_TRACKS,
         get_artist_tracks,
         schema=GET_TRACKS_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_ALBUM,
+        get_album,
+        schema=GET_DATA_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_ARTIST,
+        get_artist,
+        schema=GET_DATA_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_PLAYLIST,
+        get_playlist,
+        schema=GET_DATA_SERVICE_SCHEMA,
         supports_response=SupportsResponse.ONLY,
     )
 
@@ -314,3 +339,33 @@ async def get_playlist_tracks(call: ServiceCall):
     return {
         "tracks": await actions.get_playlist_tracks(uri),
     }
+
+
+async def get_album(call: ServiceCall):
+    """Returns the details about an album from the server."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    uri = call.data[ATTR_URI]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    return (await actions.get_album_details(uri)).to_dict()
+
+
+async def get_artist(call: ServiceCall):
+    """Returns the details about an artist from the server."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    uri = call.data[ATTR_URI]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    return (await actions.get_artist_details(uri)).to_dict()
+
+
+async def get_playlist(call: ServiceCall):
+    """Returns the details about a playlist from the server."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    uri = call.data[ATTR_URI]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    return (await actions.get_playlist_details(uri)).to_dict()
