@@ -54,7 +54,6 @@ async def api_download_and_encode_image(
     """Download images and return them as b64 encoded."""
     LOGGER.debug(f"Got message: {msg}")
     url = msg["url"]
-    LOGGER.debug(f"URL: {url}")
     result = await download_and_encode_image(url, hass)
     connection.send_result(msg["id"], result)
 
@@ -76,8 +75,6 @@ async def api_download_images(
     LOGGER.debug(f"Received message: {msg}")
     session = aiohttp_client.async_get_clientsession(hass)
     images = msg["images"]
-    LOGGER.debug("Pulled images from message")
-    LOGGER.debug(images)
     result = []
     entity_id = msg["entity_id"]
     for image in images:

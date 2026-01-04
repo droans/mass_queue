@@ -17,11 +17,13 @@ from homeassistant.helpers import entity_registry as er
 from music_assistant_models.errors import (
     InvalidCommand,
     MediaNotFoundError,
+    ProviderUnavailableError,
 )
 
 from .const import (
     ATTR_COMMAND,
     ATTR_DATA,
+    ATTR_DURATION,
     ATTR_FAVORITE,
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
@@ -62,12 +64,12 @@ from .schemas import (
     MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
     PLAY_QUEUE_ITEM_SERVICE_SCHEMA,
-    PLAYLIST_ITEM_SCHEMA,
     QUEUE_ITEM_SCHEMA,
     QUEUE_ITEMS_SERVICE_SCHEMA,
     REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
     SEND_COMMAND_SERVICE_SCHEMA,
     SET_GROUP_VOLUME_SERVICE_SCHEMA,
+    TRACK_ITEM_SCHEMA,
 )
 from .utils import (
     find_image,
@@ -196,7 +198,6 @@ class MassQueueActions:
 
     async def _format_queue_item(self, queue_item: dict) -> dict:
         """Format list of queue items for response."""
-        LOGGER.debug(f"Got queue item with keys {queue_item.keys()}")
         media = queue_item["media_item"]
 
         queue_item_id = queue_item["queue_item_id"]
@@ -224,7 +225,6 @@ class MassQueueActions:
         )
         if local_image_encoded:
             response[ATTR_LOCAL_IMAGE_ENCODED] = local_image_encoded
-        LOGGER.debug(f"Sending back response with keys {response.keys()}")
         return response
 
     async def send_command(self, call: ServiceCall) -> ServiceResponse:
@@ -346,22 +346,72 @@ class MassQueueActions:
             library_item_id=item_id,
         )
 
-    async def get_playlist_items(self, playlist_uri: str):
+    async def get_artist_details(self, artist_uri):
+        """Retrieves the details for an artist."""
+        provider, item_id = parse_uri(artist_uri)
+        LOGGER.debug(f"Getting artist details for provider {provider}")
+        return await self._client.music.get_artist(item_id, provider)
+
+    async def get_album_details(self, album_uri):
+        """Retrieves the details for an album."""
+        provider, item_id = parse_uri(album_uri)
+        LOGGER.debug(f"Getting album details for provider {provider}")
+        return await self._client.music.get_album(item_id, provider)
+
+    async def get_playlist_details(self, playlist_uri):
+        """Retrieves the details for a playlist."""
+        provider, item_id = parse_uri(playlist_uri)
+        LOGGER.debug(f"Getting album details for provider {provider}")
+        return await self._client.music.get_playlist(item_id, provider)
+
+    async def get_artist_tracks(self, artist_uri: str, page: int | None = None):
+        """Retrieves a limited number of tracks from an artist."""
+        details = await self.get_artist_details(artist_uri)
+        mappings = list(details.provider_mappings)
+        if not len(mappings) > 0:
+            msg = f"URI {artist_uri} returned no results!"
+            raise ProviderUnavailableError(msg)
+        mapping = mappings[0]
+        item_id = mapping.item_id
+        provider = mapping.provider_domain
+        resp = (
+            await self._client.music.get_artist_tracks(item_id, provider)
+            if not page
+            else await self._client.music.get_artist_tracks(item_id, provider, page)
+        )
+        return [self.format_track_item(item.to_dict()) for item in resp]
+
+    async def get_album_tracks(self, album_uri: str, page: int | None = None):
+        """Retrieves all tracks from an album."""
+        details = await self.get_album_details(album_uri)
+        mappings = list(details.provider_mappings)
+        if not len(mappings) > 0:
+            msg = f"URI {album_uri} returned no results!"
+            raise ProviderUnavailableError(msg)
+        mapping = mappings[0]
+        item_id = mapping.item_id
+        provider = mapping.provider_domain
+        resp = (
+            await self._client.music.get_album_tracks(item_id, provider)
+            if not page
+            else await self._client.music.get_album_tracks(item_id, provider, page)
+        )
+        return [self.format_track_item(item.to_dict()) for item in resp]
+
+    async def get_playlist_tracks(self, playlist_uri: str, page: int | None = None):
         """Retrieves all playlist items."""
         provider, item_id = parse_uri(playlist_uri)
         LOGGER.debug(
             f"Getting playlist items for provider {provider}, item_id {item_id}",
         )
-        resp = await self._client.music.get_playlist_tracks(item_id, provider)
-        LOGGER.debug(f"Got response with {len(resp) if resp else 0} items")
-        result = [self.format_playlist_item(item.to_dict()) for item in resp]
-        msg = f"Got response {result[0]}"
-        if len(msg) > 200:
-            msg = f"{msg[180]}..." + "}"
-        LOGGER.debug(msg)
-        return result
+        resp = (
+            await self._client.music.get_playlist_tracks(item_id, provider)
+            if not page
+            else await self._client.music.get_playlist_tracks(item_id, provider, page)
+        )
+        return [self.format_track_item(item.to_dict()) for item in resp]
 
-    def format_playlist_item(self, playlist_item: dict) -> dict:
+    def format_track_item(self, playlist_item: dict) -> TRACK_ITEM_SCHEMA:
         """Processes the individual items in a playlist."""
         media_title = playlist_item.get("name") or "N/A"
         media_album = playlist_item.get("album") or "N/A"
@@ -370,16 +420,18 @@ class MassQueueActions:
         media_image = find_image(playlist_item) or ""
         local_image_encoded = playlist_item.get(ATTR_LOCAL_IMAGE_ENCODED)
         favorite = playlist_item["favorite"]
+        duration = playlist_item["duration"] or 0
 
         artists = playlist_item["artists"]
         artist_names = [artist["name"] for artist in artists]
         media_artist = ", ".join(artist_names)
-        response: ServiceResponse = PLAYLIST_ITEM_SCHEMA(
+        response: ServiceResponse = TRACK_ITEM_SCHEMA(
             {
                 ATTR_MEDIA_TITLE: media_title,
                 ATTR_MEDIA_ALBUM_NAME: media_album_name,
                 ATTR_MEDIA_ARTIST: media_artist,
                 ATTR_MEDIA_CONTENT_ID: media_content_id,
+                ATTR_DURATION: duration,
                 ATTR_MEDIA_IMAGE: media_image,
                 ATTR_FAVORITE: favorite,
             },

@@ -9,6 +9,7 @@ from .const import (
     ATTR_COMMAND,
     ATTR_CONFIG_ENTRY_ID,
     ATTR_DATA,
+    ATTR_DURATION,
     ATTR_FAVORITE,
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
@@ -20,6 +21,7 @@ from .const import (
     ATTR_MEDIA_IMAGE,
     ATTR_MEDIA_TITLE,
     ATTR_OFFSET,
+    ATTR_PAGE,
     ATTR_PLAYER_ENTITY,
     ATTR_PROVIDERS,
     ATTR_QUEUE_ITEM_ID,
@@ -53,7 +55,7 @@ QUEUE_ITEM_SCHEMA = vol.Schema(
     },
 )
 
-PLAYLIST_ITEM_SCHEMA = vol.Schema(
+TRACK_ITEM_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_MEDIA_TITLE): str,
         vol.Required(ATTR_MEDIA_ALBUM_NAME): str,
@@ -61,6 +63,7 @@ PLAYLIST_ITEM_SCHEMA = vol.Schema(
         vol.Required(ATTR_MEDIA_CONTENT_ID): str,
         vol.Required(ATTR_MEDIA_IMAGE): str,
         vol.Required(ATTR_FAVORITE): bool,
+        vol.Required(ATTR_DURATION): vol.Any(int, None),
         vol.Optional(ATTR_LOCAL_IMAGE_ENCODED): str,
     },
 )
@@ -122,7 +125,15 @@ SEND_COMMAND_SERVICE_SCHEMA = vol.Schema(
     },
 )
 
-GET_PLAYLIST_TRACKS_SERVICE_SCHEMA = vol.Schema(
+GET_TRACKS_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_CONFIG_ENTRY_ID): str,
+        vol.Required(ATTR_URI): str,
+        vol.Optional(ATTR_PAGE): int,
+    },
+)
+
+GET_DATA_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_CONFIG_ENTRY_ID): str,
         vol.Required(ATTR_URI): str,
