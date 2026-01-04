@@ -9,6 +9,7 @@ from .const import (
     ATTR_COMMAND,
     ATTR_CONFIG_ENTRY_ID,
     ATTR_DATA,
+    ATTR_DURATION,
     ATTR_FAVORITE,
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
@@ -62,6 +63,7 @@ TRACK_ITEM_SCHEMA = vol.Schema(
         vol.Required(ATTR_MEDIA_CONTENT_ID): str,
         vol.Required(ATTR_MEDIA_IMAGE): str,
         vol.Required(ATTR_FAVORITE): bool,
+        vol.Required(ATTR_DURATION): vol.Any(int, None),
         vol.Optional(ATTR_LOCAL_IMAGE_ENCODED): str,
     },
 )

@@ -23,6 +23,7 @@ from music_assistant_models.errors import (
 from .const import (
     ATTR_COMMAND,
     ATTR_DATA,
+    ATTR_DURATION,
     ATTR_FAVORITE,
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
@@ -410,7 +411,7 @@ class MassQueueActions:
         )
         return [self.format_track_item(item.to_dict()) for item in resp]
 
-    def format_track_item(self, playlist_item: dict) -> dict:
+    def format_track_item(self, playlist_item: dict) -> TRACK_ITEM_SCHEMA:
         """Processes the individual items in a playlist."""
         media_title = playlist_item.get("name") or "N/A"
         media_album = playlist_item.get("album") or "N/A"
@@ -419,6 +420,7 @@ class MassQueueActions:
         media_image = find_image(playlist_item) or ""
         local_image_encoded = playlist_item.get(ATTR_LOCAL_IMAGE_ENCODED)
         favorite = playlist_item["favorite"]
+        duration = playlist_item["duration"] or 0
 
         artists = playlist_item["artists"]
         artist_names = [artist["name"] for artist in artists]
@@ -429,6 +431,7 @@ class MassQueueActions:
                 ATTR_MEDIA_ALBUM_NAME: media_album_name,
                 ATTR_MEDIA_ARTIST: media_artist,
                 ATTR_MEDIA_CONTENT_ID: media_content_id,
+                ATTR_DURATION: duration,
                 ATTR_MEDIA_IMAGE: media_image,
                 ATTR_FAVORITE: favorite,
             },
