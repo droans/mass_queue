@@ -126,6 +126,13 @@ You may enable the `download_local` option by navigating to the integration's li
 
 This option will then return a new attribute for these queue items labeled `local_image_encoded`. Custom cards can then utilize this in their code in place of the image URL.
 
+### WARNINGS
+
+* This is not a cure-all and should not be enabled unless you need it.
+* This will not have any effect unless any frontend card supports it.
+* Loading the integration and updating the queue WILL take much longer. Each item must be downloaded and converted. This is NOT a quick process. Depending on your server, this may take between 2-20 seconds per item.
+* This requires that Home Assistant can directly access the Music Assistant server along with the local provider.
+
 ## I am the creator of a custom card. Can I use these actions in my own card, too?
 
 Of course - this is open-source! The only requirement is that you give credit.
@@ -135,10 +142,3 @@ Of course - this is open-source! The only requirement is that you give credit.
 While I appreciate it, I am not going to accept any funding.
 
 When someone funds development, there's often an implied belief that the card will keep being developed or the maintainer will provide new projects. I want to be able to drop development on this card when I feel that it is complete. I do not want people to feel misled, cheated, or that I should prioritize their wants over anything else. This card is something I created for myself
-
-### WARNINGS
-
-* This is not a cure-all and should not be enabled unless you need it.
-* This will not have any effect unless any frontend card supports it.
-* Loading the integration and updating the queue WILL take much longer. Each item must be downloaded and converted. This is NOT a quick process. Depending on your server, this may take between 2-20 seconds per item.
-* This requires that Home Assistant can directly access the Music Assistant server along with the local provider.
