@@ -23,6 +23,7 @@ from .const import (
     ATTR_OFFSET,
     ATTR_PAGE,
     ATTR_PLAYER_ENTITY,
+    ATTR_POSITION,
     ATTR_PROVIDERS,
     ATTR_QUEUE_ITEM_ID,
     ATTR_QUEUE_ITEMS,
@@ -65,6 +66,7 @@ TRACK_ITEM_SCHEMA = vol.Schema(
         vol.Required(ATTR_FAVORITE): bool,
         vol.Required(ATTR_DURATION): vol.Any(int, None),
         vol.Optional(ATTR_LOCAL_IMAGE_ENCODED): str,
+        vol.Optional(ATTR_POSITION): str,
     },
 )
 

@@ -36,6 +36,7 @@ from .const import (
     ATTR_MEDIA_TITLE,
     ATTR_OFFSET,
     ATTR_PLAYER_ENTITY,
+    ATTR_POSITION,
     ATTR_PROVIDERS,
     ATTR_QUEUE_ID,
     ATTR_QUEUE_ITEM_ID,
@@ -409,7 +410,13 @@ class MassQueueActions:
             if not page
             else await self._client.music.get_playlist_tracks(item_id, provider, page)
         )
-        return [self.format_track_item(item.to_dict()) for item in resp]
+        return [self.format_playlist_track(item.to_dict()) for item in resp]
+
+    def format_playlist_track(self, playlist_track: dict) -> TRACK_ITEM_SCHEMA:
+        """Processes individual playlist tracks using format_track_item and adds position."""
+        result = self.format_track_item(playlist_track)
+        result[ATTR_POSITION] = playlist_track["position"]
+        return result
 
     def format_track_item(self, playlist_item: dict) -> TRACK_ITEM_SCHEMA:
         """Processes the individual items in a playlist."""
