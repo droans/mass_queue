@@ -334,3 +334,20 @@ get_playlist:
         text:
       example: "library://playlist/12"
       required: true
+remove_playlist_tracks:
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      required: true
+      selector:
+        config_entry:
+          integration: mass_queue
+    playlist_id:
+      required: true
+      selector:
+        text:
+    positions_to_remove:
+      required: true
+      selector:
+        text:
+          multiple: true

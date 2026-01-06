@@ -447,6 +447,17 @@ class MassQueueActions:
             response[ATTR_LOCAL_IMAGE_ENCODED] = local_image_encoded
         return response
 
+    async def remove_playlist_tracks(
+        self,
+        playlist_id: str | int,
+        positions_to_remove: list[int],
+    ):
+        """Removes one or more items from a playlist."""
+        await self._client.music.remove_playlist_tracks(
+            playlist_id,
+            positions_to_remove,
+        )
+
 
 @callback
 def get_music_assistant_client(

@@ -338,6 +338,24 @@
           "description": "URI for the artist."
         }
       }
+    },
+    "remove_playlist_tracks": {
+      "name": "Remove Playlist Tracks",
+      "description": "Removes one or more tracks from a playlist based on position.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry ID",
+          "description": "Config Entry ID for the Music Assistant Queue Items instance."
+        },
+        "playlist_id": {
+          "name": "Playlist ID",
+          "description": "ID of the playlist."
+        },
+        "positions_to_remove": {
+          "name": "Positions to remove",
+          "description": "Position(s) of items to remove from the playlist."
+        }
+      }
     }
   }
 }

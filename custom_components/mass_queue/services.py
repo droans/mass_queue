@@ -11,6 +11,8 @@ from homeassistant.core import (
 from .const import (
     ATTR_CONFIG_ENTRY_ID,
     ATTR_PLAYER_ENTITY,
+    ATTR_PLAYLIST_ID,
+    ATTR_POSITIONS_TO_REMOVE,
     ATTR_QUEUE_ITEM_ID,
     ATTR_URI,
     DOMAIN,
@@ -29,6 +31,7 @@ from .const import (
     SERVICE_MOVE_QUEUE_ITEM_NEXT,
     SERVICE_MOVE_QUEUE_ITEM_UP,
     SERVICE_PLAY_QUEUE_ITEM,
+    SERVICE_REMOVE_PLAYLIST_TRACKS,
     SERVICE_REMOVE_QUEUE_ITEM,
     SERVICE_SEND_COMMAND,
     SERVICE_SET_GROUP_VOLUME,
@@ -45,6 +48,7 @@ from .schemas import (
     MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
     PLAY_QUEUE_ITEM_SERVICE_SCHEMA,
     QUEUE_ITEMS_SERVICE_SCHEMA,
+    REMOVE_PLAYLIST_TRACKS_SERVICE_SCHEMA,
     REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
     SEND_COMMAND_SERVICE_SCHEMA,
     SET_GROUP_VOLUME_SERVICE_SCHEMA,
@@ -181,6 +185,13 @@ def register_actions(hass) -> None:
         get_playlist,
         schema=GET_DATA_SERVICE_SCHEMA,
         supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_REMOVE_PLAYLIST_TRACKS,
+        remove_playlist_tracks,
+        schema=REMOVE_PLAYLIST_TRACKS_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.NONE,
     )
 
 
@@ -369,3 +380,17 @@ async def get_playlist(call: ServiceCall):
     entry = hass.config_entries.async_get_entry(config_entry)
     actions = entry.runtime_data.actions
     return (await actions.get_playlist_details(uri)).to_dict()
+
+
+async def remove_playlist_tracks(call: ServiceCall):
+    """Removes one or more items from a playlist."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    playlist = call.data[ATTR_PLAYLIST_ID]
+    positions = call.data[ATTR_POSITIONS_TO_REMOVE]
+    if isinstance(positions, int):
+        positions = [positions]
+    positions = [int(position) for position in positions]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    await actions.remove_playlist_tracks(playlist, positions)

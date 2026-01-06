@@ -23,7 +23,9 @@ from .const import (
     ATTR_OFFSET,
     ATTR_PAGE,
     ATTR_PLAYER_ENTITY,
+    ATTR_PLAYLIST_ID,
     ATTR_POSITION,
+    ATTR_POSITIONS_TO_REMOVE,
     ATTR_PROVIDERS,
     ATTR_QUEUE_ITEM_ID,
     ATTR_QUEUE_ITEMS,
@@ -159,5 +161,13 @@ SET_GROUP_VOLUME_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_PLAYER_ENTITY): str,
         vol.Required(ATTR_VOLUME_LEVEL): int,
+    },
+)
+
+REMOVE_PLAYLIST_TRACKS_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_CONFIG_ENTRY_ID): str,
+        vol.Required(ATTR_PLAYLIST_ID): vol.Any(int, str),
+        vol.Required(ATTR_POSITIONS_TO_REMOVE): vol.Any(int, [int], str, [str]),
     },
 )
