@@ -6,6 +6,8 @@
     "get_artist_tracks": { "service": "mdi:account-music"},
     "get_playlist": { "service": "mdi:playlist-music"},
     "get_playlist_tracks": { "service": "mdi:playlist-music"},
+    "get_podcast": { "service": "mdi:podcast"},
+    "get_podcast_episodes": { "service": "mdi:podcast"},
     "get_queue_items": { "service": "mdi:playlist-music" },
     "move_queue_item_down": { "service": "mdi:arrow-down" },
     "move_queue_item_next": { "service": "mdi:arrow-collapse-up" },
