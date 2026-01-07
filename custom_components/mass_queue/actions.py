@@ -40,6 +40,7 @@ from .const import (
     ATTR_PROVIDERS,
     ATTR_QUEUE_ID,
     ATTR_QUEUE_ITEM_ID,
+    ATTR_RELEASE_DATE,
     ATTR_VOLUME_LEVEL,
     CONF_DOWNLOAD_LOCAL,
     DEFAULT_QUEUE_ITEMS_LIMIT,
@@ -411,8 +412,10 @@ class MassQueueActions:
         LOGGER.debug(
             f"Getting podcast episodes for provider {provider}, item_id {item_id}",
         )
-        resp = await self._client.music.get_podcast_episodes(item_id, provider)
-        return [self.format_podcast_episode(item.to_dict()) for item in resp]
+        resp: list = await self._client.music.get_podcast_episodes(item_id, provider)
+        formatted = [self.format_playlist_track(item.to_dict()) for item in resp]
+        formatted.sort(key=lambda x: x.release_date)
+        return formatted
 
     async def get_playlist_tracks(self, playlist_uri: str, page: int | None = None):
         """Retrieves all playlist items."""
@@ -447,7 +450,11 @@ class MassQueueActions:
 
     def format_podcast_episode(self, podcast_episode: dict) -> TRACK_ITEM_SCHEMA:
         """Process an individual track item."""
-        return self.format_item(podcast_episode)
+        result = self.format_item(podcast_episode)
+        result[ATTR_RELEASE_DATE] = podcast_episode.get("metadata", {}).get(
+            "release_date",
+        )
+        return result
 
     def format_item(self, media_item: dict) -> TRACK_ITEM_SCHEMA:
         """Processes the individual items in a playlist."""

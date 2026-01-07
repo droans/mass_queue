@@ -56,6 +56,7 @@ ATTR_PROVIDERS = "providers"
 ATTR_QUEUE_ID = "active_queue"
 ATTR_QUEUE_ITEM_ID = "queue_item_id"
 ATTR_QUEUE_ITEMS = "queue_items"
+ATTR_RELEASE_DATE = "release_date"
 ATTR_VOLUME_LEVEL = "volume_level"
 
 CONF_DOWNLOAD_LOCAL = "download_local"
