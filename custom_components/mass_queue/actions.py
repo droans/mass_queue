@@ -40,6 +40,7 @@ from .const import (
     ATTR_PROVIDERS,
     ATTR_QUEUE_ID,
     ATTR_QUEUE_ITEM_ID,
+    ATTR_RELEASE_DATE,
     ATTR_VOLUME_LEVEL,
     CONF_DOWNLOAD_LOCAL,
     DEFAULT_QUEUE_ITEMS_LIMIT,
@@ -365,6 +366,12 @@ class MassQueueActions:
         LOGGER.debug(f"Getting album details for provider {provider}")
         return await self._client.music.get_playlist(item_id, provider)
 
+    async def get_podcast_details(self, podcast_uri):
+        """Retrieves the details for a podcast."""
+        provider, item_id = parse_uri(podcast_uri)
+        LOGGER.debug(f"Getting podcast details for provider {provider}")
+        return await self._client.music.get_podcast(item_id, provider)
+
     async def get_artist_tracks(self, artist_uri: str, page: int | None = None):
         """Retrieves a limited number of tracks from an artist."""
         details = await self.get_artist_details(artist_uri)
@@ -399,6 +406,17 @@ class MassQueueActions:
         )
         return [self.format_track_item(item.to_dict()) for item in resp]
 
+    async def get_podcast_episodes(self, podcast_uri):
+        """Retrieves all episodes for a podcast."""
+        provider, item_id = parse_uri(podcast_uri)
+        LOGGER.debug(
+            f"Getting podcast episodes for provider {provider}, item_id {item_id}",
+        )
+        resp: list = await self._client.music.get_podcast_episodes(item_id, provider)
+        formatted = [self.format_podcast_episode(item.to_dict()) for item in resp]
+        formatted.sort(key=lambda x: x[ATTR_RELEASE_DATE], reverse=True)
+        return formatted
+
     async def get_playlist_tracks(self, playlist_uri: str, page: int | None = None):
         """Retrieves all playlist items."""
         provider, item_id = parse_uri(playlist_uri)
@@ -418,25 +436,37 @@ class MassQueueActions:
         result[ATTR_POSITION] = playlist_track["position"]
         return result
 
-    def format_track_item(self, playlist_item: dict) -> TRACK_ITEM_SCHEMA:
-        """Processes the individual items in a playlist."""
-        media_title = playlist_item.get("name") or "N/A"
-        media_album = playlist_item.get("album") or "N/A"
+    def format_track_item(self, track_item: dict) -> TRACK_ITEM_SCHEMA:
+        """Process an individual track item."""
+        result = self.format_item(track_item)
+        media_album = track_item.get("album") or "N/A"
         media_album_name = "" if media_album is None else media_album.get("name", "")
-        media_content_id = playlist_item["uri"]
-        media_image = find_image(playlist_item) or ""
-        local_image_encoded = playlist_item.get(ATTR_LOCAL_IMAGE_ENCODED)
-        favorite = playlist_item["favorite"]
-        duration = playlist_item["duration"] or 0
-
-        artists = playlist_item["artists"]
+        artists = track_item["artists"]
         artist_names = [artist["name"] for artist in artists]
         media_artist = ", ".join(artist_names)
+        result[ATTR_MEDIA_ALBUM_NAME] = media_album_name
+        result[ATTR_MEDIA_ARTIST] = media_artist
+        return result
+
+    def format_podcast_episode(self, podcast_episode: dict) -> TRACK_ITEM_SCHEMA:
+        """Process an individual track item."""
+        result = self.format_item(podcast_episode)
+        result[ATTR_RELEASE_DATE] = podcast_episode.get("metadata", {}).get(
+            "release_date",
+        )
+        return result
+
+    def format_item(self, media_item: dict) -> TRACK_ITEM_SCHEMA:
+        """Processes the individual items in a playlist."""
+        media_title = media_item.get("name") or "N/A"
+        media_content_id = media_item["uri"]
+        media_image = find_image(media_item) or ""
+        local_image_encoded = media_item.get(ATTR_LOCAL_IMAGE_ENCODED)
+        favorite = media_item["favorite"]
+        duration = media_item["duration"] or 0
         response: ServiceResponse = TRACK_ITEM_SCHEMA(
             {
                 ATTR_MEDIA_TITLE: media_title,
-                ATTR_MEDIA_ALBUM_NAME: media_album_name,
-                ATTR_MEDIA_ARTIST: media_artist,
                 ATTR_MEDIA_CONTENT_ID: media_content_id,
                 ATTR_DURATION: duration,
                 ATTR_MEDIA_IMAGE: media_image,

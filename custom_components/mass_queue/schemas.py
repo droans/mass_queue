@@ -61,8 +61,8 @@ QUEUE_ITEM_SCHEMA = vol.Schema(
 TRACK_ITEM_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_MEDIA_TITLE): str,
-        vol.Required(ATTR_MEDIA_ALBUM_NAME): str,
-        vol.Required(ATTR_MEDIA_ARTIST): str,
+        vol.Optional(ATTR_MEDIA_ALBUM_NAME): str,
+        vol.Optional(ATTR_MEDIA_ARTIST): str,
         vol.Required(ATTR_MEDIA_CONTENT_ID): str,
         vol.Required(ATTR_MEDIA_IMAGE): str,
         vol.Required(ATTR_FAVORITE): bool,
@@ -134,6 +134,13 @@ GET_TRACKS_SERVICE_SCHEMA = vol.Schema(
         vol.Required(ATTR_CONFIG_ENTRY_ID): str,
         vol.Required(ATTR_URI): str,
         vol.Optional(ATTR_PAGE): int,
+    },
+)
+
+GET_PODCAST_EPISODES_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_CONFIG_ENTRY_ID): str,
+        vol.Required(ATTR_URI): str,
     },
 )
 
