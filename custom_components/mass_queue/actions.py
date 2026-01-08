@@ -414,7 +414,7 @@ class MassQueueActions:
         )
         resp: list = await self._client.music.get_podcast_episodes(item_id, provider)
         formatted = [self.format_podcast_episode(item.to_dict()) for item in resp]
-        formatted.sort(key=lambda x: x.release_date)
+        formatted.sort(key=lambda x: x[ATTR_RELEASE_DATE], reverse=True)
         return formatted
 
     async def get_playlist_tracks(self, playlist_uri: str, page: int | None = None):
