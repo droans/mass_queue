@@ -413,7 +413,7 @@ class MassQueueActions:
             f"Getting podcast episodes for provider {provider}, item_id {item_id}",
         )
         resp: list = await self._client.music.get_podcast_episodes(item_id, provider)
-        formatted = [self.format_playlist_track(item.to_dict()) for item in resp]
+        formatted = [self.format_podcast_episode(item.to_dict()) for item in resp]
         formatted.sort(key=lambda x: x.release_date)
         return formatted
 
@@ -438,7 +438,7 @@ class MassQueueActions:
 
     def format_track_item(self, track_item: dict) -> TRACK_ITEM_SCHEMA:
         """Process an individual track item."""
-        result = self.format_track_item(track_item)
+        result = self.format_item(track_item)
         media_album = track_item.get("album") or "N/A"
         media_album_name = "" if media_album is None else media_album.get("name", "")
         artists = track_item["artists"]
