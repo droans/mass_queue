@@ -10,7 +10,10 @@ from homeassistant.core import (
 
 from .const import (
     ATTR_CONFIG_ENTRY_ID,
+    ATTR_PAGE,
     ATTR_PLAYER_ENTITY,
+    ATTR_PLAYLIST_ID,
+    ATTR_POSITIONS_TO_REMOVE,
     ATTR_QUEUE_ITEM_ID,
     ATTR_URI,
     DOMAIN,
@@ -23,12 +26,15 @@ from .const import (
     SERVICE_GET_GROUP_VOLUME,
     SERVICE_GET_PLAYLIST,
     SERVICE_GET_PLAYLIST_TRACKS,
+    SERVICE_GET_PODCAST,
+    SERVICE_GET_PODCAST_EPISODES,
     SERVICE_GET_QUEUE_ITEMS,
     SERVICE_GET_RECOMMENDATIONS,
     SERVICE_MOVE_QUEUE_ITEM_DOWN,
     SERVICE_MOVE_QUEUE_ITEM_NEXT,
     SERVICE_MOVE_QUEUE_ITEM_UP,
     SERVICE_PLAY_QUEUE_ITEM,
+    SERVICE_REMOVE_PLAYLIST_TRACKS,
     SERVICE_REMOVE_QUEUE_ITEM,
     SERVICE_SEND_COMMAND,
     SERVICE_SET_GROUP_VOLUME,
@@ -38,6 +44,7 @@ from .schemas import (
     CLEAR_QUEUE_FROM_HERE_SERVICE_SCHEMA,
     GET_DATA_SERVICE_SCHEMA,
     GET_GROUP_VOLUME_SERVICE_SCHEMA,
+    GET_PODCAST_EPISODES_SERVICE_SCHEMA,
     GET_RECOMMENDATIONS_SERVICE_SCHEMA,
     GET_TRACKS_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
@@ -45,6 +52,7 @@ from .schemas import (
     MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
     PLAY_QUEUE_ITEM_SERVICE_SCHEMA,
     QUEUE_ITEMS_SERVICE_SCHEMA,
+    REMOVE_PLAYLIST_TRACKS_SERVICE_SCHEMA,
     REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
     SEND_COMMAND_SERVICE_SCHEMA,
     SET_GROUP_VOLUME_SERVICE_SCHEMA,
@@ -163,6 +171,13 @@ def register_actions(hass) -> None:
     )
     hass.services.async_register(
         DOMAIN,
+        SERVICE_GET_PODCAST_EPISODES,
+        get_podcast_episodes,
+        schema=GET_PODCAST_EPISODES_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
         SERVICE_GET_ALBUM,
         get_album,
         schema=GET_DATA_SERVICE_SCHEMA,
@@ -181,6 +196,20 @@ def register_actions(hass) -> None:
         get_playlist,
         schema=GET_DATA_SERVICE_SCHEMA,
         supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_PODCAST,
+        get_podcast,
+        schema=GET_DATA_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_REMOVE_PLAYLIST_TRACKS,
+        remove_playlist_tracks,
+        schema=REMOVE_PLAYLIST_TRACKS_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.NONE,
     )
 
 
@@ -309,11 +338,12 @@ async def get_album_tracks(call: ServiceCall):
     """Gets all tracks in an album."""
     config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
     uri = call.data[ATTR_URI]
+    page = call.data.get(ATTR_PAGE)
     hass = call.hass
     entry = hass.config_entries.async_get_entry(config_entry)
     actions = entry.runtime_data.actions
     return {
-        "tracks": await actions.get_album_tracks(uri),
+        "tracks": await actions.get_album_tracks(uri, page),
     }
 
 
@@ -333,11 +363,24 @@ async def get_playlist_tracks(call: ServiceCall):
     """Gets all tracks in a playlist."""
     config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
     uri = call.data[ATTR_URI]
+    page = call.data.get(ATTR_PAGE)
     hass = call.hass
     entry = hass.config_entries.async_get_entry(config_entry)
     actions = entry.runtime_data.actions
     return {
-        "tracks": await actions.get_playlist_tracks(uri),
+        "tracks": await actions.get_playlist_tracks(uri, page),
+    }
+
+
+async def get_podcast_episodes(call: ServiceCall):
+    """Gets all episodes for a podcast."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    uri = call.data[ATTR_URI]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    return {
+        "episodes": await actions.get_podcast_episodes(uri),
     }
 
 
@@ -369,3 +412,27 @@ async def get_playlist(call: ServiceCall):
     entry = hass.config_entries.async_get_entry(config_entry)
     actions = entry.runtime_data.actions
     return (await actions.get_playlist_details(uri)).to_dict()
+
+
+async def get_podcast(call: ServiceCall):
+    """Returns the details about a podcast from the server."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    uri = call.data[ATTR_URI]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    return (await actions.get_podcast_details(uri)).to_dict()
+
+
+async def remove_playlist_tracks(call: ServiceCall):
+    """Removes one or more items from a playlist."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    playlist = call.data[ATTR_PLAYLIST_ID]
+    positions = call.data[ATTR_POSITIONS_TO_REMOVE]
+    if isinstance(positions, int):
+        positions = [positions]
+    positions = [int(position) for position in positions]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    await actions.remove_playlist_tracks(playlist, positions)

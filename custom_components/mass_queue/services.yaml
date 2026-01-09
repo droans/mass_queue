@@ -289,6 +289,21 @@ get_artist_tracks:
           mode: box
       required: false
       example: 0
+get_podcast_episodes:
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      required: true
+      selector:
+        config_entry:
+          integration: mass_queue
+    uri:
+      name: Podcast URI
+      description: URI for the podcast
+      selector:
+        text:
+      example: "library://podcast/12"
+      required: true
 get_album:
   fields:
     config_entry_id:
@@ -334,3 +349,35 @@ get_playlist:
         text:
       example: "library://playlist/12"
       required: true
+get_podcast:
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      required: true
+      selector:
+        config_entry:
+          integration: mass_queue
+    uri:
+      name: Podcast URI
+      description: URI for the podcast
+      selector:
+        text:
+      example: "library://podcast/12"
+      required: true
+remove_playlist_tracks:
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      required: true
+      selector:
+        config_entry:
+          integration: mass_queue
+    playlist_id:
+      required: true
+      selector:
+        text:
+    positions_to_remove:
+      required: true
+      selector:
+        text:
+          multiple: true

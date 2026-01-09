@@ -23,6 +23,9 @@ from .const import (
     ATTR_OFFSET,
     ATTR_PAGE,
     ATTR_PLAYER_ENTITY,
+    ATTR_PLAYLIST_ID,
+    ATTR_POSITION,
+    ATTR_POSITIONS_TO_REMOVE,
     ATTR_PROVIDERS,
     ATTR_QUEUE_ITEM_ID,
     ATTR_QUEUE_ITEMS,
@@ -58,13 +61,14 @@ QUEUE_ITEM_SCHEMA = vol.Schema(
 TRACK_ITEM_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_MEDIA_TITLE): str,
-        vol.Required(ATTR_MEDIA_ALBUM_NAME): str,
-        vol.Required(ATTR_MEDIA_ARTIST): str,
+        vol.Optional(ATTR_MEDIA_ALBUM_NAME): str,
+        vol.Optional(ATTR_MEDIA_ARTIST): str,
         vol.Required(ATTR_MEDIA_CONTENT_ID): str,
         vol.Required(ATTR_MEDIA_IMAGE): str,
         vol.Required(ATTR_FAVORITE): bool,
         vol.Required(ATTR_DURATION): vol.Any(int, None),
         vol.Optional(ATTR_LOCAL_IMAGE_ENCODED): str,
+        vol.Optional(ATTR_POSITION): str,
     },
 )
 
@@ -133,6 +137,13 @@ GET_TRACKS_SERVICE_SCHEMA = vol.Schema(
     },
 )
 
+GET_PODCAST_EPISODES_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_CONFIG_ENTRY_ID): str,
+        vol.Required(ATTR_URI): str,
+    },
+)
+
 GET_DATA_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_CONFIG_ENTRY_ID): str,
@@ -157,5 +168,13 @@ SET_GROUP_VOLUME_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_PLAYER_ENTITY): str,
         vol.Required(ATTR_VOLUME_LEVEL): int,
+    },
+)
+
+REMOVE_PLAYLIST_TRACKS_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_CONFIG_ENTRY_ID): str,
+        vol.Required(ATTR_PLAYLIST_ID): vol.Any(int, str),
+        vol.Required(ATTR_POSITIONS_TO_REMOVE): vol.Any(int, [int], str, [str]),
     },
 )
