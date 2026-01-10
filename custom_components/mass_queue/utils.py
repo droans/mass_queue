@@ -156,8 +156,8 @@ def find_image_from_metadata(data: dict, remotely_accessible: bool):
 
 def find_image_from_album(data: dict, remotely_accessible: bool):
     """Attempts to find the image via the album key."""
-    album = data.get("album", {})
-    metadata = album.get("metadata", {})
+    album = data.get("album") or {}
+    metadata = album.get("metadata") or {}
     img_data = metadata.get("images")
     if img_data is None:
         return None
