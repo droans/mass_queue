@@ -141,7 +141,7 @@ class MassQueueController:
 
     async def send_command(self, command: str, data: dict | None = None):
         """Sends command to Music Assistant and returns response."""
-        data = data if data else {}
+        data = data or {}
         return await self._client.send_command(command, require_schema=None, **data)
 
     async def get_recommendations(self, providers: list | None = None):
