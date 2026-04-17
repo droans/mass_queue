@@ -40,8 +40,8 @@ Designed to work with [Music Assistant Player Card](https://github.com/droans/ma
 
 `mass_queue.get_queue_items`: Returns the items (songs, podcast episods, etc.) within a queue
 
-| Parameter | Type | Required | Default                           | Description                                                                                                                                                      |
-|-----------|------|----------|-----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Parameter       | Type | Required | Default                     | Description                                                                                                                                                      |
+|-----------------|------|----------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `entity`        | str  | Yes      | n/a                         | Music assistant player entity                                                                                                                                    |
 | `limit`         | int  | No       | 500                         | Number of items in queue to return                                                                                                                               |
 | `offset`        | int  | No       | n/a                         | Location in queue to start where zero equals the first item in queue, not the current item. By default, will start with five items before actively playing item. |
@@ -107,7 +107,7 @@ media_player.music_assistant_speaker:
 |-------------------|------|----------|---------|---------------------------------------------|
 | `command`         | str  | Yes      | n/a     | The command to send to Music Assistant      |
 | `data`            | dict | No       | None    | Any data to send with the command           |
-| `config_entry_id` | dict | No       | None    | The ID of the used `mass_queue` integration |
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration |
 
 `mass_queue.clear_queue_from_here`: Clear the items in a queue after the currently playing item.
 
