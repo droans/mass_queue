@@ -295,6 +295,15 @@ async def download_and_encode_image(url: str, hass: HomeAssistant):
     return f"data:image;base64,{base64.b64encode(read).decode('utf-8')}"
 
 
+async def get_user_info(hass: HomeAssistant, entity_id: str, username: str):
+    """Returns the user information for the given username."""
+    client = get_mass_client(hass, entity_id)
+    users = await client.auth.list_users()
+    LOGGER.debug(f"Client: {client}")
+    LOGGER.debug(f"Users: {users}")
+    return [user.to_dict() for user in users if user.username == username][0]
+
+
 def get_entity_info(hass: HomeAssistant, entity_id: str):
     """Gets the server and client info for a given player."""
     client = get_mass_client(hass, entity_id)

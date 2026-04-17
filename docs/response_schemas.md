@@ -96,6 +96,10 @@ synced_to: str| None        # Player(s) which are currently synced/grouped/joine
 type: str
 ```
 
+### GetUser
+*See [music_assistant_models.auth.User](https://github.com/music-assistant/models/blob/0f2ad708ab26d2cc2ae008872afc00cd4a795380/music_assistant_models/auth.py#L29)*
+
+
 ### DownloadAndEncodeImageResponseSchema
 
 ```yaml

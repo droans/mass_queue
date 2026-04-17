@@ -257,6 +257,14 @@ The WebSocket commands below can be used by custom cards/integrations along with
 | `type`            | str  | Yes      |  Must be `mass_queue/download_and_encode_image` |
 | `url`             | str  | Yes      |  URL of media to download.                      |
 
+`mass_queue/get_user_info`: Returns a single image for a media item as a Base64 encoded string. Useful when avoiding mixed-content or when accessing local media outside of your network
+
+| Parameter         | Type | Required |  Description                          |
+|-------------------|------|----------|---------|-----------------------------|
+| `type`            | str  | Yes      |  Must be `mass_queue/get_user_info`   |
+| `entity_id`       | str  | Yes      |  URL of media to download.            |
+| `username`        | str  | Yes      |  Username of user to return info for. |
+
 ## Installation
 
 1. Download and install the integration by using the button above.
