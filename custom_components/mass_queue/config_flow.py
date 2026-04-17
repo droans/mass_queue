@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 from urllib.parse import urlencode
 
 import voluptuous as vol
+from homeassistant import data_entry_flow
 from homeassistant.config_entries import (
     SOURCE_REAUTH,
     ConfigEntry,
@@ -267,8 +268,10 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
         self.url = server_info.base_url
         self.server_info = server_info
 
-        await self.async_set_unique_id(server_info.server_id)
+        unique_id = f"{server_info.server_id}#{self.username}"
+        await self.async_set_unique_id(unique_id)
         self._abort_if_unique_id_configured(updates={CONF_URL: self.url})
+        self._abort_zeroconf_if_server_configured(unique_id=unique_id)
 
         try:
             await _get_server_info(self.hass, self.url)
@@ -276,6 +279,23 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
             return self.async_abort(reason="cannot_connect")
 
         return await self.async_step_discovery_confirm()
+
+    def _abort_zeroconf_if_server_configured(
+        self,
+        unique_id: str,
+        error: str = "already_configured",
+    ) -> None:
+        """Halt zeroconf discovery if the server was already configured for a user."""
+        base_id = unique_id.split("#", maxsplit=1)[0]
+        all_entries = self.hass.config_entries.async_entries()
+        mass_entries = [
+            entry
+            for entry in all_entries
+            if entry.domain == DOMAIN and base_id in entry.unique_id
+        ]
+        if not mass_entries:
+            return
+        raise data_entry_flow.AbortFlow(error)
 
     async def async_step_discovery_confirm(
         self,
