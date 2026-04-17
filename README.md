@@ -34,6 +34,10 @@ Designed to work with [Music Assistant Player Card](https://github.com/droans/ma
 ## New actions:
 
 ---
+
+<details>
+<summary>Queue Actions</summary>
+
 `mass_queue.get_queue_items`: Returns the items (songs, podcast episods, etc.) within a queue
 
 | Parameter | Type | Required | Default                           | Description                                                                                                                                                      |
@@ -117,6 +121,11 @@ media_player.music_assistant_speaker:
 |-----------|------|----------|---------|-------------------------------|
 | `entity`  | str  | Yes      | n/a     | Music assistant player entity |
 
+</summary>
+
+<details>
+<summary>Group Actions</summary>
+
 `mass_queue.set_group_volume`: Sets the volume for the group which the provided player belongs to.
 
 | Parameter | Type | Required | Default | Description                   |
@@ -129,6 +138,11 @@ media_player.music_assistant_speaker:
 |-----------|------|----------|---------|-------------------------------|
 | `entity`  | str  | Yes      | n/a     | Music assistant player entity |
 
+</summary>
+
+<details>
+<summary>Collection Actions</summary>
+
 `mass_queue.get_recommendations`: Get recommendations from your music providers.
 
 | Parameter    | Type        | Required | Default | Description                                        |
@@ -136,6 +150,8 @@ media_player.music_assistant_speaker:
 | `entity`     | str         | Yes      | n/a     | Music assistant player entity                      |
 | `providers`  | list of str | No       | n/a     | Limit recommendations to the specified provider(s) |
 
+---
+### Albums
 `mass_queue.get_album`: Returns information about an album from the MA server.
 
 | Parameter         | Type | Required | Default | Description                                 |
@@ -150,6 +166,9 @@ media_player.music_assistant_speaker:
 | `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration              |
 | `uri`             | str  | Yes      | n/a     | The URI for the album                                    |
 | `page`            | int  | No       | None    | Page of results to return. If not provided, returns all. |
+
+---
+### Artists
 `mass_queue.get_artist`: Returns information about an artist from the MA server.
 
 | Parameter         | Type | Required | Default | Description                                 |
@@ -165,6 +184,8 @@ media_player.music_assistant_speaker:
 | `uri`             | str  | Yes      | n/a     | The URI for the artist                                   |
 | `page`            | int  | No       | None    | Page of results to return. If not provided, returns all. |
 
+---
+### Playlists
 `mass_queue.get_playlist`: Returns information about a playlist from the MA server.
 
 | Parameter         | Type | Required | Default | Description                                 |
@@ -196,6 +217,9 @@ Music Assistant will use the positions in a playlist to determine which tracks t
 
 You must be **VERY** careful if you are using this action. You should **NOT** rely on proper feedback from Music Assistant. If you plan on using this, you MUST plan to work around this.
 
+---
+
+### Podcasts
 `mass_queue.get_podcast`: Returns information about a podcast from the MA server.
 
 | Parameter         | Type | Required | Default | Description                                 |
@@ -211,6 +235,7 @@ You must be **VERY** careful if you are using this action. You should **NOT** re
 | `uri`             | str  | Yes      | n/a     | The URI for the podcast                                  |
 | `page`            | int  | No       | None    | Page of results to return. If not provided, returns all. |
 
+</summary>
 
 ## Installation
 
