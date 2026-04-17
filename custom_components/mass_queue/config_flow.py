@@ -14,7 +14,7 @@ from homeassistant.config_entries import (
     ConfigFlowResult,
     OptionsFlowWithReload,
 )
-from homeassistant.const import CONF_URL
+from homeassistant.const import CONF_URL, CONF_USERNAME
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers.config_entry_oauth2_flow import (
@@ -71,11 +71,14 @@ def get_manual_schema(user_input: dict[str, Any]) -> vol.Schema:
     """Return a schema for the manual step."""
     if type(user_input) is dict:
         default_url = user_input.get(CONF_URL, DEFAULT_URL)
+        default_user = user_input.get(CONF_USERNAME, "")
     else:
         default_url = DEFAULT_URL
+        default_user = ""
     return vol.Schema(
         {
             vol.Required(CONF_URL, default=default_url): str,
+            vol.Required(CONF_USERNAME, default=default_user): str,
         },
     )
 
@@ -107,6 +110,7 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         """Set up flow instance."""
         self.url: str | None = None
+        self.username: str | None = None
         self.token: str | None = None
         self.server_info: ServerInfoMessage | None = None
 
@@ -118,6 +122,7 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         if user_input is not None:
             self.url = user_input[CONF_URL]
+            self.username = user_input[CONF_USERNAME]
             try:
                 server_info = await _get_server_info(self.hass, self.url)
             except CannotConnect:
@@ -130,7 +135,7 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
             else:
                 self.server_info = server_info
                 await self.async_set_unique_id(
-                    server_info.server_id,
+                    f"{server_info.server_id}#{self.username}",
                     raise_on_progress=False,
                 )
                 self._abort_if_unique_id_configured(updates={CONF_URL: self.url})
@@ -140,13 +145,14 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
                     title=DEFAULT_TITLE,
                     data={
                         CONF_URL: self.url,
+                        CONF_USERNAME: self.username,
                     },
                     options={CONF_DOWNLOAD_LOCAL: DEFAULT_DOWNLOAD_LOCAL},
                 )
 
         suggested_values = user_input
         if suggested_values is None:
-            suggested_values = {CONF_URL: DEFAULT_URL}
+            suggested_values = {CONF_URL: DEFAULT_URL, CONF_USERNAME: ""}
 
         form = get_manual_schema(user_input)
         schema = self.add_suggested_values_to_schema(
@@ -197,7 +203,12 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
             # Update the entry with new URL and token
             if self.hass.config_entries.async_update_entry(
                 entry,
-                data={**entry.data, CONF_URL: self.url, CONF_TOKEN: self.token},
+                data={
+                    **entry.data,
+                    CONF_URL: self.url,
+                    CONF_TOKEN: self.token,
+                    CONF_USERNAME: self.username,
+                },
             ) and entry.state in (
                 ConfigEntryState.LOADED,
                 ConfigEntryState.SETUP_ERROR,
@@ -219,7 +230,7 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
             assert self.url is not None
 
         if user_input is not None:
-            data = {CONF_URL: self.url}
+            data = {CONF_URL: self.url, CONF_USERNAME: self.username}
             if self.token:
                 data[CONF_TOKEN] = self.token
             return self.async_create_entry(
@@ -286,6 +297,7 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
                 title=DEFAULT_TITLE,
                 data={
                     CONF_URL: self.url,
+                    CONF_USERNAME: self.username,
                 },
                 options={CONF_DOWNLOAD_LOCAL: DEFAULT_DOWNLOAD_LOCAL},
             )
@@ -373,13 +385,21 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
             reauth_entry = self._get_reauth_entry()
             return self.async_update_reload_and_abort(
                 reauth_entry,
-                data={CONF_URL: self.url, CONF_TOKEN: long_lived_token},
+                data={
+                    CONF_URL: self.url,
+                    CONF_TOKEN: long_lived_token,
+                    CONF_USERNAME: self.username,
+                },
             )
 
         # Connection has been validated by creating a long-lived token
         return self.async_create_entry(
             title=DEFAULT_TITLE,
-            data={CONF_URL: self.url, CONF_TOKEN: long_lived_token},
+            data={
+                CONF_URL: self.url,
+                CONF_TOKEN: long_lived_token,
+                CONF_USERNAME: self.username,
+            },
         )
 
     async def async_step_auth_manual(
@@ -410,12 +430,20 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
                 if self.source == SOURCE_REAUTH:
                     return self.async_update_reload_and_abort(
                         self._get_reauth_entry(),
-                        data={CONF_URL: self.url, CONF_TOKEN: self.token},
+                        data={
+                            CONF_URL: self.url,
+                            CONF_TOKEN: self.token,
+                            CONF_USERNAME: self.username,
+                        },
                     )
 
                 return self.async_create_entry(
                     title=DEFAULT_TITLE,
-                    data={CONF_URL: self.url, CONF_TOKEN: self.token},
+                    data={
+                        CONF_URL: self.url,
+                        CONF_TOKEN: self.token,
+                        CONF_USERNAME: self.username,
+                    },
                 )
 
         return self.async_show_form(
@@ -431,6 +459,7 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle reauth when token is invalid or expired."""
         self.url = entry_data[CONF_URL]
+        self.username = entry_data[CONF_USERNAME]
         # Show confirmation before redirecting to auth
         return await self.async_step_reauth_confirm()
 
