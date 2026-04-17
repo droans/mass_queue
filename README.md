@@ -123,7 +123,7 @@ media_player.music_assistant_speaker:
 |-----------|------|----------|---------|-------------------------------|
 | `entity`  | str  | Yes      | n/a     | Music assistant player entity |
 
-</summary>
+</details>
 
 <details>
 <summary>Group Actions</summary>
@@ -140,7 +140,7 @@ media_player.music_assistant_speaker:
 |-----------|------|----------|---------|-------------------------------|
 | `entity`  | str  | Yes      | n/a     | Music assistant player entity |
 
-</summary>
+</details>
 
 <details>
 <summary>Collection Actions</summary>
@@ -237,7 +237,7 @@ You must be **VERY** careful if you are using this action. You should **NOT** re
 | `uri`             | str  | Yes      | n/a     | The URI for the podcast                                  |
 | `page`            | int  | No       | None    | Page of results to return. If not provided, returns all. |
 
-</summary>
+</details>
 
 ## New Websocket Commands:
 
