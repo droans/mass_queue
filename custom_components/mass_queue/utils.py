@@ -73,7 +73,7 @@ def find_mass_queue_entry_from_unique_id(hass: HomeAssistant, unique_id: str):
     """Finds the mass_queue entry for the given MA URL."""
     entries = _get_mass_queue_entries(hass)
     for entry in entries:
-        if entry.unique_id == unique_id:
+        if entry.unique_id.startswith(unique_id):
             return entry
     msg = f"Cannot find entry for Music Assistant with unique ID {unique_id}"
     raise ServiceValidationError(msg)
