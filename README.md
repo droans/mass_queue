@@ -33,6 +33,8 @@ Designed to work with [Music Assistant Player Card](https://github.com/droans/ma
 
 ## New actions:
 
+The response schemas for all new actions and WebSocket commands can be found at [docs/response_schemas.md](docs/response_schemas.md)
+
 ---
 
 <details>
