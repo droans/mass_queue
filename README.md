@@ -123,7 +123,7 @@ media_player.music_assistant_speaker:
 |-----------|------|----------|---------|-------------------------------|
 | `entity`  | str  | Yes      | n/a     | Music assistant player entity |
 
-</summary>
+</details>
 
 <details>
 <summary>Group Actions</summary>
@@ -140,7 +140,7 @@ media_player.music_assistant_speaker:
 |-----------|------|----------|---------|-------------------------------|
 | `entity`  | str  | Yes      | n/a     | Music assistant player entity |
 
-</summary>
+</details>
 
 <details>
 <summary>Collection Actions</summary>
@@ -237,7 +237,7 @@ You must be **VERY** careful if you are using this action. You should **NOT** re
 | `uri`             | str  | Yes      | n/a     | The URI for the podcast                                  |
 | `page`            | int  | No       | None    | Page of results to return. If not provided, returns all. |
 
-</summary>
+</details>
 
 ## New Websocket Commands:
 
@@ -246,21 +246,21 @@ The WebSocket commands below can be used by custom cards/integrations along with
 `mass_queue/get_info`: Returns basic information about a Music Assistant player.
 
 | Parameter         | Type | Required |  Description                   |
-|-------------------|------|----------|---------|----------------------|
+|-------------------|------|----------|--------------------------------|
 | `type`            | str  | Yes      |  Must be `mass_queue/get_info` |
 | `entity_id`       | str  | Yes      |  Music assistant player entity |
 
 `mass_queue/download_and_encode_image`: Returns a single image for a media item as a Base64 encoded string. Useful when avoiding mixed-content or when accessing local media outside of your network
 
 | Parameter         | Type | Required |  Description                                    |
-|-------------------|------|----------|---------|---------------------------------------|
+|-------------------|------|----------|-------------------------------------------------|
 | `type`            | str  | Yes      |  Must be `mass_queue/download_and_encode_image` |
 | `url`             | str  | Yes      |  URL of media to download.                      |
 
 `mass_queue/get_user_info`: Returns a single image for a media item as a Base64 encoded string. Useful when avoiding mixed-content or when accessing local media outside of your network
 
 | Parameter         | Type | Required |  Description                          |
-|-------------------|------|----------|---------|-----------------------------|
+|-------------------|------|----------|---------------------------------------|
 | `type`            | str  | Yes      |  Must be `mass_queue/get_user_info`   |
 | `entity_id`       | str  | Yes      |  URL of media to download.            |
 | `username`        | str  | Yes      |  Username of user to return info for. |
