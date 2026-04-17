@@ -47,13 +47,13 @@ response: RecommendationFolder[]
 ### GetAlbumTracksResponseSchema
 
 ```yaml
-tracks: TrackSchame[]
+tracks: TrackSchema[]
 ```
 
 ### GetArtistTracksResponseSchema
 
 ```yaml
-tracks: TrackSchame[]
+tracks: TrackSchema[]
 ```
 
 ### GetPlaylistTracksResponseSchema
