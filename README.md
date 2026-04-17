@@ -237,6 +237,24 @@ You must be **VERY** careful if you are using this action. You should **NOT** re
 
 </summary>
 
+## New Websocket Commands:
+
+The WebSocket commands below can be used by custom cards/integrations along with whatever personal use you may discern.
+
+`mass_queue/get_info`: Returns basic information about a Music Assistant player.
+
+| Parameter         | Type | Required |  Description                   |
+|-------------------|------|----------|---------|----------------------|
+| `type`            | str  | Yes      |  Must be `mass_queue/get_info` |
+| `entity_id`       | str  | Yes      |  Music assistant player entity |
+
+`mass_queue/download_and_encode_image`: Returns a single image for a media item as a Base64 encoded string. Useful when avoiding mixed-content or when accessing local media outside of your network
+
+| Parameter         | Type | Required |  Description                                    |
+|-------------------|------|----------|---------|---------------------------------------|
+| `type`            | str  | Yes      |  Must be `mass_queue/download_and_encode_image` |
+| `url`             | str  | Yes      |  URL of media to download.                      |
+
 ## Installation
 
 1. Download and install the integration by using the button above.
