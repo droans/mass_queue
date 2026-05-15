@@ -30,6 +30,7 @@ from .const import (
     ATTR_QUEUE_ITEM_ID,
     ATTR_QUEUE_ITEMS,
     ATTR_URI,
+    ATTR_USERNAME,
     ATTR_VOLUME_LEVEL,
 )
 
@@ -154,6 +155,13 @@ GET_DATA_SERVICE_SCHEMA = vol.Schema(
 GET_RECOMMENDATIONS_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_PLAYER_ENTITY): str,
+        vol.Optional(ATTR_PROVIDERS): [str],
+    },
+)
+GET_RECOMMENDATIONS_USER_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_PLAYER_ENTITY): str,
+        vol.Required(ATTR_USERNAME): str,
         vol.Optional(ATTR_PROVIDERS): [str],
     },
 )

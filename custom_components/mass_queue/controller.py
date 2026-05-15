@@ -28,6 +28,7 @@ from .utils import (
     format_queue_updated_event_data,
     generate_image_url_from_image_data,
     get_queue_id_from_player_data,
+    get_user_client,
 )
 
 
@@ -143,6 +144,29 @@ class MassQueueController:
         """Sends command to Music Assistant and returns response."""
         data = data if data else {}
         return await self._client.send_command(command, require_schema=None, **data)
+
+    async def get_recommendations_for_user(
+        self,
+        username: str,
+        providers: list | None = None,
+    ):
+        """Pulls all recommendations for a user."""
+        client = await get_user_client(self._hass, self._client, username)
+        recs = await client.music.recommendations()
+        if not providers:
+            return recs
+        rec_providers = []
+        for rec in recs:
+            if rec.provider not in rec_providers:
+                rec_providers.append(rec.provider)
+
+        used_rec_providers = [
+            rec_provider
+            for rec_provider in rec_providers
+            for provider in providers
+            if rec_provider.startswith(provider)
+        ]
+        return [rec for rec in recs if rec.provider in used_rec_providers]
 
     async def get_recommendations(self, providers: list | None = None):
         """Pulls all recommendations."""

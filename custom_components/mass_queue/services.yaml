@@ -175,6 +175,30 @@ get_recommendations:
       selector:
         text:
           multiple: true
+get_user_recommendations:
+  fields:
+    entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
+      required: true
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
+    username:
+      name: Username
+      description: User to retrieve recommendations for.
+      required: true
+      selector:
+        text:
+          multiple: false
+    providers:
+      name: Providers
+      description: Limit recommendations to the specified providers.
+      required: false
+      selector:
+        text:
+          multiple: true
 get_group_volume:
   fields:
     entity:

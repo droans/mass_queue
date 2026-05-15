@@ -30,6 +30,7 @@ from .const import (
     SERVICE_GET_PODCAST_EPISODES,
     SERVICE_GET_QUEUE_ITEMS,
     SERVICE_GET_RECOMMENDATIONS,
+    SERVICE_GET_RECOMMENDATIONS_USER,
     SERVICE_MOVE_QUEUE_ITEM_DOWN,
     SERVICE_MOVE_QUEUE_ITEM_NEXT,
     SERVICE_MOVE_QUEUE_ITEM_UP,
@@ -46,6 +47,7 @@ from .schemas import (
     GET_GROUP_VOLUME_SERVICE_SCHEMA,
     GET_PODCAST_EPISODES_SERVICE_SCHEMA,
     GET_RECOMMENDATIONS_SERVICE_SCHEMA,
+    GET_RECOMMENDATIONS_USER_SERVICE_SCHEMA,
     GET_TRACKS_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
@@ -126,6 +128,13 @@ def register_actions(hass) -> None:
         get_recommendations,
         schema=GET_RECOMMENDATIONS_SERVICE_SCHEMA,
         supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_RECOMMENDATIONS_USER,
+        get_recommendations_for_user,
+        schema=GET_RECOMMENDATIONS_USER_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.NONE,
     )
     hass.services.async_register(
         DOMAIN,
@@ -284,6 +293,15 @@ async def get_recommendations(call: ServiceCall):
     hass = call.hass
     actions = get_entity_actions_controller(hass, entity_id)
     result = await actions.get_recommendations(call)
+    return {"response": process_recommendations(result)}
+
+
+async def get_recommendations_for_user(call: ServiceCall):
+    """Service wrapper to get recommendations from providers for a single user."""
+    entity_id = call.data[ATTR_PLAYER_ENTITY]
+    hass = call.hass
+    actions = get_entity_actions_controller(hass, entity_id)
+    result = await actions.get_recommendations_for_user(call)
     return {"response": process_recommendations(result)}
 
 

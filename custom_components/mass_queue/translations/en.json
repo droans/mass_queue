@@ -185,6 +185,24 @@
         }
       }
     },
+    "get_user_recommendations": {
+      "name": "Get User Recommendations",
+      "description": "Get recommendations from your music providers for a single user.",
+      "fields": {
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        },
+        "username": {
+          "name": "Username",
+          "description": "User to retrieve recommendations for."
+        },
+        "providers": {
+          "name": "Providers",
+          "description": "Limit recommendations to the specified providers."
+        }
+      }
+    },
     "get_group_volume": {
       "name": "Get Group Volume",
       "description": "Returns the volume for a player group.",

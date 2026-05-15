@@ -41,6 +41,7 @@ from .const import (
     ATTR_QUEUE_ID,
     ATTR_QUEUE_ITEM_ID,
     ATTR_RELEASE_DATE,
+    ATTR_USERNAME,
     ATTR_VOLUME_LEVEL,
     CONF_DOWNLOAD_LOCAL,
     DEFAULT_QUEUE_ITEMS_LIMIT,
@@ -50,6 +51,7 @@ from .const import (
     SERVICE_GET_GROUP_VOLUME,
     SERVICE_GET_QUEUE_ITEMS,
     SERVICE_GET_RECOMMENDATIONS,
+    SERVICE_GET_RECOMMENDATIONS_USER,
     SERVICE_MOVE_QUEUE_ITEM_DOWN,
     SERVICE_MOVE_QUEUE_ITEM_NEXT,
     SERVICE_MOVE_QUEUE_ITEM_UP,
@@ -62,6 +64,7 @@ from .controller import MassQueueController
 from .schemas import (
     GET_GROUP_VOLUME_SERVICE_SCHEMA,
     GET_RECOMMENDATIONS_SERVICE_SCHEMA,
+    GET_RECOMMENDATIONS_USER_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
@@ -168,6 +171,13 @@ class MassQueueActions:
         )
         self._hass.services.async_register(
             DOMAIN,
+            SERVICE_GET_RECOMMENDATIONS_USER,
+            self.get_recommendations_for_user,
+            schema=GET_RECOMMENDATIONS_USER_SERVICE_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+        self._hass.services.async_register(
+            DOMAIN,
             SERVICE_GET_GROUP_VOLUME,
             self.get_group_volume,
             schema=GET_GROUP_VOLUME_SERVICE_SCHEMA,
@@ -235,6 +245,12 @@ class MassQueueActions:
         data = call.data.get(ATTR_DATA)
         response = await self._controller.send_command(command, data)
         return {"response": response}
+
+    async def get_recommendations_for_user(self, call: ServiceCall) -> ServiceResponse:
+        """Pulls all recommendations for the providers given."""
+        providers = call.data.get(ATTR_PROVIDERS)
+        user = call.data.get(ATTR_USERNAME)
+        return await self._controller.get_recommendations_for_user(user, providers)
 
     async def get_recommendations(self, call: ServiceCall) -> ServiceResponse:
         """Pulls all recommendations for the providers given."""
