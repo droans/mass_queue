@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import urllib.parse
 from typing import TYPE_CHECKING
@@ -12,14 +13,17 @@ from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from music_assistant_client import MusicAssistantClient
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
-    from music_assistant_client import MusicAssistantClient
 
     from . import MassQueueEntryData
 
 from .const import ATTR_QUEUE_ID, LOGGER
+
+CONNECT_TIMEOUT = 10
 
 
 @callback
@@ -372,3 +376,25 @@ def parse_uri(uri):
     provider = uri.split("://")[0]
     item_id = uri.split("/")[-1]
     return [provider, item_id]
+
+
+async def get_user_client(hass, client, username) -> MusicAssistantClient:
+    """Returns a client connected as the user provider."""
+    users = await client.auth.list_users()
+    user = [user for user in users if user.username == username]
+    if not user:
+        LOGGER.error(f"No user found with username {username}!")
+        return {"result": None}
+    user = user[0]
+    user_id = user.user_id
+    tokens = await client.auth.get_tokens(user_id)
+    if not tokens:
+        token = await client.auth.create_token("mass_queue_tmp", user_id)
+    else:
+        token = tokens[0]
+    mass_url = client.server_info.base_url
+    http_session = async_get_clientsession(hass, verify_ssl=False)
+    mass = MusicAssistantClient(mass_url, http_session, token)
+    async with asyncio.timeout(CONNECT_TIMEOUT):
+        await mass.connect()
+    return mass
