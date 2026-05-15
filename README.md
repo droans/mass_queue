@@ -286,6 +286,18 @@ You may enable the `download_local` option by navigating to the integration's li
 
 This option will then return a new attribute for these queue items labeled `local_image_encoded`. Custom cards can then utilize this in their code in place of the image URL.
 
+## I'm having issues trying to authenticate!
+
+The OAuth flow for Music Assistant and Home Assistant can sometimes be finicky. In most instances, the issue is due to the differences in the expected and the used address for either Music Assistant or Home Assistant. However, there is fortunately a simple fix.
+
+First, complete the process as much as you can. When you receive an error, go to the navigation bar on your browser. Take a note at the address you currently are at and whether it is the address for Music Assistant or for Home Assistant.
+
+Then, simply change the base URL from whatever is displayed to the actual IP and port for MA or HA.
+
+## Where are the entities at?
+
+This integration does not create any new entities. It only provides new actions and WebSocket commands which can be used in scripts, automations, and custom cards.
+
 ## I am the creator of a custom card. Can I use these actions in my own card, too?
 
 Of course - this is open-source! The only requirement is that you give credit.
