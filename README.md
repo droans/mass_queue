@@ -33,11 +33,17 @@ Designed to work with [Music Assistant Player Card](https://github.com/droans/ma
 
 ## New actions:
 
+The response schemas for all new actions and WebSocket commands can be found at [docs/response_schemas.md](docs/response_schemas.md)
+
 ---
+
+<details>
+<summary>Queue Actions</summary>
+
 `mass_queue.get_queue_items`: Returns the items (songs, podcast episods, etc.) within a queue
 
-| Parameter | Type | Required | Default                           | Description                                                                                                                                                      |
-|-----------|------|----------|-----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Parameter       | Type | Required | Default                     | Description                                                                                                                                                      |
+|-----------------|------|----------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `entity`        | str  | Yes      | n/a                         | Music assistant player entity                                                                                                                                    |
 | `limit`         | int  | No       | 500                         | Number of items in queue to return                                                                                                                               |
 | `offset`        | int  | No       | n/a                         | Location in queue to start where zero equals the first item in queue, not the current item. By default, will start with five items before actively playing item. |
@@ -103,7 +109,161 @@ media_player.music_assistant_speaker:
 |-------------------|------|----------|---------|---------------------------------------------|
 | `command`         | str  | Yes      | n/a     | The command to send to Music Assistant      |
 | `data`            | dict | No       | None    | Any data to send with the command           |
-| `config_entry_id` | dict | No       | None    | The ID of the used `mass_queue` integration |
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration |
+
+`mass_queue.clear_queue_from_here`: Clear the items in a queue after the currently playing item.
+
+| Parameter | Type | Required | Default | Description                   |
+|-----------|------|----------|---------|-------------------------------|
+| `entity`  | str  | Yes      | n/a     | Music assistant player entity |
+
+`mass_queue.unfavorite_current_item`: Unfavorite the currently playing item
+
+| Parameter | Type | Required | Default | Description                   |
+|-----------|------|----------|---------|-------------------------------|
+| `entity`  | str  | Yes      | n/a     | Music assistant player entity |
+
+</details>
+
+<details>
+<summary>Group Actions</summary>
+
+`mass_queue.set_group_volume`: Sets the volume for the group which the provided player belongs to.
+
+| Parameter | Type | Required | Default | Description                   |
+|-----------|------|----------|---------|-------------------------------|
+| `entity`  | str  | Yes      | n/a     | Music assistant player entity |
+
+`mass_queue.get_group_volume`: Returns the volume for a player group.
+
+| Parameter | Type | Required | Default | Description                   |
+|-----------|------|----------|---------|-------------------------------|
+| `entity`  | str  | Yes      | n/a     | Music assistant player entity |
+
+</details>
+
+<details>
+<summary>Collection Actions</summary>
+
+`mass_queue.get_recommendations`: Get recommendations from your music providers.
+
+| Parameter    | Type        | Required | Default | Description                                        |
+|--------------|-------------|----------|---------|----------------------------------------------------|
+| `entity`     | str         | Yes      | n/a     | Music assistant player entity                      |
+| `providers`  | list of str | No       | n/a     | Limit recommendations to the specified provider(s) |
+
+---
+### Albums
+`mass_queue.get_album`: Returns information about an album from the MA server.
+
+| Parameter         | Type | Required | Default | Description                                 |
+|-------------------|------|----------|---------|---------------------------------------------|
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration |
+| `uri`             | str  | Yes      | n/a     | The URI for the playlist                    |
+
+`mass_queue.get_album_tracks`: Returns some or all tracks for the album given by the URI.
+
+| Parameter         | Type | Required | Default | Description                                              |
+|-------------------|------|----------|---------|----------------------------------------------------------|
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration              |
+| `uri`             | str  | Yes      | n/a     | The URI for the album                                    |
+| `page`            | int  | No       | None    | Page of results to return. If not provided, returns all. |
+
+---
+### Artists
+`mass_queue.get_artist`: Returns information about an artist from the MA server.
+
+| Parameter         | Type | Required | Default | Description                                 |
+|-------------------|------|----------|---------|---------------------------------------------|
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration |
+| `uri`             | str  | Yes      | n/a     | The URI for the playlist                    |
+
+`mass_queue.get_artist_tracks`: Returns the top tracks for the artist given by the URI.
+
+| Parameter         | Type | Required | Default | Description                                              |
+|-------------------|------|----------|---------|----------------------------------------------------------|
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration              |
+| `uri`             | str  | Yes      | n/a     | The URI for the artist                                   |
+| `page`            | int  | No       | None    | Page of results to return. If not provided, returns all. |
+
+---
+### Playlists
+`mass_queue.get_playlist`: Returns information about a playlist from the MA server.
+
+| Parameter         | Type | Required | Default | Description                                 |
+|-------------------|------|----------|---------|---------------------------------------------|
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration |
+| `uri`             | str  | Yes      | n/a     | The URI for the playlist                    |
+
+`mass_queue.get_playlist_tracks`: Returns some or all tracks for the playlist given by the URI.
+
+| Parameter         | Type | Required | Default | Description                                              |
+|-------------------|------|----------|---------|----------------------------------------------------------|
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration              |
+| `uri`             | str  | Yes      | n/a     | The URI for the playlist                                 |
+| `page`            | int  | No       | None    | Page of results to return. If not provided, returns all. |
+
+`mass_queue.remove_playlist_tracks`: Removes one or more tracks from a playlist based on their position. **IMPORTANT: SEE WARNING BELOW**
+
+| Parameter             | Type        | Required | Default | Description                                       |
+|-----------------------|-------------|----------|---------|---------------------------------------------------|
+| `config_entry_id`     | str         | Yes      | n/a     | The ID of the used `mass_queue` integration       |
+| `playlist_id`         | str         | Yes      | n/a     | The ID of the playlist                            |
+| `positions_to_remove` | list of str | Yes      | n/a     | Position(s) of items to remove from the playlist. |
+
+### ⚠️WARNING: mass_queue.remove_playlist_tracks is bad for your health.⚠️
+
+`mass_queue.remove_playlist_tracks` is **dangerous**.
+
+Music Assistant will use the positions in a playlist to determine which tracks to remove. However, it does not provide an updated playlist immediately, instead waiting for the next refresh.
+
+You must be **VERY** careful if you are using this action. You should **NOT** rely on proper feedback from Music Assistant. If you plan on using this, you MUST plan to work around this.
+
+---
+
+### Podcasts
+`mass_queue.get_podcast`: Returns information about a podcast from the MA server.
+
+| Parameter         | Type | Required | Default | Description                                 |
+|-------------------|------|----------|---------|---------------------------------------------|
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration |
+| `uri`             | str  | Yes      | n/a     | The URI for the playlist                    |
+
+`mass_queue.get_podcast_episodes`: Returns some or all episodes for the podcast given by the URI.
+
+| Parameter         | Type | Required | Default | Description                                              |
+|-------------------|------|----------|---------|----------------------------------------------------------|
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration              |
+| `uri`             | str  | Yes      | n/a     | The URI for the podcast                                  |
+| `page`            | int  | No       | None    | Page of results to return. If not provided, returns all. |
+
+</details>
+
+## New Websocket Commands:
+
+The WebSocket commands below can be used by custom cards/integrations along with whatever personal use you may discern.
+
+`mass_queue/get_info`: Returns basic information about a Music Assistant player.
+
+| Parameter         | Type | Required |  Description                   |
+|-------------------|------|----------|--------------------------------|
+| `type`            | str  | Yes      |  Must be `mass_queue/get_info` |
+| `entity_id`       | str  | Yes      |  Music assistant player entity |
+
+`mass_queue/download_and_encode_image`: Returns a single image for a media item as a Base64 encoded string. Useful when avoiding mixed-content or when accessing local media outside of your network
+
+| Parameter         | Type | Required |  Description                                    |
+|-------------------|------|----------|-------------------------------------------------|
+| `type`            | str  | Yes      |  Must be `mass_queue/download_and_encode_image` |
+| `url`             | str  | Yes      |  URL of media to download.                      |
+
+`mass_queue/get_user_info`: Returns a single image for a media item as a Base64 encoded string. Useful when avoiding mixed-content or when accessing local media outside of your network
+
+| Parameter         | Type | Required |  Description                          |
+|-------------------|------|----------|---------------------------------------|
+| `type`            | str  | Yes      |  Must be `mass_queue/get_user_info`   |
+| `entity_id`       | str  | Yes      |  URL of media to download.            |
+| `username`        | str  | Yes      |  Username of user to return info for. |
 
 ## Installation
 
@@ -132,6 +292,18 @@ This option will then return a new attribute for these queue items labeled `loca
 * This will not have any effect unless any frontend card supports it.
 * Loading the integration and updating the queue WILL take much longer. Each item must be downloaded and converted. This is NOT a quick process. Depending on your server, this may take between 2-20 seconds per item.
 * This requires that Home Assistant can directly access the Music Assistant server along with the local provider.
+
+## I'm having issues trying to authenticate!
+
+The OAuth flow for Music Assistant and Home Assistant can sometimes be finicky. In most instances, the issue is due to the differences in the expected and the used address for either Music Assistant or Home Assistant. However, there is fortunately a simple fix.
+
+First, complete the process as much as you can. When you receive an error, go to the navigation bar on your browser. Take a note at the address you currently are at and whether it is the address for Music Assistant or for Home Assistant.
+
+Then, simply change the base URL from whatever is displayed to the actual IP and port for MA or HA.
+
+## Where are the entities at?
+
+This integration does not create any new entities. It only provides new actions and WebSocket commands which can be used in scripts, automations, and custom cards.
 
 ## I am the creator of a custom card. Can I use these actions in my own card, too?
 
