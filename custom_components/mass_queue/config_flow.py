@@ -7,6 +7,7 @@ from urllib.parse import urlencode
 
 import voluptuous as vol
 from homeassistant.config_entries import (
+    SOURCE_IGNORE,
     SOURCE_REAUTH,
     ConfigEntry,
     ConfigEntryState,
@@ -256,7 +257,9 @@ class MusicAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
         self.url = server_info.base_url
         self.server_info = server_info
 
-        await self.async_set_unique_id(server_info.server_id)
+        if (existing_entry := await self.async_set_unique_id(server_info.server_id)) and existing_entry.source == SOURCE_IGNORE:
+            # Respect explicit user choice to ignore discovery and keep entry untouched.
+            return self.async_abort(reason="already_configured")
         self._abort_if_unique_id_configured(updates={CONF_URL: self.url})
 
         try:
