@@ -375,3 +375,15 @@ def parse_uri(uri):
     provider = uri.split("://")[0]
     item_id = uri.split("/")[-1]
     return [provider, item_id]
+
+
+def get_access_token(hass: HomeAssistant, entity_id: str):
+    """Returns the current access token."""
+    entry = get_mass_queue_entry(hass, entity_id)
+    return entry.runtime_data.token
+
+
+def validate_access_token(hass: HomeAssistant, entity_id: str, access_token: str):
+    """Validates the token matches."""
+    token = get_access_token(hass, entity_id)
+    return token == access_token

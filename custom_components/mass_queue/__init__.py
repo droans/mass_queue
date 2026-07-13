@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import asyncio
+import random
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -38,11 +39,13 @@ from .actions import (
     get_music_assistant_client,
     setup_controller_and_actions,
 )
+from .api import MediaImageView
 from .const import CONF_TOKEN, DOMAIN, LOGGER
 from .services import register_actions
 from .websocket_commands import (
     api_download_and_encode_image,
     api_download_images,
+    api_get_access_token,
     api_get_entity_info,
     api_get_user_info,
 )
@@ -68,6 +71,7 @@ class MusicAssistantQueueEntryData:
     mass: MusicAssistantClient
     actions: MassQueueActions
     listen_task: asyncio.Task
+    token: str
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:  # noqa: ARG001
@@ -85,6 +89,8 @@ async def async_setup_entry(  # noqa: PLR0915
     # Get token from config entry (for schema >= AUTH_SCHEMA_VERSION)
     token = entry.data.get(CONF_TOKEN)
     mass = MusicAssistantClient(mass_url, http_session, token=token)
+    LOGGER.info("Registering MediaImageView...")
+    hass.http.register_view(MediaImageView(hass))
 
     try:
         async with asyncio.timeout(CONNECT_TIMEOUT):
@@ -144,9 +150,11 @@ async def async_setup_entry(  # noqa: PLR0915
     # store the listen task and mass client in the entry data
     actions = await setup_controller_and_actions(hass, mass, entry)
     register_actions(hass)
-    entry.runtime_data = MusicAssistantQueueEntryData(mass, actions, listen_task)
+    token = f"{random.getrandbits(256)}"[2:]
+    entry.runtime_data = MusicAssistantQueueEntryData(mass, actions, listen_task, token)
     websocket_api.async_register_command(hass, api_download_images)
     websocket_api.async_register_command(hass, api_download_and_encode_image)
+    websocket_api.async_register_command(hass, api_get_access_token)
     websocket_api.async_register_command(hass, api_get_entity_info)
     websocket_api.async_register_command(hass, api_get_user_info)
 

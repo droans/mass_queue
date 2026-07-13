@@ -16,6 +16,7 @@ from .const import LOGGER
 from .utils import (
     download_and_encode_image,
     download_single_image_from_image_data,
+    get_access_token,
     get_entity_info,
     get_user_info,
 )
@@ -125,3 +126,19 @@ async def api_get_user_info(
     result = await get_user_info(hass, entity_id, username)
     LOGGER.debug(f"Sending result {result}")
     connection.send_result(msg["id"], result)
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "mass_queue/get_access_token",
+        vol.Required("entity_id"): str,
+    },
+)
+def api_get_access_token(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict,
+) -> None:
+    """Returns the current active access token."""
+    entity_id = msg["entity_id"]
+    connection.send_result(msg["id"], get_access_token(hass, entity_id))
