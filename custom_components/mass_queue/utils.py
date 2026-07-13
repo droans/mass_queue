@@ -119,7 +119,7 @@ def get_queue_id_from_player_data(player_data):
     return current_media.get("queue_id")
 
 
-def return_image_or_none(img_data: dict, remotely_accessible: bool):
+def return_image_or_none(img_data: dict | None, remotely_accessible: bool):
     """Returns None if image is not present or not remotely accessible."""
     if type(img_data) is dict:
         img = img_data.get("path")
@@ -169,10 +169,12 @@ def find_image_from_artists(data: dict, remotely_accessible: bool):
     """Attempts to find the image via the artists key."""
     artist = data.get("artist", {})
     img_data = artist.get("image") or []
-    img_data += artist.get("metadata") or []
+    img_data += artist.get("metadata", {})
     if len(img_data):
         return search_image_list(img_data, remotely_accessible)
-    return return_image_or_none(img_data, remotely_accessible)
+    if isinstance(img_data, dict):
+        return return_image_or_none(img_data, remotely_accessible)
+    return None
 
 
 def find_image(data: dict, remotely_accessible: bool = True):
@@ -234,7 +236,7 @@ def process_recommendation_section_items(items: list):
     return [process_recommendation_section_item(item) for item in items]
 
 
-def process_recommendation_section(section: dict):
+def process_recommendation_section(section):
     """Process and reformat a single recommendation section."""
     LOGGER.debug(f"Got section: {section}")
     section = section.to_dict()
