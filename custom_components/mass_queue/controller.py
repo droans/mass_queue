@@ -1,3 +1,4 @@
+# ty:ignore[unresolved-import]
 """Controller for queues, players cache."""
 
 from __future__ import annotations

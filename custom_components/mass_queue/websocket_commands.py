@@ -1,3 +1,4 @@
+# ty:ignore[unresolved-import]
 """Music Assistant Queue Actions Websocket Commands."""
 
 from __future__ import annotations

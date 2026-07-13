@@ -1,3 +1,4 @@
+# ty:ignore[unresolved-import]
 """Service actions for mass_queue."""
 
 from __future__ import annotations

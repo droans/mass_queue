@@ -1,3 +1,4 @@
+# ty:ignore[unresolved-import]
 """Config flow for integration."""
 
 from __future__ import annotations
