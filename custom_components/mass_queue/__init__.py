@@ -1,3 +1,4 @@
+# ty:ignore[unresolved-import]
 """Initialize component."""
 
 from __future__ import annotations

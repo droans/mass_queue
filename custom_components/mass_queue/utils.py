@@ -1,3 +1,4 @@
+# ty:ignore[unresolved-import]
 """Utilities."""
 
 from __future__ import annotations
@@ -6,8 +7,10 @@ import base64
 import urllib.parse
 from typing import TYPE_CHECKING
 
+from aiocache import cached
+from aiocache.serializers import PickleSerializer
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.core import callback
+from homeassistant.core import async_get_hass, callback
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers import device_registry as dr
@@ -118,7 +121,7 @@ def get_queue_id_from_player_data(player_data):
     return current_media.get("queue_id")
 
 
-def return_image_or_none(img_data: dict, remotely_accessible: bool):
+def return_image_or_none(img_data: dict | None, remotely_accessible: bool):
     """Returns None if image is not present or not remotely accessible."""
     if type(img_data) is dict:
         img = img_data.get("path")
@@ -168,10 +171,12 @@ def find_image_from_artists(data: dict, remotely_accessible: bool):
     """Attempts to find the image via the artists key."""
     artist = data.get("artist", {})
     img_data = artist.get("image") or []
-    img_data += artist.get("metadata") or []
+    img_data += artist.get("metadata", {})
     if len(img_data):
         return search_image_list(img_data, remotely_accessible)
-    return return_image_or_none(img_data, remotely_accessible)
+    if isinstance(img_data, dict):
+        return return_image_or_none(img_data, remotely_accessible)
+    return None
 
 
 def find_image(data: dict, remotely_accessible: bool = True):
@@ -233,7 +238,7 @@ def process_recommendation_section_items(items: list):
     return [process_recommendation_section_item(item) for item in items]
 
 
-def process_recommendation_section(section: dict):
+def process_recommendation_section(section):
     """Process and reformat a single recommendation section."""
     LOGGER.debug(f"Got section: {section}")
     section = section.to_dict()
@@ -287,8 +292,10 @@ async def download_single_image_from_image_data(
         return None
 
 
-async def download_and_encode_image(url: str, hass: HomeAssistant):
+@cached(serializer=PickleSerializer())
+async def download_and_encode_image(url: str):
     """Downloads and encodes a single image from the given URL."""
+    hass = async_get_hass()
     session = aiohttp_client.async_get_clientsession(hass)
     req = await session.get(url)
     read = await req.content.read()
