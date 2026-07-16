@@ -1,3 +1,4 @@
+# ty:ignore[unresolved-import]
 """Controller for queues, players cache."""
 
 from __future__ import annotations
@@ -141,7 +142,7 @@ class MassQueueController:
 
     async def send_command(self, command: str, data: dict | None = None):
         """Sends command to Music Assistant and returns response."""
-        data = data if data else {}
+        data = data or {}
         return await self._client.send_command(command, require_schema=None, **data)
 
     async def get_recommendations(self, providers: list | None = None):
@@ -378,7 +379,7 @@ class Queues:
                     img_data = queue_item["media_item"]["metadata"]["images"][0]
                     url = generate_image_url_from_image_data(img_data, self._client)
                     LOGGER.debug(f"Downloading URL {url}")
-                    result = await download_and_encode_image(url, self._hass)
+                    result = await download_and_encode_image(url)
                     LOGGER.debug("Downloaded and setting")
                     queue_item["local_image_encoded"] = result
                 except Exception as e:  # noqa: BLE001

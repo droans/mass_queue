@@ -1,3 +1,4 @@
+# ty:ignore[unresolved-import]
 """Schemas."""
 
 from __future__ import annotations
