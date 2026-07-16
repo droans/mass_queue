@@ -379,7 +379,7 @@ class Queues:
                     img_data = queue_item["media_item"]["metadata"]["images"][0]
                     url = generate_image_url_from_image_data(img_data, self._client)
                     LOGGER.debug(f"Downloading URL {url}")
-                    result = await download_and_encode_image(url, self._hass)
+                    result = await download_and_encode_image(url)
                     LOGGER.debug("Downloaded and setting")
                     queue_item["local_image_encoded"] = result
                 except Exception as e:  # noqa: BLE001

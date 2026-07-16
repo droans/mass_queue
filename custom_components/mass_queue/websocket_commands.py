@@ -48,14 +48,14 @@ def api_get_entity_info(
 )
 @websocket_api.async_response
 async def api_download_and_encode_image(
-    hass: HomeAssistant,
+    hass: HomeAssistant,  # noqa: ARG001
     connection: websocket_api.ActiveConnection,
     msg: dict,
 ) -> None:
     """Download images and return them as b64 encoded."""
     LOGGER.debug(f"Got message: {msg}")
     url = msg["url"]
-    result = await download_and_encode_image(url, hass)
+    result = await download_and_encode_image(url)
     connection.send_result(msg["id"], result)
 
 

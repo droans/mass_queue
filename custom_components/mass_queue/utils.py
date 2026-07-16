@@ -7,8 +7,10 @@ import base64
 import urllib.parse
 from typing import TYPE_CHECKING
 
+from aiocache import cached
+from aiocache.serializers import PickleSerializer
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.core import callback
+from homeassistant.core import async_get_hass, callback
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers import device_registry as dr
@@ -290,8 +292,10 @@ async def download_single_image_from_image_data(
         return None
 
 
-async def download_and_encode_image(url: str, hass: HomeAssistant):
+@cached(serializer=PickleSerializer())
+async def download_and_encode_image(url: str):
     """Downloads and encodes a single image from the given URL."""
+    hass = async_get_hass()
     session = aiohttp_client.async_get_clientsession(hass)
     req = await session.get(url)
     read = await req.content.read()
