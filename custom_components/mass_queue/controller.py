@@ -145,23 +145,40 @@ class MassQueueController:
         data = data or {}
         return await self._client.send_command(command, require_schema=None, **data)
 
+    async def get_recommendation_items(self, provider: str, item_id: str):
+        """Return all recommendation items for a recommendation section."""
+        return await self._client.send_command(
+            "music/recommendations/items",
+            provider=provider,
+            item_id=item_id,
+        )
+
     async def get_recommendations(self, providers: list | None = None):
         """Pulls all recommendations."""
         recs = await self._client.music.recommendations()
-        if not providers:
-            return recs
-        rec_providers = []
-        for rec in recs:
-            if rec.provider not in rec_providers:
-                rec_providers.append(rec.provider)
+        if providers:
+            rec_providers = []
+            for rec in recs:
+                if rec.provider not in rec_providers:
+                    rec_providers.append(rec.provider)
 
-        used_rec_providers = [
-            rec_provider
-            for rec_provider in rec_providers
-            for provider in providers
-            if rec_provider.startswith(provider)
-        ]
-        return [rec for rec in recs if rec.provider in used_rec_providers]
+            used_rec_providers = [
+                rec_provider
+                for rec_provider in rec_providers
+                for provider in providers
+                if rec_provider.startswith(provider)
+            ]
+            filtered_recommendations = [rec for rec in recs if rec.provider in used_rec_providers]
+        else:
+            filtered_recommendations = recs
+        msg = f"Filtered recommendations: {filtered_recommendations}"
+        LOGGER.debug(msg)
+        result = []
+        for rec in filtered_recommendations:
+            _rec = rec.to_dict()
+            _rec["items"] = await self.get_recommendation_items(rec.provider, rec.item_id)
+            result.append(_rec)
+        return result
 
     async def get_grouped_volume(self, player_id: str):
         """Get the grouped volume for a given player."""
