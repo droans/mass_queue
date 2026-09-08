@@ -1,3 +1,4 @@
+# ty:ignore[unresolved-import]
 """Actions for integration."""
 
 from __future__ import annotations
@@ -382,6 +383,8 @@ class MassQueueActions:
         mapping = mappings[0]
         item_id = mapping.item_id
         provider = mapping.provider_domain
+        if provider.lower() == "none":
+            provider = "library"
         resp = (
             await self._client.music.get_artist_tracks(item_id, provider)
             if not page
@@ -399,6 +402,8 @@ class MassQueueActions:
         mapping = mappings[0]
         item_id = mapping.item_id
         provider = mapping.provider_domain
+        if provider.lower() == "none":
+            provider = "library"
         resp = (
             await self._client.music.get_album_tracks(item_id, provider)
             if not page
