@@ -241,7 +241,6 @@ def process_recommendation_section_items(items: list):
 def process_recommendation_section(section):
     """Process and reformat a single recommendation section."""
     LOGGER.debug(f"Got section: {section}")
-    section = section.to_dict()
     return {
         "item_id": section["item_id"],
         "provider": section["provider"],
@@ -323,6 +322,9 @@ def get_entity_info(hass: HomeAssistant, entity_id: str):
 
     player_id = [_id[1] for _id in identifiers if _id[0] == "music_assistant"][0]
     player = client.players.get(player_id)
+    if not player:
+        msg = f"Entity {entity_id} is not available yet."
+        raise ServiceValidationError(msg)
 
     mass_entry_id = _get_mass_entity_config_entry_id(hass, entity_id)
     mass_queue_id = get_mass_queue_entry(hass, entity_id).entry_id

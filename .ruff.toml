@@ -9,6 +9,7 @@ select = ["ALL"]
 ignore = [
     "ANN",
     "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in {name}
+    "CPY001",  # Missing copyright notice at top of file
     "D203",
     "D213",
     "D401",    # First line of docstring should be in imperative mood
