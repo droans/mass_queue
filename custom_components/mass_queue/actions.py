@@ -245,11 +245,11 @@ class MassQueueActions:
     async def get_group_volume(self, call: ServiceCall) -> ServiceResponse:
         """Gets the group volume for a single player."""
         entity_id = call.data.get(ATTR_PLAYER_ENTITY)
-        queue_id = self.get_queue_id(entity_id)
         try:
+            queue_id = self.get_queue_id(entity_id)
             volume = await self._controller.get_grouped_volume(queue_id)
         except:  # noqa: E722
-            volume = None
+            volume = 0
         return volume
 
     async def set_group_volume(self, call: ServiceCall) -> ServiceResponse:
