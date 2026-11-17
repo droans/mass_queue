@@ -296,6 +296,26 @@ class MassQueueActions:
         LOGGER.debug(f"Getting artist details for provider {provider}")
         return await self._client.music.get_artist(item_id, provider)
 
+    async def get_similar_artists(self, artist_uri: str):
+        """Retrieve similar artists."""
+        provider, item_id = parse_uri(artist_uri)
+        LOGGER.debug(
+            f"Getting artists similar to {artist_uri}",
+        )
+        try:
+                resp = await self._client.music.similar_artists(item_id=item_id, provider_instance_id_or_domain=provider)
+                data = [item.to_dict() for item in resp]
+        except AttributeError:
+            # Older client version - use manual command.
+            data = await self._client.send_command(
+                "music/artists/similar_artists",
+                item_id=item_id,
+                provider_instance_id_or_domain=provider,
+            )
+
+        return data
+
+
     async def get_album_details(self, album_uri):
         """Retrieves the details for an album."""
         provider, item_id = parse_uri(album_uri)
