@@ -30,6 +30,7 @@ from .const import (
     ATTR_PROVIDERS,
     ATTR_QUEUE_ITEM_ID,
     ATTR_QUEUE_ITEMS,
+    ATTR_SKIP_SECONDS,
     ATTR_URI,
     ATTR_VOLUME_LEVEL,
 )
@@ -119,6 +120,13 @@ MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_PLAYER_ENTITY): str,
         vol.Required(ATTR_QUEUE_ITEM_ID): str,
+    },
+)
+
+PLAYER_QUEUE_SKIP_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_PLAYER_ENTITY): str,
+        vol.Required(ATTR_SKIP_SECONDS): int,
     },
 )
 

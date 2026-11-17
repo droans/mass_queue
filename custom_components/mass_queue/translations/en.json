@@ -360,6 +360,20 @@
           "description": "Position(s) of items to remove from the playlist."
         }
       }
+    },
+    "skip": {
+      "name": "Skip",
+      "description": "Move player forwards/backwards a specified number of seconds.",
+      "fields": {
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        },
+        "skip_seconds": {
+          "name": "Skip Seconds",
+          "description": "Seconds to skip. Use negative values to go backwards."
+        }
+      }
     }
   }
 }

@@ -39,6 +39,7 @@ from .const import (
     SERVICE_REMOVE_QUEUE_ITEM,
     SERVICE_SEND_COMMAND,
     SERVICE_SET_GROUP_VOLUME,
+    SERVICE_SKIP,
     SERVICE_UNFAVORITE_CURRENT_ITEM,
 )
 from .schemas import (
@@ -52,6 +53,7 @@ from .schemas import (
     MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
     PLAY_QUEUE_ITEM_SERVICE_SCHEMA,
+    PLAYER_QUEUE_SKIP_SERVICE_SCHEMA,
     QUEUE_ITEMS_SERVICE_SCHEMA,
     REMOVE_PLAYLIST_TRACKS_SERVICE_SCHEMA,
     REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
@@ -210,6 +212,13 @@ def register_actions(hass) -> None:
         SERVICE_REMOVE_PLAYLIST_TRACKS,
         remove_playlist_tracks,
         schema=REMOVE_PLAYLIST_TRACKS_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.NONE,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SKIP,
+        skip,
+        schema=PLAYER_QUEUE_SKIP_SERVICE_SCHEMA,
         supports_response=SupportsResponse.NONE,
     )
 
@@ -437,3 +446,11 @@ async def remove_playlist_tracks(call: ServiceCall):
     entry = hass.config_entries.async_get_entry(config_entry)
     actions = entry.runtime_data.actions
     await actions.remove_playlist_tracks(playlist, positions)
+
+
+async def skip(call: ServiceCall):
+    """Skip forward/backwards X seconds."""
+    entity_id = call.data[ATTR_PLAYER_ENTITY]
+    hass = call.hass
+    actions = get_entity_actions_controller(hass, entity_id)
+    return await actions.skip(call)
