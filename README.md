@@ -247,6 +247,15 @@ You must be **VERY** careful if you are using this action. You should **NOT** re
 
 </details>
 
+### Tracks
+`mass_queue.get_similar_tracks`: Returns tracks similar to the track URI passed
+
+| Parameter         | Type | Required | Default | Description                                              |
+|-------------------|------|----------|---------|----------------------------------------------------------|
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration              |
+| `uri`             | str  | Yes      | n/a     | The URI for the track                                    |
+
+
 ## New Websocket Commands:
 
 The WebSocket commands below can be used by custom cards/integrations along with whatever personal use you may discern.

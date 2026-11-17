@@ -146,6 +146,13 @@ GET_TRACKS_SERVICE_SCHEMA = vol.Schema(
     },
 )
 
+GET_SIMILAR_TRACKS_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_CONFIG_ENTRY_ID): str,
+        vol.Required(ATTR_URI): str,
+    },
+)
+
 GET_PODCAST_EPISODES_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_CONFIG_ENTRY_ID): str,

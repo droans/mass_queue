@@ -343,6 +343,20 @@
         }
       }
     },
+    "get_similar_tracks": {
+      "name": "Get Similar Tracks",
+      "description": "Returns tracks similar to the passed URI.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry ID",
+          "description": "Config Entry ID for the Music Assistant Queue Items instance."
+        },
+        "uri": {
+          "name": "Track URI",
+          "description": "URI for the track."
+        }
+      }
+    },
     "remove_playlist_tracks": {
       "name": "Remove Playlist Tracks",
       "description": "Removes one or more tracks from a playlist based on position.",
