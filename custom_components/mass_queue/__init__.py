@@ -44,6 +44,7 @@ from .websocket_commands import (
     api_download_and_encode_image,
     api_download_images,
     api_get_entity_info,
+    api_get_queue_info,
     api_get_user_info,
 )
 
@@ -149,6 +150,7 @@ async def async_setup_entry(  # noqa: PLR0915
     websocket_api.async_register_command(hass, api_download_and_encode_image)
     websocket_api.async_register_command(hass, api_get_entity_info)
     websocket_api.async_register_command(hass, api_get_user_info)
+    websocket_api.async_register_command(hass, api_get_queue_info)
 
     # If the listen task is already failed, we need to raise ConfigEntryNotReady
     if listen_task.done() and (listen_error := listen_task.exception()) is not None:

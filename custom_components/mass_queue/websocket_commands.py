@@ -17,6 +17,7 @@ from .utils import (
     download_and_encode_image,
     download_single_image_from_image_data,
     get_entity_info,
+    get_queue_info,
     get_user_info,
 )
 
@@ -36,6 +37,25 @@ def api_get_entity_info(
     LOGGER.debug(f"Got message: {msg}")
     entity_id = msg["entity_id"]
     result = get_entity_info(hass, entity_id)
+    LOGGER.debug(f"Sending result {result}")
+    connection.send_result(msg["id"], result)
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "mass_queue/get_queue_info",
+        vol.Required("entity_id"): str,
+    },
+)
+def api_get_queue_info(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict,
+) -> None:
+    """Returns Music Assistant queue information on a given player."""
+    LOGGER.debug(f"Got message: {msg}")
+    entity_id = msg["entity_id"]
+    result = get_queue_info(hass, entity_id)
     LOGGER.debug(f"Sending result {result}")
     connection.send_result(msg["id"], result)
 
