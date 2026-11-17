@@ -329,6 +329,20 @@
         }
       }
     },
+    "get_similar_artists": {
+      "name": "Get Similar Artists",
+      "description": "Returns information about artists similar to the passed URI.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry ID",
+          "description": "Config Entry ID for the Music Assistant Queue Items instance."
+        },
+        "uri": {
+          "name": "Artist URI",
+          "description": "URI for the artist."
+        }
+      }
+    },
     "get_podcast": {
       "name": "Get Podcast",
       "description": "Returns information about a podcast from the server.",

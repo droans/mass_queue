@@ -31,6 +31,7 @@ from .const import (
     SERVICE_GET_PODCAST_EPISODES,
     SERVICE_GET_QUEUE_ITEMS,
     SERVICE_GET_RECOMMENDATIONS,
+    SERVICE_GET_SIMILAR_ARTISTS,
     SERVICE_GET_SIMILAR_TRACKS,
     SERVICE_MOVE_QUEUE_ITEM_DOWN,
     SERVICE_MOVE_QUEUE_ITEM_NEXT,
@@ -51,6 +52,7 @@ from .schemas import (
     GET_GROUP_VOLUME_SERVICE_SCHEMA,
     GET_PODCAST_EPISODES_SERVICE_SCHEMA,
     GET_RECOMMENDATIONS_SERVICE_SCHEMA,
+    GET_SIMILAR_ARTISTS_SERVICE_SCHEMA,
     GET_SIMILAR_TRACKS_SERVICE_SCHEMA,
     GET_TRACKS_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
@@ -232,6 +234,13 @@ def register_actions(hass) -> None:
         SERVICE_GET_SIMILAR_TRACKS,
         get_similar_tracks,
         schema=GET_SIMILAR_TRACKS_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_SIMILAR_ARTISTS,
+        get_similar_artists,
+        schema=GET_SIMILAR_ARTISTS_SERVICE_SCHEMA,
         supports_response=SupportsResponse.ONLY,
     )
     hass.services.async_register(
@@ -450,6 +459,16 @@ async def get_artist(call: ServiceCall):
     actions = entry.runtime_data.actions
     return (await actions.get_artist_details(uri)).to_dict()
 
+async def get_similar_artists(call: ServiceCall):
+    """Gets similar artists to the passed URI."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    uri = call.data[ATTR_URI]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    return {
+        "artists": await actions.get_similar_artists(uri),
+    }
 
 async def get_playlist(call: ServiceCall):
     """Returns the details about a playlist from the server."""
