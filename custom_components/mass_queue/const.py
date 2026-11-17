@@ -63,6 +63,7 @@ ATTR_QUEUE_ITEMS = "queue_items"
 ATTR_RELEASE_DATE = "release_date"
 ATTR_SKIP_SECONDS = "skip_seconds"
 ATTR_URI = "uri"
+ATTR_USER = "user"
 ATTR_VOLUME_LEVEL = "volume_level"
 
 CONF_DOWNLOAD_LOCAL = "download_local"
