@@ -196,6 +196,13 @@ REMOVE_PLAYLIST_TRACKS_SERVICE_SCHEMA = vol.Schema(
     },
 )
 
+SET_CROSSFADE_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_PLAYER_ENTITY): str,
+        vol.Required(ATTR_ENABLED): bool,
+    },
+)
+
 SET_AUTOPLAY_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_PLAYER_ENTITY): str,

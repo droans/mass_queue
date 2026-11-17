@@ -357,6 +357,20 @@
         }
       }
     },
+    "set_crossfade": {
+      "name": "Set crossfade",
+      "description": "Enable/disable crossfade for a player.",
+      "fields": {
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        },
+        "enabled": {
+          "name": "Enabled",
+          "description": "Enable/Disable crossfade."
+        }
+      }
+    },
     "set_autoplay": {
       "name": "Set Autoplay",
       "description": "Enable/disable autoplay for a player. Formerly known as \"Don't Stop the Music\".",

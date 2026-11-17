@@ -117,6 +117,12 @@ media_player.music_assistant_speaker:
 | `entity`        | str   | Yes      | n/a     | Music assistant player entity                             |
 | `enabled`       | bool  | Yes      | n/a     | Enable/Disable Autoplay                                   |
 
+`mass_queue.set_crossfade`: Enable/Disable crossfade for a queue.
+
+| Parameter       | Type  | Required | Default | Description                                               |
+|-----------------|-------|----------|---------|-----------------------------------------------------------|
+| `entity`        | str   | Yes      | n/a     | Music assistant player entity                             |
+| `enabled`       | bool  | Yes      | n/a     | Enable/Disable Crossfade                                  |
 
 
 `mass_queue.send_command`: Sends a command to the Music Assistant API and returns the response. You may find the various commands by searching for `@api_command` in the [music_assistant/server](http://github.com/music-assistant/server/) repository.

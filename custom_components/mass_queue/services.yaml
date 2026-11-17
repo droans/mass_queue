@@ -433,3 +433,19 @@ set_autoplay:
       required: true
       selector:
         boolean:
+set_crossfade:
+  fields:
+    entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
+      required: true
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
+    enabled:
+      name: Enabled
+      description: Enable/Disable autoplay.
+      required: true
+      selector:
+        boolean:

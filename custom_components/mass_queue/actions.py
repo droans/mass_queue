@@ -241,6 +241,21 @@ class MassQueueActions:
         queue_id = self.get_queue_id(entity_id)
         await self._client.player_queues.skip(queue_id=queue_id, seconds=seconds)
 
+    async def set_crossfade(self, call: ServiceCall) -> ServiceResponse:
+        """Set crossfade on a player."""
+        entity_id = call.data[ATTR_PLAYER_ENTITY]
+        enabled = call.data[ATTR_ENABLED]
+        queue_id = self.get_queue_id(entity_id)
+        try:
+            await self._client.player_queues.crossfade(queue_id=queue_id, crossfade_enabled=enabled)
+        except AttributeError:
+            # Older client version - use manual command.
+            await self._client.send_command(
+                "player_queues/crossfade",
+                queue_id=queue_id,
+                crossfade_enabled=enabled,
+            )
+
     async def set_autoplay(self, call: ServiceCall) -> ServiceResponse:
         """Set crossfade on a player."""
         entity_id = call.data[ATTR_PLAYER_ENTITY]

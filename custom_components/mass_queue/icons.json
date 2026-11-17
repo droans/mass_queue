@@ -21,6 +21,7 @@
     "get_group_volume": { "service": "mdi:speaker-multiple"},
     "set_group_volume": { "service": "mdi:speaker-multiple"},
     "set_autoplay": { "service": "mdi:infinity"},
+    "set_crossfade": { "service": "mdi:set-none"},
     "clear_queue_from_here": { "service": "mdi:playlist-remove"},
     "remove_playlist_tracks": { "service": "mdi:playlist-remove"},
     "skip": { "service": "mdi:fast-forward"}
