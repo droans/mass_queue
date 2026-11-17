@@ -309,6 +309,26 @@ async def get_user_info(hass: HomeAssistant, entity_id: str, username: str):
     LOGGER.debug(f"Users: {users}")
     return [user.to_dict() for user in users if user.username == username][0]
 
+def get_queue_info(hass: HomeAssistant, entity_id: str):
+    """Gets the info for a queue."""
+    """Gets the server and client info for a given player."""
+    client = get_mass_client(hass, entity_id)
+    state = hass.states.get(entity_id)
+    queue_id = state.attributes.get(ATTR_QUEUE_ID)
+    if not queue_id:
+        msg = f"Entity {entity_id} has no queue ID!"
+        raise ServiceValidationError(msg)
+    queue_info = client.player_queues.get(queue_id)
+    return {
+        "autoplay_enabled": queue_info.autoplay_enabled,
+        "crossfade_enabled": queue_info.crossfade_enabled,
+        "display_name": queue_info.display_name,
+        "ended": queue_info.ended,
+        "flow_mode": queue_info.flow_mode,
+        "playback_speed": queue_info.playback_speed,
+        "smart_fades_active": queue_info.smart_fades_active,
+        "smart_shuffle_active": queue_info.smart_shuffle_active,
+    }
 
 def get_entity_info(hass: HomeAssistant, entity_id: str):
     """Gets the server and client info for a given player."""

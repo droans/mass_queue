@@ -103,6 +103,28 @@ media_player.music_assistant_speaker:
 | `entity`        | str  | Yes      | n/a     | Music assistant player entity                  |
 | `queue_item_id` | str  | Yes      | n/a     | The `queue_item_id` of the corresponding item. |
 
+`mass_queue.skip`: Skip forward/backwards a specified number of seconds
+
+| Parameter       | Type | Required | Default | Description                                               |
+|-----------------|------|----------|---------|-----------------------------------------------------------|
+| `entity`        | str  | Yes      | n/a     | Music assistant player entity                             |
+| `skip_seconds`  | int  | Yes      | n/a     | The number of seconds to skip. Negative to skip backwards |
+
+`mass_queue.set_autoplay`: Enable/Disable autoplay (formerly known as "Don't Stop the Music") for a queue.
+
+| Parameter       | Type  | Required | Default | Description                                               |
+|-----------------|-------|----------|---------|-----------------------------------------------------------|
+| `entity`        | str   | Yes      | n/a     | Music assistant player entity                             |
+| `enabled`       | bool  | Yes      | n/a     | Enable/Disable Autoplay                                   |
+
+`mass_queue.set_crossfade`: Enable/Disable crossfade for a queue.
+
+| Parameter       | Type  | Required | Default | Description                                               |
+|-----------------|-------|----------|---------|-----------------------------------------------------------|
+| `entity`        | str   | Yes      | n/a     | Music assistant player entity                             |
+| `enabled`       | bool  | Yes      | n/a     | Enable/Disable Crossfade                                  |
+
+
 `mass_queue.send_command`: Sends a command to the Music Assistant API and returns the response. You may find the various commands by searching for `@api_command` in the [music_assistant/server](http://github.com/music-assistant/server/) repository.
 
 | Parameter         | Type | Required | Default | Description                                 |
@@ -239,6 +261,15 @@ You must be **VERY** careful if you are using this action. You should **NOT** re
 
 </details>
 
+### Tracks
+`mass_queue.get_similar_tracks`: Returns tracks similar to the track URI passed
+
+| Parameter         | Type | Required | Default | Description                                              |
+|-------------------|------|----------|---------|----------------------------------------------------------|
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration              |
+| `uri`             | str  | Yes      | n/a     | The URI for the track                                    |
+
+
 ## New Websocket Commands:
 
 The WebSocket commands below can be used by custom cards/integrations along with whatever personal use you may discern.
@@ -257,13 +288,20 @@ The WebSocket commands below can be used by custom cards/integrations along with
 | `type`            | str  | Yes      |  Must be `mass_queue/download_and_encode_image` |
 | `url`             | str  | Yes      |  URL of media to download.                      |
 
-`mass_queue/get_user_info`: Returns a single image for a media item as a Base64 encoded string. Useful when avoiding mixed-content or when accessing local media outside of your network
+`mass_queue/get_user_info`: Returns basic information for a given user.
 
 | Parameter         | Type | Required |  Description                          |
 |-------------------|------|----------|---------------------------------------|
 | `type`            | str  | Yes      |  Must be `mass_queue/get_user_info`   |
-| `entity_id`       | str  | Yes      |  URL of media to download.            |
+| `entity_id`       | str  | Yes      |  Music assistant player entity        |
 | `username`        | str  | Yes      |  Username of user to return info for. |
+
+`mass_queue/get_queue_info`: Returns basic information for a player's queue.
+
+| Parameter         | Type | Required |  Description                          |
+|-------------------|------|----------|---------------------------------------|
+| `type`            | str  | Yes      |  Must be `mass_queue/get_queue_info`  |
+| `entity_id`       | str  | Yes      |  Music assistant player entity        |
 
 ## Installation
 

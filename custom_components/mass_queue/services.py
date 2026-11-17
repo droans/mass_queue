@@ -31,6 +31,7 @@ from .const import (
     SERVICE_GET_PODCAST_EPISODES,
     SERVICE_GET_QUEUE_ITEMS,
     SERVICE_GET_RECOMMENDATIONS,
+    SERVICE_GET_SIMILAR_TRACKS,
     SERVICE_MOVE_QUEUE_ITEM_DOWN,
     SERVICE_MOVE_QUEUE_ITEM_NEXT,
     SERVICE_MOVE_QUEUE_ITEM_UP,
@@ -38,7 +39,10 @@ from .const import (
     SERVICE_REMOVE_PLAYLIST_TRACKS,
     SERVICE_REMOVE_QUEUE_ITEM,
     SERVICE_SEND_COMMAND,
+    SERVICE_SET_AUTOPLAY,
+    SERVICE_SET_CROSSFADE,
     SERVICE_SET_GROUP_VOLUME,
+    SERVICE_SKIP,
     SERVICE_UNFAVORITE_CURRENT_ITEM,
 )
 from .schemas import (
@@ -47,15 +51,19 @@ from .schemas import (
     GET_GROUP_VOLUME_SERVICE_SCHEMA,
     GET_PODCAST_EPISODES_SERVICE_SCHEMA,
     GET_RECOMMENDATIONS_SERVICE_SCHEMA,
+    GET_SIMILAR_TRACKS_SERVICE_SCHEMA,
     GET_TRACKS_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
     PLAY_QUEUE_ITEM_SERVICE_SCHEMA,
+    PLAYER_QUEUE_SKIP_SERVICE_SCHEMA,
     QUEUE_ITEMS_SERVICE_SCHEMA,
     REMOVE_PLAYLIST_TRACKS_SERVICE_SCHEMA,
     REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
     SEND_COMMAND_SERVICE_SCHEMA,
+    SET_AUTOPLAY_SERVICE_SCHEMA,
+    SET_CROSSFADE_SERVICE_SCHEMA,
     SET_GROUP_VOLUME_SERVICE_SCHEMA,
     UNFAVORITE_CURRENT_ITEM_SERVICE_SCHEMA,
 )
@@ -212,6 +220,34 @@ def register_actions(hass) -> None:
         schema=REMOVE_PLAYLIST_TRACKS_SERVICE_SCHEMA,
         supports_response=SupportsResponse.NONE,
     )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SKIP,
+        skip,
+        schema=PLAYER_QUEUE_SKIP_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.NONE,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_SIMILAR_TRACKS,
+        get_similar_tracks,
+        schema=GET_SIMILAR_TRACKS_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SET_AUTOPLAY,
+        set_autoplay,
+        schema=SET_AUTOPLAY_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.NONE,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SET_CROSSFADE,
+        set_crossfade,
+        schema=SET_CROSSFADE_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.NONE,
+    )
 
 
 async def get_queue_items(call: ServiceCall):
@@ -347,6 +383,16 @@ async def get_album_tracks(call: ServiceCall):
         "tracks": await actions.get_album_tracks(uri, page),
     }
 
+async def get_similar_tracks(call: ServiceCall):
+    """Gets similar tracks to the passed URI."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    uri = call.data[ATTR_URI]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    return {
+        "tracks": await actions.get_similar_tracks(uri),
+    }
 
 async def get_artist_tracks(call: ServiceCall):
     """Gets all tracks for an artist."""
@@ -437,3 +483,26 @@ async def remove_playlist_tracks(call: ServiceCall):
     entry = hass.config_entries.async_get_entry(config_entry)
     actions = entry.runtime_data.actions
     await actions.remove_playlist_tracks(playlist, positions)
+
+
+async def skip(call: ServiceCall):
+    """Skip forward/backwards X seconds."""
+    entity_id = call.data[ATTR_PLAYER_ENTITY]
+    hass = call.hass
+    actions = get_entity_actions_controller(hass, entity_id)
+    return await actions.skip(call)
+
+async def set_crossfade(call: ServiceCall):
+    """Set crossfade for a player."""
+    entity_id = call.data[ATTR_PLAYER_ENTITY]
+    hass = call.hass
+    actions = get_entity_actions_controller(hass, entity_id)
+    return await actions.set_crossfade(call)
+
+
+async def set_autoplay(call: ServiceCall):
+    """Set autoplay for a player."""
+    entity_id = call.data[ATTR_PLAYER_ENTITY]
+    hass = call.hass
+    actions = get_entity_actions_controller(hass, entity_id)
+    return await actions.set_autoplay(call)
