@@ -111,6 +111,27 @@ move_queue_item_next:
         entity:
           domain: media_player
           integration: music_assistant
+skip:
+  fields:
+    entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
+      required: true
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
+    skip_seconds:
+      name: Skip seconds
+      description: Seconds to skip. Use negative values to go backwards.
+      required: true
+      selector:
+        number:
+          min: -10000
+          max: 10000
+          step: 1
+          unit_of_measurement: "s"
+          mode: box
 play_queue_item:
   fields:
     queue_item_id:
@@ -364,6 +385,21 @@ get_podcast:
         text:
       example: "library://podcast/12"
       required: true
+get_similar_tracks:
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      required: true
+      selector:
+        config_entry:
+          integration: mass_queue
+    uri:
+      name: Track URI
+      description: URI for the track
+      selector:
+        text:
+      example: "library://track/12"
+      required: true
 remove_playlist_tracks:
   fields:
     config_entry_id:
@@ -381,3 +417,35 @@ remove_playlist_tracks:
       selector:
         text:
           multiple: true
+set_autoplay:
+  fields:
+    entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
+      required: true
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
+    enabled:
+      name: Enabled
+      description: Enable/Disable autoplay.
+      required: true
+      selector:
+        boolean:
+set_crossfade:
+  fields:
+    entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
+      required: true
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
+    enabled:
+      name: Enabled
+      description: Enable/Disable autoplay.
+      required: true
+      selector:
+        boolean:

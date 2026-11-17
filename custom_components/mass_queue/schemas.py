@@ -11,6 +11,7 @@ from .const import (
     ATTR_CONFIG_ENTRY_ID,
     ATTR_DATA,
     ATTR_DURATION,
+    ATTR_ENABLED,
     ATTR_FAVORITE,
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
@@ -30,6 +31,7 @@ from .const import (
     ATTR_PROVIDERS,
     ATTR_QUEUE_ITEM_ID,
     ATTR_QUEUE_ITEMS,
+    ATTR_SKIP_SECONDS,
     ATTR_URI,
     ATTR_VOLUME_LEVEL,
 )
@@ -122,6 +124,13 @@ MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA = vol.Schema(
     },
 )
 
+PLAYER_QUEUE_SKIP_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_PLAYER_ENTITY): str,
+        vol.Required(ATTR_SKIP_SECONDS): int,
+    },
+)
+
 SEND_COMMAND_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_COMMAND): str,
@@ -135,6 +144,13 @@ GET_TRACKS_SERVICE_SCHEMA = vol.Schema(
         vol.Required(ATTR_CONFIG_ENTRY_ID): str,
         vol.Required(ATTR_URI): str,
         vol.Optional(ATTR_PAGE): int,
+    },
+)
+
+GET_SIMILAR_TRACKS_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_CONFIG_ENTRY_ID): str,
+        vol.Required(ATTR_URI): str,
     },
 )
 
@@ -177,5 +193,19 @@ REMOVE_PLAYLIST_TRACKS_SERVICE_SCHEMA = vol.Schema(
         vol.Required(ATTR_CONFIG_ENTRY_ID): str,
         vol.Required(ATTR_PLAYLIST_ID): vol.Any(int, str),
         vol.Required(ATTR_POSITIONS_TO_REMOVE): vol.Any(int, [int], str, [str]),
+    },
+)
+
+SET_CROSSFADE_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_PLAYER_ENTITY): str,
+        vol.Required(ATTR_ENABLED): bool,
+    },
+)
+
+SET_AUTOPLAY_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_PLAYER_ENTITY): str,
+        vol.Required(ATTR_ENABLED): bool,
     },
 )

@@ -10,7 +10,6 @@ from homeassistant.core import (
     HomeAssistant,
     ServiceCall,
     ServiceResponse,
-    SupportsResponse,
     callback,
 )
 from homeassistant.exceptions import ServiceValidationError
@@ -25,6 +24,7 @@ from .const import (
     ATTR_COMMAND,
     ATTR_DATA,
     ATTR_DURATION,
+    ATTR_ENABLED,
     ATTR_FAVORITE,
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
@@ -42,36 +42,16 @@ from .const import (
     ATTR_QUEUE_ID,
     ATTR_QUEUE_ITEM_ID,
     ATTR_RELEASE_DATE,
+    ATTR_SKIP_SECONDS,
     ATTR_VOLUME_LEVEL,
     CONF_DOWNLOAD_LOCAL,
     DEFAULT_QUEUE_ITEMS_LIMIT,
     DEFAULT_QUEUE_ITEMS_OFFSET,
-    DOMAIN,
     LOGGER,
-    SERVICE_GET_GROUP_VOLUME,
-    SERVICE_GET_QUEUE_ITEMS,
-    SERVICE_GET_RECOMMENDATIONS,
-    SERVICE_MOVE_QUEUE_ITEM_DOWN,
-    SERVICE_MOVE_QUEUE_ITEM_NEXT,
-    SERVICE_MOVE_QUEUE_ITEM_UP,
-    SERVICE_PLAY_QUEUE_ITEM,
-    SERVICE_REMOVE_QUEUE_ITEM,
-    SERVICE_SEND_COMMAND,
-    SERVICE_SET_GROUP_VOLUME,
 )
 from .controller import MassQueueController
 from .schemas import (
-    GET_GROUP_VOLUME_SERVICE_SCHEMA,
-    GET_RECOMMENDATIONS_SERVICE_SCHEMA,
-    MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
-    MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
-    MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
-    PLAY_QUEUE_ITEM_SERVICE_SCHEMA,
     QUEUE_ITEM_SCHEMA,
-    QUEUE_ITEMS_SERVICE_SCHEMA,
-    REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
-    SEND_COMMAND_SERVICE_SCHEMA,
-    SET_GROUP_VOLUME_SERVICE_SCHEMA,
     TRACK_ITEM_SCHEMA,
 )
 from .utils import (
@@ -106,81 +86,6 @@ class MassQueueActions:
         self._controller.update_players()
         self._controller.subscribe_events()
         self._hass.loop.create_task(self._controller.update_queues())
-
-    @callback
-    def register_actions(self) -> None:
-        """Register actions with Home Assistant."""
-        self._hass.services.async_register(
-            DOMAIN,
-            SERVICE_GET_QUEUE_ITEMS,
-            self.get_queue_items,
-            schema=QUEUE_ITEMS_SERVICE_SCHEMA,
-            supports_response=SupportsResponse.ONLY,
-        )
-        self._hass.services.async_register(
-            DOMAIN,
-            SERVICE_PLAY_QUEUE_ITEM,
-            self.play_queue_item,
-            schema=PLAY_QUEUE_ITEM_SERVICE_SCHEMA,
-            supports_response=SupportsResponse.NONE,
-        )
-
-        self._hass.services.async_register(
-            DOMAIN,
-            SERVICE_REMOVE_QUEUE_ITEM,
-            self.remove_queue_item,
-            schema=REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
-            supports_response=SupportsResponse.NONE,
-        )
-        self._hass.services.async_register(
-            DOMAIN,
-            SERVICE_MOVE_QUEUE_ITEM_UP,
-            self.move_queue_item_up,
-            schema=MOVE_QUEUE_ITEM_UP_SERVICE_SCHEMA,
-            supports_response=SupportsResponse.NONE,
-        )
-        self._hass.services.async_register(
-            DOMAIN,
-            SERVICE_MOVE_QUEUE_ITEM_DOWN,
-            self.move_queue_item_down,
-            schema=MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
-            supports_response=SupportsResponse.NONE,
-        )
-        self._hass.services.async_register(
-            DOMAIN,
-            SERVICE_MOVE_QUEUE_ITEM_NEXT,
-            self.move_queue_item_next,
-            schema=MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
-            supports_response=SupportsResponse.NONE,
-        )
-        self._hass.services.async_register(
-            DOMAIN,
-            SERVICE_SEND_COMMAND,
-            self.send_command,
-            schema=SEND_COMMAND_SERVICE_SCHEMA,
-            supports_response=SupportsResponse.OPTIONAL,
-        )
-        self._hass.services.async_register(
-            DOMAIN,
-            SERVICE_GET_RECOMMENDATIONS,
-            self.get_recommendations,
-            schema=GET_RECOMMENDATIONS_SERVICE_SCHEMA,
-            supports_response=SupportsResponse.ONLY,
-        )
-        self._hass.services.async_register(
-            DOMAIN,
-            SERVICE_GET_GROUP_VOLUME,
-            self.get_group_volume,
-            schema=GET_GROUP_VOLUME_SERVICE_SCHEMA,
-            supports_response=SupportsResponse.ONLY,
-        )
-        self._hass.services.async_register(
-            DOMAIN,
-            SERVICE_SET_GROUP_VOLUME,
-            self.set_group_volume,
-            schema=SET_GROUP_VOLUME_SERVICE_SCHEMA,
-            supports_response=SupportsResponse.NONE,
-        )
 
     def get_queue_id(self, entity_id: str):
         """Get the queue ID for a player."""
@@ -329,6 +234,42 @@ class MassQueueActions:
             queue_id,
             queue_item_id,
         )
+    async def skip(self, call: ServiceCall) -> ServiceResponse:
+        """Skip forwards/backwards by X seconds."""
+        entity_id = call.data[ATTR_PLAYER_ENTITY]
+        seconds = call.data[ATTR_SKIP_SECONDS]
+        queue_id = self.get_queue_id(entity_id)
+        await self._client.player_queues.skip(queue_id=queue_id, seconds=seconds)
+
+    async def set_crossfade(self, call: ServiceCall) -> ServiceResponse:
+        """Set crossfade on a player."""
+        entity_id = call.data[ATTR_PLAYER_ENTITY]
+        enabled = call.data[ATTR_ENABLED]
+        queue_id = self.get_queue_id(entity_id)
+        try:
+            await self._client.player_queues.crossfade(queue_id=queue_id, crossfade_enabled=enabled)
+        except AttributeError:
+            # Older client version - use manual command.
+            await self._client.send_command(
+                "player_queues/crossfade",
+                queue_id=queue_id,
+                crossfade_enabled=enabled,
+            )
+
+    async def set_autoplay(self, call: ServiceCall) -> ServiceResponse:
+        """Set crossfade on a player."""
+        entity_id = call.data[ATTR_PLAYER_ENTITY]
+        enabled = call.data[ATTR_ENABLED]
+        queue_id = self.get_queue_id(entity_id)
+        try:
+            await self._client.player_queues.autoplay(queue_id=queue_id, crossfade_enabled=enabled)
+        except AttributeError:
+            # Older client version - use manual command.
+            await self._client.send_command(
+                "player_queues/autoplay",
+                queue_id=queue_id,
+                autoplay_enabled=enabled,
+            )
 
     async def unfavorite_item(self, call: ServiceCall) -> ServiceResponse:
         """Unfavorites currently playing item in queue."""
@@ -373,7 +314,7 @@ class MassQueueActions:
         LOGGER.debug(f"Getting podcast details for provider {provider}")
         return await self._client.music.get_podcast(item_id, provider)
 
-    async def get_artist_tracks(self, artist_uri: str, page: int | None = None):
+    async def get_artist_tracks(self, artist_uri: str):
         """Retrieves a limited number of tracks from an artist."""
         details = await self.get_artist_details(artist_uri)
         mappings = list(details.provider_mappings)
@@ -385,11 +326,7 @@ class MassQueueActions:
         provider = mapping.provider_domain
         if provider.lower() == "none":
             provider = "library"
-        resp = (
-            await self._client.music.get_artist_tracks(item_id, provider)
-            if not page
-            else await self._client.music.get_artist_tracks(item_id, provider, page)
-        )
+        resp = await self._client.music.get_artist_tracks(item_id, provider)
         return [self.format_track_item(item.to_dict()) for item in resp]
 
     async def get_album_tracks(self, album_uri: str, page: int | None = None):
@@ -410,6 +347,16 @@ class MassQueueActions:
             else await self._client.music.get_album_tracks(item_id, provider, page)
         )
         return [self.format_track_item(item.to_dict()) for item in resp]
+
+    async def get_similar_tracks(self, track_uri: str):
+        """Retrieve similar tracks."""
+        provider, item_id = parse_uri(track_uri)
+        LOGGER.debug(
+            f"Getting tracks similar to {track_uri}",
+        )
+        resp: list = await self._client.music.similar_tracks(item_id=item_id, provider_instance_id_or_domain=provider)
+        return [self.format_track_item(item.to_dict()) for item in resp]
+
 
     async def get_podcast_episodes(self, podcast_uri):
         """Retrieves all episodes for a podcast."""
