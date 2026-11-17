@@ -395,6 +395,20 @@
         }
       }
     },
+    "get_similar_artists": {
+      "name": "Get Similar Artists",
+      "description": "Returns information about artists similar to the passed URI.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry ID",
+          "description": "Config Entry ID for the Music Assistant Queue Items instance."
+        },
+        "uri": {
+          "name": "Artist URI",
+          "description": "URI for the artist."
+        }
+      }
+    },
     "get_similar_tracks": {
       "name": "Get Similar Tracks",
       "description": "Returns tracks similar to the passed URI.",

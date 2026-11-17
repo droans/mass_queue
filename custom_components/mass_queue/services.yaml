@@ -385,6 +385,21 @@ get_podcast:
         text:
       example: "library://podcast/12"
       required: true
+get_similar_artists:
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      required: true
+      selector:
+        config_entry:
+          integration: mass_queue
+    uri:
+      name: Artist URI
+      description: URI for the Artist
+      selector:
+        text:
+      example: "library://artist/12"
+      required: true
 get_similar_tracks:
   fields:
     config_entry_id:

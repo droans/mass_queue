@@ -208,6 +208,13 @@ media_player.music_assistant_speaker:
 | `uri`             | str  | Yes      | n/a     | The URI for the artist                                   |
 | `page`            | int  | No       | None    | Page of results to return. If not provided, returns all. |
 
+`mass_queue.get_similar_artists`: Returns artists similar to the artist URI passed
+
+| Parameter         | Type | Required | Default | Description                                              |
+|-------------------|------|----------|---------|----------------------------------------------------------|
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration              |
+| `uri`             | str  | Yes      | n/a     | The URI for the artist                                   |
+
 ---
 ### Playlists
 `mass_queue.get_playlist`: Returns information about a playlist from the MA server.
