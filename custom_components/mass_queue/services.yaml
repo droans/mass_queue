@@ -417,3 +417,19 @@ remove_playlist_tracks:
       selector:
         text:
           multiple: true
+set_autoplay:
+  fields:
+    entity:
+      name: Entity
+      description: Music Assistant Media Player Entity
+      required: true
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
+    enabled:
+      name: Enabled
+      description: Enable/Disable autoplay.
+      required: true
+      selector:
+        boolean:

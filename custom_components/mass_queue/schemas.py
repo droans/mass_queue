@@ -11,6 +11,7 @@ from .const import (
     ATTR_CONFIG_ENTRY_ID,
     ATTR_DATA,
     ATTR_DURATION,
+    ATTR_ENABLED,
     ATTR_FAVORITE,
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
@@ -192,5 +193,12 @@ REMOVE_PLAYLIST_TRACKS_SERVICE_SCHEMA = vol.Schema(
         vol.Required(ATTR_CONFIG_ENTRY_ID): str,
         vol.Required(ATTR_PLAYLIST_ID): vol.Any(int, str),
         vol.Required(ATTR_POSITIONS_TO_REMOVE): vol.Any(int, [int], str, [str]),
+    },
+)
+
+SET_AUTOPLAY_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_PLAYER_ENTITY): str,
+        vol.Required(ATTR_ENABLED): bool,
     },
 )

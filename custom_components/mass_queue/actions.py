@@ -24,6 +24,7 @@ from .const import (
     ATTR_COMMAND,
     ATTR_DATA,
     ATTR_DURATION,
+    ATTR_ENABLED,
     ATTR_FAVORITE,
     ATTR_LIMIT,
     ATTR_LIMIT_AFTER,
@@ -239,6 +240,21 @@ class MassQueueActions:
         seconds = call.data[ATTR_SKIP_SECONDS]
         queue_id = self.get_queue_id(entity_id)
         await self._client.player_queues.skip(queue_id=queue_id, seconds=seconds)
+
+    async def set_autoplay(self, call: ServiceCall) -> ServiceResponse:
+        """Set crossfade on a player."""
+        entity_id = call.data[ATTR_PLAYER_ENTITY]
+        enabled = call.data[ATTR_ENABLED]
+        queue_id = self.get_queue_id(entity_id)
+        try:
+            await self._client.player_queues.autoplay(queue_id=queue_id, crossfade_enabled=enabled)
+        except AttributeError:
+            # Older client version - use manual command.
+            await self._client.send_command(
+                "player_queues/autoplay",
+                queue_id=queue_id,
+                autoplay_enabled=enabled,
+            )
 
     async def unfavorite_item(self, call: ServiceCall) -> ServiceResponse:
         """Unfavorites currently playing item in queue."""

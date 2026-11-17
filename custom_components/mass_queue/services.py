@@ -39,6 +39,7 @@ from .const import (
     SERVICE_REMOVE_PLAYLIST_TRACKS,
     SERVICE_REMOVE_QUEUE_ITEM,
     SERVICE_SEND_COMMAND,
+    SERVICE_SET_AUTOPLAY,
     SERVICE_SET_GROUP_VOLUME,
     SERVICE_SKIP,
     SERVICE_UNFAVORITE_CURRENT_ITEM,
@@ -60,6 +61,7 @@ from .schemas import (
     REMOVE_PLAYLIST_TRACKS_SERVICE_SCHEMA,
     REMOVE_QUEUE_ITEM_SERVICE_SCHEMA,
     SEND_COMMAND_SERVICE_SCHEMA,
+    SET_AUTOPLAY_SERVICE_SCHEMA,
     SET_GROUP_VOLUME_SERVICE_SCHEMA,
     UNFAVORITE_CURRENT_ITEM_SERVICE_SCHEMA,
 )
@@ -229,6 +231,13 @@ def register_actions(hass) -> None:
         get_similar_tracks,
         schema=GET_SIMILAR_TRACKS_SERVICE_SCHEMA,
         supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SET_AUTOPLAY,
+        set_autoplay,
+        schema=SET_AUTOPLAY_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.NONE,
     )
 
 
@@ -473,3 +482,11 @@ async def skip(call: ServiceCall):
     hass = call.hass
     actions = get_entity_actions_controller(hass, entity_id)
     return await actions.skip(call)
+
+
+async def set_autoplay(call: ServiceCall):
+    """Set autoplay for a player."""
+    entity_id = call.data[ATTR_PLAYER_ENTITY]
+    hass = call.hass
+    actions = get_entity_actions_controller(hass, entity_id)
+    return await actions.set_autoplay(call)

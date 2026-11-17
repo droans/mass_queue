@@ -20,6 +20,7 @@
     "get_recommendations": { "service": "mdi:creation"},
     "get_group_volume": { "service": "mdi:speaker-multiple"},
     "set_group_volume": { "service": "mdi:speaker-multiple"},
+    "set_autoplay": { "service": "mdi:infinity"},
     "clear_queue_from_here": { "service": "mdi:playlist-remove"},
     "remove_playlist_tracks": { "service": "mdi:playlist-remove"},
     "skip": { "service": "mdi:fast-forward"}

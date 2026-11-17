@@ -243,6 +243,20 @@
         }
       }
     },
+    "set_autoplay": {
+      "name": "Set Autoplay",
+      "description": "Enable/disable autoplay for a player. Formerly known as \"Don't Stop the Music\".",
+      "fields": {
+        "entity": {
+          "name": "Entity",
+          "description": "Music Assistant Media Player Entity."
+        },
+        "enabled": {
+          "name": "Enabled",
+          "description": "Enable/Disable autoplay."
+        }
+      }
+    },
     "get_playlist_tracks": {
       "name": "Get Playlist Tracks",
       "description": "Returns all tracks for the playlist given.",
