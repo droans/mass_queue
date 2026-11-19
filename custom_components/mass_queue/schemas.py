@@ -23,7 +23,6 @@ from .const import (
     ATTR_MEDIA_IMAGE,
     ATTR_MEDIA_TITLE,
     ATTR_OFFSET,
-    ATTR_PAGE,
     ATTR_PLAYER_ENTITY,
     ATTR_PLAYLIST_ID,
     ATTR_POSITION,
@@ -143,7 +142,6 @@ GET_TRACKS_SERVICE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_CONFIG_ENTRY_ID): str,
         vol.Required(ATTR_URI): str,
-        vol.Optional(ATTR_PAGE): int,
     },
 )
 

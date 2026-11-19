@@ -349,7 +349,7 @@ class MassQueueActions:
         resp = await self._client.music.get_artist_tracks(item_id, provider)
         return [self.format_track_item(item.to_dict()) for item in resp]
 
-    async def get_album_tracks(self, album_uri: str, page: int | None = None):
+    async def get_album_tracks(self, album_uri: str):
         """Retrieves all tracks from an album."""
         details = await self.get_album_details(album_uri)
         mappings = list(details.provider_mappings)
@@ -361,11 +361,7 @@ class MassQueueActions:
         provider = mapping.provider_domain
         if provider.lower() == "none":
             provider = "library"
-        resp = (
-            await self._client.music.get_album_tracks(item_id, provider)
-            if not page
-            else await self._client.music.get_album_tracks(item_id, provider, page)
-        )
+        resp = await self._client.music.get_album_tracks(item_id, provider)
         return [self.format_track_item(item.to_dict()) for item in resp]
 
     async def get_similar_tracks(self, track_uri: str):
@@ -389,17 +385,13 @@ class MassQueueActions:
         formatted.sort(key=lambda x: x[ATTR_RELEASE_DATE], reverse=True)
         return formatted
 
-    async def get_playlist_tracks(self, playlist_uri: str, page: int | None = None):
+    async def get_playlist_tracks(self, playlist_uri: str):
         """Retrieves all playlist items."""
         provider, item_id = parse_uri(playlist_uri)
         LOGGER.debug(
             f"Getting playlist items for provider {provider}, item_id {item_id}",
         )
-        resp = (
-            await self._client.music.get_playlist_tracks(item_id, provider)
-            if not page
-            else await self._client.music.get_playlist_tracks(item_id, provider, page)
-        )
+        resp = await self._client.music.get_playlist_tracks(item_id, provider)
         return [self.format_playlist_track(item.to_dict()) for item in resp]
 
     def format_playlist_track(self, playlist_track: dict) -> TRACK_ITEM_SCHEMA:

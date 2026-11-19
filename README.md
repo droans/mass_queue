@@ -189,7 +189,6 @@ media_player.music_assistant_speaker:
 |-------------------|------|----------|---------|----------------------------------------------------------|
 | `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration              |
 | `uri`             | str  | Yes      | n/a     | The URI for the album                                    |
-| `page`            | int  | No       | None    | Page of results to return. If not provided, returns all. |
 
 ---
 ### Artists
@@ -206,7 +205,6 @@ media_player.music_assistant_speaker:
 |-------------------|------|----------|---------|----------------------------------------------------------|
 | `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration              |
 | `uri`             | str  | Yes      | n/a     | The URI for the artist                                   |
-| `page`            | int  | No       | None    | Page of results to return. If not provided, returns all. |
 
 `mass_queue.get_similar_artists`: Returns artists similar to the artist URI passed
 
@@ -230,7 +228,6 @@ media_player.music_assistant_speaker:
 |-------------------|------|----------|---------|----------------------------------------------------------|
 | `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration              |
 | `uri`             | str  | Yes      | n/a     | The URI for the playlist                                 |
-| `page`            | int  | No       | None    | Page of results to return. If not provided, returns all. |
 
 `mass_queue.remove_playlist_tracks`: Removes one or more tracks from a playlist based on their position. **IMPORTANT: SEE WARNING BELOW**
 
@@ -264,7 +261,6 @@ You must be **VERY** careful if you are using this action. You should **NOT** re
 |-------------------|------|----------|---------|----------------------------------------------------------|
 | `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration              |
 | `uri`             | str  | Yes      | n/a     | The URI for the podcast                                  |
-| `page`            | int  | No       | None    | Page of results to return. If not provided, returns all. |
 
 </details>
 
