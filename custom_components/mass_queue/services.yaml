@@ -253,15 +253,6 @@ get_playlist_tracks:
         text:
       example: "library://playlist/12"
       required: true
-    page:
-      selector:
-        number:
-          min: 0
-          max: 1000
-          step: 1
-          mode: box
-      required: false
-      example: 0
 get_album_tracks:
   fields:
     config_entry_id:
@@ -277,15 +268,6 @@ get_album_tracks:
         text:
       example: "library://album/12"
       required: true
-    page:
-      selector:
-        number:
-          min: 0
-          max: 1000
-          step: 1
-          mode: box
-      required: false
-      example: 0
 get_artist_tracks:
   fields:
     config_entry_id:
@@ -301,15 +283,6 @@ get_artist_tracks:
         text:
       example: "library://artist/12"
       required: true
-    page:
-      selector:
-        number:
-          min: 0
-          max: 1000
-          step: 1
-          mode: box
-      required: false
-      example: 0
 get_podcast_episodes:
   fields:
     config_entry_id:

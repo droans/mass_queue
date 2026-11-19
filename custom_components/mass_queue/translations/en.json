@@ -230,10 +230,6 @@
         "uri": {
           "name": "Playlist URI",
           "description": "URI for the playlist."
-        },
-        "page": {
-          "name": "Page",
-          "description": "Page of results to return. If not provided, returns all."
         }
       }
     },
@@ -248,10 +244,6 @@
         "uri": {
           "name": "Album URI",
           "description": "URI for the album."
-        },
-        "page": {
-          "name": "Page",
-          "description": "Page of results to return. If not provided, returns all."
         }
       }
     },
@@ -266,10 +258,6 @@
         "uri": {
           "name": "Artist URI",
           "description": "URI for the artist."
-        },
-        "page": {
-          "name": "Page",
-          "description": "Page of results to return. If not provided, returns all."
         }
       }
     },

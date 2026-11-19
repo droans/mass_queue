@@ -11,7 +11,6 @@ from homeassistant.core import (
 
 from .const import (
     ATTR_CONFIG_ENTRY_ID,
-    ATTR_PAGE,
     ATTR_PLAYER_ENTITY,
     ATTR_PLAYLIST_ID,
     ATTR_POSITIONS_TO_REMOVE,
@@ -384,12 +383,11 @@ async def get_album_tracks(call: ServiceCall):
     """Gets all tracks in an album."""
     config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
     uri = call.data[ATTR_URI]
-    page = call.data.get(ATTR_PAGE)
     hass = call.hass
     entry = hass.config_entries.async_get_entry(config_entry)
     actions = entry.runtime_data.actions
     return {
-        "tracks": await actions.get_album_tracks(uri, page),
+        "tracks": await actions.get_album_tracks(uri),
     }
 
 async def get_similar_tracks(call: ServiceCall):
@@ -419,12 +417,11 @@ async def get_playlist_tracks(call: ServiceCall):
     """Gets all tracks in a playlist."""
     config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
     uri = call.data[ATTR_URI]
-    page = call.data.get(ATTR_PAGE)
     hass = call.hass
     entry = hass.config_entries.async_get_entry(config_entry)
     actions = entry.runtime_data.actions
     return {
-        "tracks": await actions.get_playlist_tracks(uri, page),
+        "tracks": await actions.get_playlist_tracks(uri),
     }
 
 
