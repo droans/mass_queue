@@ -265,6 +265,10 @@ def process_recommendations(recs: list):
 
 def generate_image_url_from_image_data(image_data: dict, client):
     """Generates an image URL from `image_data`."""
+    if proxy_id := image_data.get("proxy_id"):
+        # Music Assistant 2.11+ serves images by opaque id only; the legacy
+        # `/imageproxy?provider=...&path=...` route no longer exists.
+        return f"{client.server_url}/imageproxy/{proxy_id}?size=256&fmt=png"
     img_path = image_data["path"]
     provider = image_data["provider"]
     base_url = "" if img_path.startswith("http") else client.server_url
