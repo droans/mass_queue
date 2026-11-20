@@ -411,6 +411,17 @@ async def get_artist_tracks(call: ServiceCall):
     }
 
 
+async def get_artist_top_tracks(call: ServiceCall):
+    """Gets the top tracks for an artist."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    uri = call.data[ATTR_URI]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    return {
+        "tracks": await actions.get_artist_top_tracks(uri),
+    }
+
 async def get_playlist_tracks(call: ServiceCall):
     """Gets all tracks in a playlist."""
     config_entry = call.data[ATTR_CONFIG_ENTRY_ID]

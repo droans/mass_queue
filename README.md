@@ -199,7 +199,17 @@ media_player.music_assistant_speaker:
 | `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration |
 | `uri`             | str  | Yes      | n/a     | The URI for the playlist                    |
 
-`mass_queue.get_artist_tracks`: Returns the top tracks for the artist given by the URI.
+`mass_queue.get_artist_tracks`: Returns tracks for the artist given by the URI.
+
+**NOTE**: As of recent, Music Assistant has been returning an empty list unless the URI points to the library and represents an artist with cached entries.
+Consider using `mass_queue.get_artist_top_tracks` instead.
+
+| Parameter         | Type | Required | Default | Description                                              |
+|-------------------|------|----------|---------|----------------------------------------------------------|
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration              |
+| `uri`             | str  | Yes      | n/a     | The URI for the artist                                   |
+
+`mass_queue.get_artist_top_tracks`: Returns the top tracks for the artist given by the URI.
 
 | Parameter         | Type | Required | Default | Description                                              |
 |-------------------|------|----------|---------|----------------------------------------------------------|
