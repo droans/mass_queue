@@ -283,6 +283,21 @@ get_artist_tracks:
         text:
       example: "library://artist/12"
       required: true
+get_artist_top_tracks:
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      required: true
+      selector:
+        config_entry:
+          integration: mass_queue
+    uri:
+      name: Artist URI
+      description: URI for the artist
+      selector:
+        text:
+      example: "library://artist/12"
+      required: true
 get_podcast_episodes:
   fields:
     config_entry_id:

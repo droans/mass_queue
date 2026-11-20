@@ -334,6 +334,31 @@ class MassQueueActions:
         LOGGER.debug(f"Getting podcast details for provider {provider}")
         return await self._client.music.get_podcast(item_id, provider)
 
+    async def get_artist_top_tracks(self, artist_uri: str):
+        """Retrieves the top tracks for an artist."""
+        details = await self.get_artist_details(artist_uri)
+        mappings = list(details.provider_mappings)
+        if not len(mappings) > 0:
+            msg = f"URI {artist_uri} returned no results!"
+            raise ProviderUnavailableError(msg)
+        mapping = mappings[0]
+        item_id = mapping.item_id
+        provider = mapping.provider_domain
+        if provider.lower() == "none":
+            provider = "library"
+        try:
+            resp = await self._client.music.top_tracks(item_id, provider)
+            data = [item.to_dict() for item in resp]
+            return [self.format_track_item(item.to_dict()) for item in resp]
+        except AttributeError:
+            # Older client version - use manual command.
+            data = await self._client.send_command(
+                "music/artists/top_tracks",
+                item_id=item_id,
+                provider_instance_id_or_domain=provider,
+            )
+            return [self.format_track_item(item) for item in data]
+
     async def get_artist_tracks(self, artist_uri: str):
         """Retrieves a limited number of tracks from an artist."""
         details = await self.get_artist_details(artist_uri)

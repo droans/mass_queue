@@ -51,8 +51,6 @@ from .schemas import (
     GET_GROUP_VOLUME_SERVICE_SCHEMA,
     GET_PODCAST_EPISODES_SERVICE_SCHEMA,
     GET_RECOMMENDATIONS_SERVICE_SCHEMA,
-    GET_SIMILAR_ARTISTS_SERVICE_SCHEMA,
-    GET_SIMILAR_TRACKS_SERVICE_SCHEMA,
     GET_TRACKS_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_DOWN_SERVICE_SCHEMA,
     MOVE_QUEUE_ITEM_NEXT_SERVICE_SCHEMA,
@@ -232,14 +230,14 @@ def register_actions(hass) -> None:
         DOMAIN,
         SERVICE_GET_SIMILAR_TRACKS,
         get_similar_tracks,
-        schema=GET_SIMILAR_TRACKS_SERVICE_SCHEMA,
+        schema=GET_TRACKS_SERVICE_SCHEMA,
         supports_response=SupportsResponse.ONLY,
     )
     hass.services.async_register(
         DOMAIN,
         SERVICE_GET_SIMILAR_ARTISTS,
         get_similar_artists,
-        schema=GET_SIMILAR_ARTISTS_SERVICE_SCHEMA,
+        schema=GET_TRACKS_SERVICE_SCHEMA,
         supports_response=SupportsResponse.ONLY,
     )
     hass.services.async_register(
@@ -412,6 +410,17 @@ async def get_artist_tracks(call: ServiceCall):
         "tracks": await actions.get_artist_tracks(uri),
     }
 
+
+async def get_artist_top_tracks(call: ServiceCall):
+    """Gets the top tracks for an artist."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    uri = call.data[ATTR_URI]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    return {
+        "tracks": await actions.get_artist_top_tracks(uri),
+    }
 
 async def get_playlist_tracks(call: ServiceCall):
     """Gets all tracks in a playlist."""
