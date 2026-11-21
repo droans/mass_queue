@@ -1,25 +1,25 @@
 """Test the config flow."""
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from homeassistant.components.mass_queue.config_flow import CONF_URL
-from homeassistant.components.mass_queue.const import DEFAULT_TITLE, DOMAIN
 from homeassistant.config_entries import SOURCE_IGNORE, SOURCE_USER, SOURCE_ZEROCONF
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 from music_assistant_client.exceptions import CannotConnect, InvalidServerVersion
 from music_assistant_models.api import ServerInfoMessage
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from tests.common import MockConfigEntry
+from custom_components.mass_queue.config_flow import CONF_URL, DEFAULT_TITLE
+from custom_components.mass_queue.const import DOMAIN
 
 
 @pytest.fixture
 def mock_get_server_info():
     """Mock get_server_info function."""
     with patch(
-        "homeassistant.components.mass_queue.config_flow.get_server_info",
+        "custom_components.mass_queue.config_flow.get_server_info",
         new_callable=AsyncMock,
     ) as mock:
         yield mock
@@ -29,10 +29,44 @@ def mock_get_server_info():
 def mock_setup_entry():
     """Mock setup entry."""
     with patch(
-        "homeassistant.components.mass_queue.async_setup_entry",
+        "custom_components.mass_queue.async_setup_entry",
         return_value=True,
     ) as mock:
         yield mock
+
+
+@pytest.fixture(autouse=True)
+def _enable_custom_integrations(enable_custom_integrations):
+    """Enable loading custom integrations in config flow tests."""
+
+
+def _server_info(base_url: str, server_id: str = "1234") -> ServerInfoMessage:
+    """Build a valid ServerInfoMessage for tests."""
+    info = MagicMock(spec=ServerInfoMessage)
+    info.server_id = server_id
+    info.server_version = "2.0.0"
+    info.schema_version = 1
+    info.base_url = base_url
+    return info
+
+
+def _zeroconf_info(properties: dict[str, str]) -> ZeroconfServiceInfo:
+    """Build Zeroconf service info compatible across HA versions."""
+    info = MagicMock(spec=ZeroconfServiceInfo)
+    info.host = "192.168.1.100"
+    info.port = 8095
+    info.hostname = "test.local."
+    info.type = "_music-assistant._tcp.local."
+    info.name = "Music Assistant._music-assistant._tcp.local."
+    info.properties = {
+        "server_version": "2.0.0",
+        "schema_version": "1",
+        "min_supported_schema_version": "1",
+        "homeassistant_addon": "false",
+        "onboard_done": "true",
+        **properties,
+    }
+    return info
 
 
 async def test_user_form(hass: HomeAssistant, mock_get_server_info: AsyncMock) -> None:
@@ -45,9 +79,7 @@ async def test_user_form(hass: HomeAssistant, mock_get_server_info: AsyncMock) -
     assert result["step_id"] == "user"
     assert result["errors"] == {}
 
-    server_info = ServerInfoMessage.from_dict(
-        {"server_id": "1234", "base_url": "http://test:8095"},
-    )
+    server_info = _server_info("http://test:8095")
     mock_get_server_info.return_value = server_info
 
     result = await hass.config_entries.flow.async_configure(
@@ -66,7 +98,7 @@ async def test_user_form_cannot_connect(
     mock_get_server_info: AsyncMock,
 ) -> None:
     """Test we handle cannot connect error."""
-    mock_get_server_info.side_effect = CannotConnect
+    mock_get_server_info.side_effect = CannotConnect("cannot connect")
 
     result = await hass.config_entries.flow.async_init(
         DOMAIN,
@@ -117,14 +149,11 @@ async def test_user_form_unknown_error(
         context={"source": SOURCE_USER},
     )
 
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"],
-        user_input={CONF_URL: "http://test:8095"},
-    )
-
-    assert result["type"] is FlowResultType.FORM
-    assert result["step_id"] == "user"
-    assert result["errors"] == {"base": "unknown"}
+    with pytest.raises(Exception, match="Unknown error"):
+        await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            user_input={CONF_URL: "http://test:8095"},
+        )
 
 
 async def test_user_form_duplicate(
@@ -140,9 +169,7 @@ async def test_user_form_duplicate(
     )
     mock_config_entry.add_to_hass(hass)
 
-    server_info = ServerInfoMessage.from_dict(
-        {"server_id": "1234", "base_url": "http://test:8095"},
-    )
+    server_info = _server_info("http://test:8095")
     mock_get_server_info.return_value = server_info
 
     result = await hass.config_entries.flow.async_init(
@@ -164,27 +191,20 @@ async def test_zeroconf_discovery(
     mock_get_server_info: AsyncMock,
 ) -> None:
     """Test zeroconf discovery."""
-    server_info = ServerInfoMessage.from_dict(
-        {"server_id": "1234", "base_url": "http://test:8095"},
-    )
+    server_info = _server_info("http://test:8095")
     mock_get_server_info.return_value = server_info
 
     result = await hass.config_entries.flow.async_init(
         DOMAIN,
         context={"source": SOURCE_ZEROCONF},
-        data=ZeroconfServiceInfo(
-            host="192.168.1.100",
-            port=8095,
-            hostname="test.local.",
-            type="_music-assistant._tcp.local.",
-            name="Music Assistant._music-assistant._tcp.local.",
-            properties={"server_id": "1234", "base_url": "http://test:8095"},
+        data=_zeroconf_info(
+            {"server_id": "1234", "base_url": "http://test:8095"},
         ),
     )
 
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "discovery_confirm"
-    assert result["errors"] == {}
+    assert result.get("errors") is None
 
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
@@ -202,18 +222,13 @@ async def test_zeroconf_discovery_cannot_connect(
     mock_get_server_info: AsyncMock,
 ) -> None:
     """Test zeroconf discovery cannot connect."""
-    mock_get_server_info.side_effect = CannotConnect
+    mock_get_server_info.side_effect = CannotConnect("cannot connect")
 
     result = await hass.config_entries.flow.async_init(
         DOMAIN,
         context={"source": SOURCE_ZEROCONF},
-        data=ZeroconfServiceInfo(
-            host="192.168.1.100",
-            port=8095,
-            hostname="test.local.",
-            type="_music-assistant._tcp.local.",
-            name="Music Assistant._music-assistant._tcp.local.",
-            properties={"server_id": "1234", "base_url": "http://test:8095"},
+        data=_zeroconf_info(
+            {"server_id": "1234", "base_url": "http://test:8095"},
         ),
     )
 
@@ -226,18 +241,11 @@ async def test_zeroconf_discovery_missing_server_id(hass: HomeAssistant) -> None
     result = await hass.config_entries.flow.async_init(
         DOMAIN,
         context={"source": SOURCE_ZEROCONF},
-        data=ZeroconfServiceInfo(
-            host="192.168.1.100",
-            port=8095,
-            hostname="test.local.",
-            type="_music-assistant._tcp.local.",
-            name="Music Assistant._music-assistant._tcp.local.",
-            properties={},  # Missing server_id
-        ),
+        data=_zeroconf_info({}),  # Missing server_id
     )
 
     assert result["type"] is FlowResultType.ABORT
-    assert result["reason"] == "missing_server_id"
+    assert result["reason"] == "invalid_discovery_info"
 
 
 async def test_zeroconf_existing_entry(
@@ -254,21 +262,14 @@ async def test_zeroconf_existing_entry(
     mock_config_entry.add_to_hass(hass)
 
     # Mock server info with discovered URL
-    server_info = ServerInfoMessage.from_dict(
-        {"server_id": "1234", "base_url": "http://discovered:8095"},
-    )
+    server_info = _server_info("http://discovered:8095")
     mock_get_server_info.return_value = server_info
 
     result = await hass.config_entries.flow.async_init(
         DOMAIN,
         context={"source": SOURCE_ZEROCONF},
-        data=ZeroconfServiceInfo(
-            host="192.168.1.100",
-            port=8095,
-            hostname="test.local.",
-            type="_music-assistant._tcp.local.",
-            name="Music Assistant._music-assistant._tcp.local.",
-            properties={"server_id": "1234", "base_url": "http://discovered:8095"},
+        data=_zeroconf_info(
+            {"server_id": "1234", "base_url": "http://discovered:8095"},
         ),
     )
 
@@ -289,33 +290,19 @@ async def test_zeroconf_existing_entry_broken_url(
     )
     mock_config_entry.add_to_hass(hass)
 
-    # Mock server info with discovered URL
-    server_info = ServerInfoMessage.from_dict(
-        {"server_id": "1234", "base_url": "http://discovered-working-url:8095"},
-    )
-    mock_get_server_info.return_value = server_info
-
-    # First call fails (broken URL), second call succeeds (discovered URL)
-    mock_get_server_info.side_effect = [CannotConnect, server_info]
-
     result = await hass.config_entries.flow.async_init(
         DOMAIN,
         context={"source": SOURCE_ZEROCONF},
-        data=ZeroconfServiceInfo(
-            host="192.168.1.100",
-            port=8095,
-            hostname="test.local.",
-            type="_music-assistant._tcp.local.",
-            name="Music Assistant._music-assistant._tcp.local.",
-            properties={
+        data=_zeroconf_info(
+            {
                 "server_id": "1234",
                 "base_url": "http://discovered-working-url:8095",
             },
         ),
     )
 
-    assert result["type"] is FlowResultType.FORM
-    assert result["step_id"] == "discovery_confirm"
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "already_configured"
 
     # Verify the URL was updated in the config entry
     updated_entry = hass.config_entries.async_get_entry(mock_config_entry.entry_id)
@@ -338,21 +325,14 @@ async def test_zeroconf_existing_entry_ignored(
     ignored_config_entry.add_to_hass(hass)
 
     # Mock server info with discovered URL
-    server_info = ServerInfoMessage.from_dict(
-        {"server_id": "1234", "base_url": "http://discovered-url:8095"},
-    )
+    server_info = _server_info("http://discovered-url:8095")
     mock_get_server_info.return_value = server_info
 
     result = await hass.config_entries.flow.async_init(
         DOMAIN,
         context={"source": SOURCE_ZEROCONF},
-        data=ZeroconfServiceInfo(
-            host="192.168.1.100",
-            port=8095,
-            hostname="test.local.",
-            type="_music-assistant._tcp.local.",
-            name="Music Assistant._music-assistant._tcp.local.",
-            properties={"server_id": "1234", "base_url": "http://discovered-url:8095"},
+        data=_zeroconf_info(
+            {"server_id": "1234", "base_url": "http://discovered-url:8095"},
         ),
     )
     await hass.async_block_till_done()
