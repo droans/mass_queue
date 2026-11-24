@@ -261,6 +261,20 @@
         }
       }
     },
+    "get_artist_albums": {
+      "name": "Get Artist Albums",
+      "description": "Returns the albums for the artist given.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry ID",
+          "description": "Config Entry ID for the Music Assistant Queue Items instance."
+        },
+        "uri": {
+          "name": "Artist URI",
+          "description": "URI for the artist."
+        }
+      }
+    },
     "get_artist_top_tracks": {
       "name": "Get Artist Top Tracks",
       "description": "Returns the top tracks for the artist given.",
