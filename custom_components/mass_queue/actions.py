@@ -115,7 +115,8 @@ class MassQueueActions:
         media_content_id = media["uri"]
         media_image = find_image(queue_item) or ""
         local_image_encoded = queue_item.get(ATTR_LOCAL_IMAGE_ENCODED)
-        favorite = media["favorite"]
+        # Music Assistant 2.11+ can return None for items not in the library
+        favorite = bool(media.get("favorite"))
 
         artists = media["artists"]
         artist_names = [artist["name"] for artist in artists]
@@ -497,7 +498,8 @@ class MassQueueActions:
         media_content_id = media_item["uri"]
         media_image = find_image(media_item) or ""
         local_image_encoded = media_item.get(ATTR_LOCAL_IMAGE_ENCODED)
-        favorite = media_item["favorite"]
+        # Music Assistant 2.11+ can return None for items not in the library
+        favorite = bool(media_item.get("favorite"))
         duration = media_item.get("duration") or 0
         response: ServiceResponse = TRACK_ITEM_SCHEMA(
             {
