@@ -5,6 +5,7 @@
     "get_artist": { "service": "mdi:account-music"},
     "get_artist_albums": { "service": "mdi:album"},
     "get_artist_top_tracks": { "service": "mdi:account-music"},
+    "get_artist_top_albums": { "service": "mdi:album"},
     "get_artist_tracks": { "service": "mdi:account-music"},
     "get_playlist": { "service": "mdi:playlist-music"},
     "get_playlist_tracks": { "service": "mdi:playlist-music"},

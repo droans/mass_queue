@@ -223,6 +223,13 @@ Consider using `mass_queue.get_artist_top_tracks` instead.
 | `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration              |
 | `uri`             | str  | Yes      | n/a     | The URI for the artist                                   |
 
+`mass_queue.get_artist_top_albums`: Returns the top albums for the artist given by the URI.
+
+| Parameter         | Type | Required | Default | Description                                              |
+|-------------------|------|----------|---------|----------------------------------------------------------|
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration              |
+| `uri`             | str  | Yes      | n/a     | The URI for the artist                                   |
+
 `mass_queue.get_similar_artists`: Returns artists similar to the artist URI passed
 
 | Parameter         | Type | Required | Default | Description                                              |

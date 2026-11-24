@@ -326,7 +326,7 @@ class MassQueueActions:
     async def get_playlist_details(self, playlist_uri):
         """Retrieves the details for a playlist."""
         provider, item_id = parse_uri(playlist_uri)
-        LOGGER.debug(f"Getting album details for provider {provider}")
+        LOGGER.debug(f"Getting playlist details for provider {provider}")
         return await self._client.music.get_playlist(item_id, provider)
 
     async def get_podcast_details(self, podcast_uri):
@@ -375,6 +375,29 @@ class MassQueueActions:
         try:
             resp = await self._client.music.get_artist_albums(item_id, provider)
             return [item.to_dict() for item in resp]
+        except AttributeError:
+            # Older client version - use manual command.
+            return await self._client.send_command(
+                "music/artists/top_albums",
+                item_id=item_id,
+                provider_instance_id_or_domain=provider,
+            )
+
+    async def get_artist_top_albums(self, artist_uri: str):
+        """Retrieves the top albums for an artist."""
+        details = await self.get_artist_details(artist_uri)
+        mappings = list(details.provider_mappings)
+        if not len(mappings) > 0:
+            msg = f"URI {artist_uri} returned no results!"
+            raise ProviderUnavailableError(msg)
+        mapping = mappings[0]
+        item_id = mapping.item_id
+        provider = mapping.provider_domain
+        if provider.lower() == "none":
+            provider = "library"
+        try:
+            resp = await self._client.music.top_albums(item_id, provider)
+            return [self.format_track_item(item.to_dict()) for item in resp]
         except AttributeError:
             # Older client version - use manual command.
             return await self._client.send_command(
@@ -477,7 +500,7 @@ class MassQueueActions:
         local_image_encoded = media_item.get(ATTR_LOCAL_IMAGE_ENCODED)
         # Music Assistant 2.11+ can return None for items not in the library
         favorite = bool(media_item.get("favorite"))
-        duration = media_item["duration"] or 0
+        duration = media_item.get("duration") or 0
         response: ServiceResponse = TRACK_ITEM_SCHEMA(
             {
                 ATTR_MEDIA_TITLE: media_title,

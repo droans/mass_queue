@@ -23,6 +23,8 @@ from .const import (
     SERVICE_GET_ALBUM_TRACKS,
     SERVICE_GET_ARTIST,
     SERVICE_GET_ARTIST_ALBUMS,
+    SERVICE_GET_ARTIST_TOP_ALBUMS,
+    SERVICE_GET_ARTIST_TOP_TRACKS,
     SERVICE_GET_ARTIST_TRACKS,
     SERVICE_GET_GROUP_VOLUME,
     SERVICE_GET_PLAYLIST,
@@ -173,8 +175,22 @@ def register_actions(hass) -> None:
     )
     hass.services.async_register(
         DOMAIN,
+        SERVICE_GET_ARTIST_TOP_ALBUMS,
+        get_artist_top_albums,
+        schema=GET_TRACKS_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
         SERVICE_GET_ARTIST_ALBUMS,
         get_artist_albums,
+        schema=GET_TRACKS_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_ARTIST_TOP_TRACKS,
+        get_artist_top_tracks,
         schema=GET_TRACKS_SERVICE_SCHEMA,
         supports_response=SupportsResponse.ONLY,
     )
@@ -429,6 +445,16 @@ async def get_artist_albums(call: ServiceCall):
         "albums": await actions.get_artist_albums(uri),
     }
 
+async def get_artist_top_albums(call: ServiceCall):
+    """Gets the top albums for an artist."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    uri = call.data[ATTR_URI]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    return {
+        "albums": await actions.get_artist_top_albums(uri),
+    }
 
 async def get_artist_top_tracks(call: ServiceCall):
     """Gets the top tracks for an artist."""
