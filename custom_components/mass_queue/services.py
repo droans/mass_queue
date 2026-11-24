@@ -24,6 +24,7 @@ from .const import (
     SERVICE_GET_ARTIST,
     SERVICE_GET_ARTIST_ALBUMS,
     SERVICE_GET_ARTIST_TOP_ALBUMS,
+    SERVICE_GET_ARTIST_TOP_TRACKS,
     SERVICE_GET_ARTIST_TRACKS,
     SERVICE_GET_GROUP_VOLUME,
     SERVICE_GET_PLAYLIST,
@@ -183,6 +184,13 @@ def register_actions(hass) -> None:
         DOMAIN,
         SERVICE_GET_ARTIST_ALBUMS,
         get_artist_albums,
+        schema=GET_TRACKS_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_ARTIST_TOP_TRACKS,
+        get_artist_top_tracks,
         schema=GET_TRACKS_SERVICE_SCHEMA,
         supports_response=SupportsResponse.ONLY,
     )
