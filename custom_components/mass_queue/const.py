@@ -18,6 +18,7 @@ SERVICE_GET_ARTIST_ALBUMS = "get_artist_albums"
 SERVICE_GET_ARTIST_TOP_ALBUMS = "get_artist_top_albums"
 SERVICE_GET_ARTIST_TOP_TRACKS = "get_artist_top_tracks"
 SERVICE_GET_ARTIST_TRACKS = "get_artist_tracks"
+SERVICE_GET_DYNAMIC_PLAYLIST = "get_dynamic_playlist"
 SERVICE_GET_PLAYLIST = "get_playlist"
 SERVICE_GET_PLAYLIST_TRACKS = "get_playlist_tracks"
 SERVICE_GET_PODCAST = "get_podcast"
@@ -70,6 +71,7 @@ ATTR_USER = "user"
 ATTR_VOLUME_LEVEL = "volume_level"
 
 CONF_DOWNLOAD_LOCAL = "download_local"
+DYNAMIC_PLAYLIST_PROVIDER_ID = "radio_playlist"
 
 LOGGER = logging.getLogger(__package__)
 

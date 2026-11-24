@@ -7,6 +7,7 @@
     "get_artist_top_tracks": { "service": "mdi:account-music"},
     "get_artist_top_albums": { "service": "mdi:album"},
     "get_artist_tracks": { "service": "mdi:account-music"},
+    "get_dynamic_playlist": { "service": "mdi:playlist-star"},
     "get_playlist": { "service": "mdi:playlist-music"},
     "get_playlist_tracks": { "service": "mdi:playlist-music"},
     "get_podcast": { "service": "mdi:podcast"},

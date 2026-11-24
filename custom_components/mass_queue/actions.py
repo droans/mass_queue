@@ -47,6 +47,7 @@ from .const import (
     CONF_DOWNLOAD_LOCAL,
     DEFAULT_QUEUE_ITEMS_LIMIT,
     DEFAULT_QUEUE_ITEMS_OFFSET,
+    DYNAMIC_PLAYLIST_PROVIDER_ID,
     LOGGER,
 )
 from .controller import MassQueueController
@@ -328,6 +329,11 @@ class MassQueueActions:
         provider, item_id = parse_uri(playlist_uri)
         LOGGER.debug(f"Getting playlist details for provider {provider}")
         return await self._client.music.get_playlist(item_id, provider)
+
+    async def get_dynamic_playlist_details(self, uri: str):
+        """Retrieves the details for a dynamic playlist."""
+        LOGGER.debug(f"Getting dynamic playlist for URI {uri}")
+        return await self._client.music.get_playlist(uri, DYNAMIC_PLAYLIST_PROVIDER_ID)
 
     async def get_podcast_details(self, podcast_uri):
         """Retrieves the details for a podcast."""
