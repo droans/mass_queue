@@ -261,6 +261,20 @@ Consider using `mass_queue.get_artist_top_tracks` instead.
 | `playlist_id`         | str         | Yes      | n/a     | The ID of the playlist                            |
 | `positions_to_remove` | list of str | Yes      | n/a     | Position(s) of items to remove from the playlist. |
 
+`mass_queue.get_dynamic_playlist`: Returns information about a dynamic playlist generated from a media item from the MA server.
+
+| Parameter         | Type | Required | Default | Description                                          |
+|-------------------|------|----------|---------|------------------------------------------------------|
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration          |
+| `uri`             | str  | Yes      | n/a     | The URI for media item used for the dynamic playlist |
+
+`mass_queue.get_dynamic_playlist_tracks`: Returns some or all tracks for the dynamic playlist for the media item given by the URI.
+
+| Parameter         | Type | Required | Default | Description                                          |
+|-------------------|------|----------|---------|------------------------------------------------------|
+| `config_entry_id` | str  | No       | None    | The ID of the used `mass_queue` integration          |
+| `uri`             | str  | Yes      | n/a     | The URI for media item used for the dynamic playlist |
+
 ### ⚠️WARNING: mass_queue.remove_playlist_tracks is bad for your health.⚠️
 
 `mass_queue.remove_playlist_tracks` is **dangerous**.
