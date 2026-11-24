@@ -498,7 +498,7 @@ class MassQueueActions:
         media_image = find_image(media_item) or ""
         local_image_encoded = media_item.get(ATTR_LOCAL_IMAGE_ENCODED)
         favorite = media_item["favorite"]
-        duration = media_item["duration"] or 0
+        duration = media_item.get("duration") or 0
         response: ServiceResponse = TRACK_ITEM_SCHEMA(
             {
                 ATTR_MEDIA_TITLE: media_title,
