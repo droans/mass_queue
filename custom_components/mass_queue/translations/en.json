@@ -415,6 +415,20 @@
         }
       }
     },
+    "get_dynamic_playlist_tracks": {
+      "name": "Get Dynamic Playlist Tracks",
+      "description": "Get the tracks for a dynamic playlist generated from the passed media URI.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry ID",
+          "description": "Config Entry ID for the Music Assistant Queue Items instance."
+        },
+        "uri": {
+          "name": "URI",
+          "description": "URI for the media item to generate a dynamic playlist for."
+        }
+      }
+    },
     "set_crossfade": {
       "name": "Set crossfade",
       "description": "Enable/disable crossfade for a player.",

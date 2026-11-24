@@ -451,6 +451,13 @@ class MassQueueActions:
         resp: list = await self._client.music.similar_tracks(item_id=item_id, provider_instance_id_or_domain=provider)
         return [self.format_track_item(item.to_dict()) for item in resp]
 
+    async def get_dynamic_playlist_tracks(self, uri: str):
+        """Retrieve a dynamic playlist for the given URI."""
+        LOGGER.debug(
+            f"Generating a dynamic playlist for to {uri}",
+        )
+        resp: list = await self._client.music.get_playlist_tracks(item_id=uri, provider_instance_id_or_domain=DYNAMIC_PLAYLIST_PROVIDER_ID)
+        return [self.format_track_item(item.to_dict()) for item in resp]
 
     async def get_podcast_episodes(self, podcast_uri):
         """Retrieves all episodes for a podcast."""
