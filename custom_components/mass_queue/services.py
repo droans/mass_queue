@@ -26,6 +26,8 @@ from .const import (
     SERVICE_GET_ARTIST_TOP_ALBUMS,
     SERVICE_GET_ARTIST_TOP_TRACKS,
     SERVICE_GET_ARTIST_TRACKS,
+    SERVICE_GET_DYNAMIC_PLAYLIST,
+    SERVICE_GET_DYNAMIC_PLAYLIST_TRACKS,
     SERVICE_GET_GROUP_VOLUME,
     SERVICE_GET_PLAYLIST,
     SERVICE_GET_PLAYLIST_TRACKS,
@@ -226,6 +228,20 @@ def register_actions(hass) -> None:
         DOMAIN,
         SERVICE_GET_PLAYLIST,
         get_playlist,
+        schema=GET_DATA_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_DYNAMIC_PLAYLIST,
+        get_dynamic_playlist,
+        schema=GET_DATA_SERVICE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_DYNAMIC_PLAYLIST_TRACKS,
+        get_dynamic_playlist_tracks,
         schema=GET_DATA_SERVICE_SCHEMA,
         supports_response=SupportsResponse.ONLY,
     )
@@ -467,6 +483,17 @@ async def get_artist_top_tracks(call: ServiceCall):
         "tracks": await actions.get_artist_top_tracks(uri),
     }
 
+async def get_dynamic_playlist_tracks(call: ServiceCall):
+    """Gets all tracks in a dynamic playlist."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    uri = call.data[ATTR_URI]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    return {
+        "tracks": await actions.get_dynamic_playlist_tracks(uri),
+    }
+
 async def get_playlist_tracks(call: ServiceCall):
     """Gets all tracks in a playlist."""
     config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
@@ -520,6 +547,15 @@ async def get_similar_artists(call: ServiceCall):
     return {
         "artists": await actions.get_similar_artists(uri),
     }
+
+async def get_dynamic_playlist(call: ServiceCall):
+    """Returns the details about a dynamic playlist from the server."""
+    config_entry = call.data[ATTR_CONFIG_ENTRY_ID]
+    uri = call.data[ATTR_URI]
+    hass = call.hass
+    entry = hass.config_entries.async_get_entry(config_entry)
+    actions = entry.runtime_data.actions
+    return (await actions.get_dynamic_playlist_details(uri)).to_dict()
 
 async def get_playlist(call: ServiceCall):
     """Returns the details about a playlist from the server."""
