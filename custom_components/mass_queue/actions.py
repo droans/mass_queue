@@ -325,7 +325,7 @@ class MassQueueActions:
     async def get_playlist_details(self, playlist_uri):
         """Retrieves the details for a playlist."""
         provider, item_id = parse_uri(playlist_uri)
-        LOGGER.debug(f"Getting album details for provider {provider}")
+        LOGGER.debug(f"Getting playlist details for provider {provider}")
         return await self._client.music.get_playlist(item_id, provider)
 
     async def get_podcast_details(self, podcast_uri):
