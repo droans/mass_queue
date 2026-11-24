@@ -341,6 +341,20 @@
         }
       }
     },
+    "get_artist_top_albums": {
+      "name": "Get Artist Top Albums",
+      "description": "Returns the top albums for the artist given.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry ID",
+          "description": "Config Entry ID for the Music Assistant Queue Items instance."
+        },
+        "uri": {
+          "name": "Artist URI",
+          "description": "URI for the artist."
+        }
+      }
+    },
     "get_podcast_episodes": {
       "name": "Get Podcast Episodes",
       "description": "Returns all episodes for the podcast given.",
