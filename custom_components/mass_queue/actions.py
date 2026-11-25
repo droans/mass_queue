@@ -414,6 +414,15 @@ class MassQueueActions:
 
     async def get_artist_tracks(self, artist_uri: str):
         """Retrieves a limited number of tracks from an artist."""
+        provider, item_id = parse_uri(artist_uri)
+        if provider == "library":
+            # Ask the library first: the server answers a library item with the
+            # in-library tracks of all the artist's providers. A single provider
+            # mapping returns nothing when that provider cannot list an artist's
+            # tracks, which is the case for local files.
+            resp = await self._client.music.get_artist_tracks(item_id, provider)
+            if resp:
+                return [self.format_track_item(item.to_dict()) for item in resp]
         details = await self.get_artist_details(artist_uri)
         mappings = list(details.provider_mappings)
         if not len(mappings) > 0:
